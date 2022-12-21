@@ -34,6 +34,8 @@ namespace WindowsFormsApp1
 
         public override void FindDevices()
         {
+            MainPage.Log($"Enumeration started. Scanning for devices...", NotifyType.StatusMessage);
+
             Status = Windows.Devices.WiFiDirect.WiFiDirectAdvertisementPublisherStatus.Created;
             // Request additional properties
             string[] requestedProperties = new string[] { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
@@ -49,7 +51,7 @@ namespace WindowsFormsApp1
                 {
                     ResultCollection.TryAdd(deviceInfo.Id, deviceInfo);
                     
-                    MainPage.NotifyUser($"{deviceInfo.Id}, {deviceInfo.Name} (device info added)", NotifyType.StatusMessage);
+                    MainPage.Log($"{deviceInfo.Id}, {deviceInfo.Name} (device info added)", NotifyType.StatusMessage);
                 }
             });
 
@@ -59,7 +61,7 @@ namespace WindowsFormsApp1
                 {
                     rfcommInfoDisp.Update(deviceInfoUpdate);
 
-                    MainPage.NotifyUser($"{rfcommInfoDisp.Id}, {rfcommInfoDisp.Name} (device info updated)", NotifyType.StatusMessage);
+                    MainPage.Log($"{rfcommInfoDisp.Id}, {rfcommInfoDisp.Name} (device info updated)", NotifyType.StatusMessage);
                 }
             });
 
@@ -67,15 +69,13 @@ namespace WindowsFormsApp1
             {
                 if (ResultCollection.TryRemove(deviceInfoUpdate.Id, out var rfcommInfoDisp))
                 {
-                    MainPage.NotifyUser($"{rfcommInfoDisp.Id}, {rfcommInfoDisp.Name} (device info removed)", NotifyType.StatusMessage);
+                    MainPage.Log($"{rfcommInfoDisp.Id}, {rfcommInfoDisp.Name} (device info removed)", NotifyType.StatusMessage);
                 }
             });
 
             deviceWatcher.EnumerationCompleted += new TypedEventHandler<DeviceWatcher, Object>( (watcher, obj) =>
             {
-                MainPage.NotifyUser(
-                        String.Format("{0} devices found. Enumeration completed. Scanning for service...", ResultCollection.Count),
-                        NotifyType.StatusMessage);
+                MainPage.Log($"{ResultCollection.Count} devices found. Enumeration completed. Scanning for service...", NotifyType.StatusMessage);
 
                 DataReader chatReader = null;
 
@@ -85,7 +85,7 @@ namespace WindowsFormsApp1
                     
                     if (chatReader != null)
                     {
-                        MainPage.NotifyUser($"Connecting to {deviceInfo.Name}...", NotifyType.StatusMessage);
+                        MainPage.Log($"Connecting to {deviceInfo.Name}...", NotifyType.StatusMessage);
 
                         ReceiveStringLoop(chatReader);
                         Status = WiFiDirectAdvertisementPublisherStatus.Started;
@@ -97,7 +97,7 @@ namespace WindowsFormsApp1
 
                 if (chatReader == null)
                 {
-                    MainPage.NotifyUser($"Could not discover the {SdpServiceName}", NotifyType.StatusMessage);
+                    MainPage.Log($"Could not discover the {SdpServiceName}", NotifyType.StatusMessage);
                     // ResetMainUI();
                     Status = WiFiDirectAdvertisementPublisherStatus.Stopped;
                 }
@@ -116,11 +116,11 @@ namespace WindowsFormsApp1
             // Make sure user has selected a device first
             if (deviceInfoDisp != null)
             {
-                MainPage.NotifyUser($"Testing remote device {deviceInfoDisp.Name} for presence of {SdpServiceName}...", NotifyType.StatusMessage);
+                MainPage.Log($"Testing remote device {deviceInfoDisp.Name} for presence of {SdpServiceName}...", NotifyType.StatusMessage);
             }
             else
             {
-                MainPage.NotifyUser("Please select an item to connect to", NotifyType.ErrorMessage);
+                MainPage.Log("Please select an item to connect to", NotifyType.ErrorMessage);
                 return null;
             }
 
@@ -131,7 +131,7 @@ namespace WindowsFormsApp1
             DeviceAccessStatus accessStatus = DeviceAccessInformation.CreateFromId(deviceInfoDisp.Id).CurrentStatus;
             if (accessStatus == DeviceAccessStatus.DeniedByUser)
             {
-                MainPage.NotifyUser("This app does not have access to connect to the remote device (please grant access in Settings > Privacy > Other Devices", NotifyType.ErrorMessage);
+                MainPage.Log("This app does not have access to connect to the remote device (please grant access in Settings > Privacy > Other Devices", NotifyType.ErrorMessage);
                 return null;
             }
             // If not, try to get the Bluetooth device
@@ -141,7 +141,7 @@ namespace WindowsFormsApp1
             }
             catch (Exception ex)
             {
-                MainPage.NotifyUser(ex.Message, NotifyType.ErrorMessage);
+                MainPage.Log(ex);
                 //   ResetMainUI();
                 return null;
             }
@@ -150,7 +150,7 @@ namespace WindowsFormsApp1
             // should not be interacted with.
             if (bluetoothDevice == null)
             {
-                MainPage.NotifyUser("Bluetooth Device returned null. Access Status = " + accessStatus.ToString(), NotifyType.ErrorMessage);
+                MainPage.Log("Bluetooth Device returned null. Access Status = " + accessStatus.ToString(), NotifyType.ErrorMessage);
             }
 
             // This should return a list of uncached Bluetooth services (so if the server was not active when paired, it will still be detected by this call
@@ -170,7 +170,7 @@ namespace WindowsFormsApp1
             var attributes = await chatService.GetSdpRawAttributesAsync();
             if (!attributes.ContainsKey(SdpServiceNameAttributeId))
             {
-                MainPage.NotifyUser(
+                MainPage.Log(
                     "The Chat service is not advertising the Service Name attribute (attribute id=0x100). " +
                     "Please verify that you are running the BluetoothRfcommChat server.",
                     NotifyType.ErrorMessage);
@@ -181,7 +181,7 @@ namespace WindowsFormsApp1
             var attributeType = attributeReader.ReadByte();
             if (attributeType != SdpServiceNameAttributeType)
             {
-                MainPage.NotifyUser(
+                MainPage.Log(
                     "The Chat service is using an unexpected format for the Service Name attribute. " +
                     "Please verify that you are running the BluetoothRfcommChat server.",
                     NotifyType.ErrorMessage);
@@ -212,12 +212,12 @@ namespace WindowsFormsApp1
             }
             catch (Exception ex) when ((uint)ex.HResult == 0x80070490) // ERROR_ELEMENT_NOT_FOUND
             {
-                MainPage.NotifyUser("Please verify that you are running the BluetoothRfcommChat server.", NotifyType.ErrorMessage);
+                MainPage.Log("Please verify that you are running the BluetoothRfcommChat server.", NotifyType.ErrorMessage);
              //   ResetMainUI();
             }
             catch (Exception ex) when ((uint)ex.HResult == 0x80072740) // WSAEADDRINUSE
             {
-                MainPage.NotifyUser("Please verify that there is no other RFCOMM connection to the same device.", NotifyType.ErrorMessage);
+                MainPage.Log("Please verify that there is no other RFCOMM connection to the same device.", NotifyType.ErrorMessage);
               //  ResetMainUI();
             }
             return null;
@@ -267,9 +267,9 @@ namespace WindowsFormsApp1
                     {
                         // Do not print anything here -  the user closed the socket.
                         if ((uint)ex.HResult == 0x80072745)
-                            MainPage.NotifyUser("Disconnect triggered by remote device", NotifyType.StatusMessage);
+                            MainPage.Log("Disconnect triggered by remote device", NotifyType.StatusMessage);
                         else if ((uint)ex.HResult == 0x800703E3)
-                            MainPage.NotifyUser("The I/O operation has been aborted because of either a thread exit or an application request.", NotifyType.StatusMessage);
+                            MainPage.Log("The I/O operation has been aborted because of either a thread exit or an application request.", NotifyType.StatusMessage);
                     }
                     else
                     {
@@ -306,7 +306,7 @@ namespace WindowsFormsApp1
                 }
             }
 
-            MainPage.NotifyUser(disconnectReason, NotifyType.StatusMessage);
+            MainPage.Log(disconnectReason, NotifyType.StatusMessage);
             //ResetMainUI();
         
             Status = WiFiDirectAdvertisementPublisherStatus.Stopped;

@@ -74,7 +74,7 @@ namespace WindowsFormsApp1
 
             if (result.Status != DevicePairingResultStatus.Paired)
             {                
-                MainPage.NotifyUser($"PairAsync failed, Status: {result.Status}", NotifyType.ErrorMessage);
+                MainPage.Log($"PairAsync failed, Status: {result.Status}", NotifyType.ErrorMessage);
                 return false;
             }
             return true;

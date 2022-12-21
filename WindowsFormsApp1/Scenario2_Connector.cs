@@ -71,7 +71,7 @@ namespace WindowsFormsApp1
                 //}
 
                 DiscoveredDevices.Clear();
-                MainPage.NotifyUser("Finding Devices...", NotifyType.StatusMessage);
+                MainPage.Log("Finding Devices...", NotifyType.StatusMessage);
 
                 String deviceSelector = WiFiDirectDevice.GetDeviceSelector(
                     Utils.GetSelectedItemTag<WiFiDirectDeviceSelectorType>(cmbDeviceSelector));
@@ -97,7 +97,7 @@ namespace WindowsFormsApp1
 
                 StopWatcher();
 
-                MainPage.NotifyUser("Device watcher stopped.", NotifyType.StatusMessage);
+                MainPage.Log("Device watcher stopped.", NotifyType.StatusMessage);
             }
 
             updateForm();
@@ -173,12 +173,12 @@ namespace WindowsFormsApp1
 
         private void OnEnumerationCompleted(DeviceWatcher deviceWatcher, object o)
         {
-            MainPage.NotifyUserFromBackground("DeviceWatcher enumeration completed", NotifyType.StatusMessage);
+            MainPage.Log("DeviceWatcher enumeration completed", NotifyType.StatusMessage);
         }
 
         private void OnStopped(DeviceWatcher deviceWatcher, object o)
         {
-            MainPage.NotifyUserFromBackground("DeviceWatcher stopped", NotifyType.StatusMessage);
+            MainPage.Log("DeviceWatcher stopped", NotifyType.StatusMessage);
         }
         #endregion
 
@@ -193,7 +193,7 @@ namespace WindowsFormsApp1
             }
             catch (Exception ex)
             {
-                MainPage.NotifyUser("No Information element found: " + ex.Message, NotifyType.ErrorMessage);
+                MainPage.Log("No Information element found: " + ex.Message, NotifyType.ErrorMessage);
             }
 
             if (informationElements != null)
@@ -246,7 +246,7 @@ namespace WindowsFormsApp1
 
                 message.Write($"Information elements found: {informationElements.Count}");
 
-                MainPage.NotifyUser(message.ToString(), NotifyType.StatusMessage);
+                MainPage.Log(message.ToString(), NotifyType.StatusMessage);
             }
 
             updateForm();
@@ -258,11 +258,11 @@ namespace WindowsFormsApp1
 
             if (discoveredDevice == null)
             {
-                MainPage.NotifyUser("No device selected, please select one.", NotifyType.ErrorMessage);
+                MainPage.Log("No device selected, please select one.", NotifyType.ErrorMessage);
                 return;
             }
 
-            MainPage.NotifyUser($"Connecting to {discoveredDevice.DeviceInfo.Name}...", NotifyType.StatusMessage);
+            MainPage.Log($"Connecting to {discoveredDevice.DeviceInfo.Name}...", NotifyType.StatusMessage);
 
             if (!discoveredDevice.DeviceInfo.Pairing.IsPaired)
             {
@@ -280,7 +280,7 @@ namespace WindowsFormsApp1
             }
             catch (TaskCanceledException)
             {
-                MainPage.NotifyUser("FromIdAsync was canceled by user", NotifyType.ErrorMessage);
+                MainPage.Log("FromIdAsync was canceled by user", NotifyType.ErrorMessage);
                 return;
             }
 
@@ -290,7 +290,7 @@ namespace WindowsFormsApp1
             IReadOnlyList<EndpointPair> endpointPairs = wfdDevice.GetConnectionEndpointPairs();
             HostName remoteHostName = endpointPairs[0].RemoteHostName;
 
-            MainPage.NotifyUser($"Devices connected on L2 layer, connecting to IP Address: {remoteHostName} Port: {Globals.strServerPort}",
+            MainPage.Log($"Devices connected on L2 layer, connecting to IP Address: {remoteHostName} Port: {Globals.strServerPort}",
                 NotifyType.StatusMessage);
 
             // Wait for server to start listening on a socket
@@ -301,11 +301,11 @@ namespace WindowsFormsApp1
             try
             {
                 await clientSocket.ConnectAsync(remoteHostName, Globals.strServerPort);
-                MainPage.NotifyUser("Connected with remote side on L4 layer", NotifyType.StatusMessage);
+                MainPage.Log("Connected with remote side on L4 layer", NotifyType.StatusMessage);
             }
             catch (Exception ex)
             {
-                MainPage.NotifyUser($"Connect operation threw an exception: {ex.Message}", NotifyType.ErrorMessage);
+                MainPage.Log($"Connect operation threw an exception: {ex.Message}", NotifyType.ErrorMessage);
                 return;
             }
 
@@ -328,7 +328,7 @@ namespace WindowsFormsApp1
 
         private void OnConnectionStatusChanged(WiFiDirectDevice sender, object arg)
         {
-            MainPage.NotifyUserFromBackground($"Connection status changed: {sender.ConnectionStatus}", NotifyType.StatusMessage);
+            MainPage.Log($"Connection status changed: {sender.ConnectionStatus}", NotifyType.StatusMessage);
         }
 
         private async void btnSendMessage_Click(object sender, EventArgs e)
@@ -351,7 +351,7 @@ namespace WindowsFormsApp1
             var discoveredDevice = (DiscoveredDevice)lvDiscoveredDevices.SelectedItem;
 
             DeviceUnpairingResult result = await discoveredDevice.DeviceInfo.Pairing.UnpairAsync();
-            MainPage.NotifyUser($"Unpair result: {result.Status}", NotifyType.StatusMessage);
+            MainPage.Log($"Unpair result: {result.Status}", NotifyType.StatusMessage);
 
             updateForm();
         }

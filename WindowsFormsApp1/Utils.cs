@@ -172,7 +172,7 @@ namespace SDKTemplate
             catch (Exception ex) when ((uint)ex.HResult == 0x80072745)
             {
                 // The remote device has disconnected the connection
-                MainPage.NotifyUser("Remote side disconnect: " + ex.HResult.ToString() + " - " + ex.Message,
+                MainPage.Log("Remote side disconnect: " + ex.HResult.ToString() + " - " + ex.Message,
                     NotifyType.StatusMessage);
             }
         }

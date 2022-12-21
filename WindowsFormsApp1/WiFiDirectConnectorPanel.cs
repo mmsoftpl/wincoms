@@ -53,7 +53,7 @@ namespace WindowsFormsApp1
             //    return;
             //}
 
-            MainPage.NotifyUser("Finding Devices...", NotifyType.StatusMessage);
+            MainPage.Log("Finding Devices...", NotifyType.StatusMessage);
             DDevice = null;
             CDevice = null;
             DiscoveredDevices = new ConcurrentDictionary<string, DiscoveredDevice>();
@@ -88,7 +88,7 @@ namespace WindowsFormsApp1
         {
             if (DiscoveredDevices.TryAdd(deviceInfo.Id, new DiscoveredDevice(deviceInfo)))
             {
-                MainPage.NotifyUser($"Added device [{deviceInfo.Id}]", NotifyType.StatusMessage);
+                MainPage.Log($"Added device [{deviceInfo.Id}]", NotifyType.StatusMessage);
             }
             UpdateControls();
         }
@@ -97,7 +97,7 @@ namespace WindowsFormsApp1
         {
             if (DiscoveredDevices.TryRemove(deviceInfoUpdate.Id, out _))
             {
-                MainPage.NotifyUser($"Removed device [{deviceInfoUpdate.Id}]", NotifyType.StatusMessage);
+                MainPage.Log($"Removed device [{deviceInfoUpdate.Id}]", NotifyType.StatusMessage);
             }
             UpdateControls();
         }
@@ -107,14 +107,14 @@ namespace WindowsFormsApp1
             if (DiscoveredDevices.TryGetValue(deviceInfoUpdate.Id, out var discoveredDevice))
             {
                 discoveredDevice.UpdateDeviceInfo(deviceInfoUpdate);
-                MainPage.NotifyUser($"Updated device [{deviceInfoUpdate.Id}]", NotifyType.StatusMessage);
+                MainPage.Log($"Updated device [{deviceInfoUpdate.Id}]", NotifyType.StatusMessage);
             }
             UpdateControls();
         }
 
         private void OnEnumerationCompleted(DeviceWatcher deviceWatcher, object o)
         {
-            MainPage.NotifyUserFromBackground("DeviceWatcher enumeration completed", NotifyType.StatusMessage);
+            MainPage.Log("DeviceWatcher enumeration completed", NotifyType.StatusMessage);
 
             if (DiscoveredDevices.Count > 0)
             {
@@ -122,7 +122,7 @@ namespace WindowsFormsApp1
             }
             else
             {
-                MainPage.NotifyUserFromBackground("No devices found?", NotifyType.StatusMessage);
+                MainPage.Log("No devices found?", NotifyType.StatusMessage);
                 _ = Disconnect();
             }
 
@@ -132,7 +132,7 @@ namespace WindowsFormsApp1
 
         private void OnStopped(DeviceWatcher deviceWatcher, object o)
         {
-            MainPage.NotifyUserFromBackground("DeviceWatcher stopped", NotifyType.StatusMessage);
+            MainPage.Log("DeviceWatcher stopped", NotifyType.StatusMessage);
         }
         #endregion
 
@@ -140,11 +140,11 @@ namespace WindowsFormsApp1
         {
             if (discoveredDevice == null)
             {
-                MainPage.NotifyUser("No device selected, please select one.", NotifyType.ErrorMessage);
+                MainPage.Log("No device selected, please select one.", NotifyType.ErrorMessage);
                 return null;
             }
 
-            MainPage.NotifyUser($"Connecting to {discoveredDevice.DeviceInfo.Name}...", NotifyType.StatusMessage);
+            MainPage.Log($"Connecting to {discoveredDevice.DeviceInfo.Name}...", NotifyType.StatusMessage);
 
             if (!discoveredDevice.DeviceInfo.Pairing.IsPaired)
             {
@@ -167,7 +167,7 @@ namespace WindowsFormsApp1
             }
             catch (TaskCanceledException)
             {
-                MainPage.NotifyUser("FromIdAsync was canceled by user", NotifyType.ErrorMessage);
+                MainPage.Log("FromIdAsync was canceled by user", NotifyType.ErrorMessage);
                 return null;
             }
 
@@ -182,7 +182,7 @@ namespace WindowsFormsApp1
             IReadOnlyList<EndpointPair> endpointPairs = wfdDevice.GetConnectionEndpointPairs();
             HostName remoteHostName = endpointPairs[0].RemoteHostName;
 
-            MainPage.NotifyUser($"Devices connected on L2 layer, connecting to IP Address: {remoteHostName} Port: {Globals.strServerPort}",
+            MainPage.Log($"Devices connected on L2 layer, connecting to IP Address: {remoteHostName} Port: {Globals.strServerPort}",
                 NotifyType.StatusMessage);
 
             // Wait for server to start listening on a socket
@@ -194,7 +194,7 @@ namespace WindowsFormsApp1
 
             foreach(var ed in endpoints.Result)
             {
-                MainPage.NotifyUser($"RemoteHostName: {ed.RemoteHostName}, LocalServiceName: {ed.LocalServiceName}, LocalHostName: {ed.LocalHostName}, LocalHostName: {ed.LocalHostName}", NotifyType.StatusMessage);
+                MainPage.Log($"RemoteHostName: {ed.RemoteHostName}, LocalServiceName: {ed.LocalServiceName}, LocalHostName: {ed.LocalHostName}, LocalHostName: {ed.LocalHostName}", NotifyType.StatusMessage);
             }
 
             // Connect to Advertiser on L4 layer
@@ -203,11 +203,11 @@ namespace WindowsFormsApp1
             {
                 var t = clientSocket.ConnectAsync(remoteHostName, Globals.strServerPort).AsTask();
                 t.Wait();
-                MainPage.NotifyUser("Connected with remote side on L4 layer", NotifyType.StatusMessage);
+                MainPage.Log("Connected with remote side on L4 layer", NotifyType.StatusMessage);
             }
             catch (Exception ex)
             {
-                MainPage.NotifyUser($"Connect operation threw an exception: {ex.Message}", NotifyType.ErrorMessage);
+                MainPage.Log($"Connect operation threw an exception: {ex.Message}", NotifyType.ErrorMessage);
                 return null;
             }
 
@@ -229,7 +229,7 @@ namespace WindowsFormsApp1
 
         private void OnConnectionStatusChanged(WiFiDirectDevice sender, object arg)
         {
-            MainPage.NotifyUserFromBackground($"Connection status changed: {sender.ConnectionStatus}", NotifyType.StatusMessage);
+            MainPage.Log($"Connection status changed: {sender.ConnectionStatus}", NotifyType.StatusMessage);
 
             if (sender.ConnectionStatus == WiFiDirectConnectionStatus.Connected)
                 Status = WiFiDirectAdvertisementPublisherStatus.Started;

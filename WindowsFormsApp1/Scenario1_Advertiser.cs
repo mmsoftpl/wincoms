@@ -64,7 +64,7 @@ namespace WindowsFormsApp1
                 }
                 catch (Exception ex)
                 {
-                    MainPage.NotifyUser($"Error preparing Advertisement: {ex}", NotifyType.ErrorMessage);
+                    MainPage.Log($"Error preparing Advertisement: {ex}", NotifyType.ErrorMessage);
                     return;
                 }
             }
@@ -103,11 +103,11 @@ namespace WindowsFormsApp1
             {
                 btnStartAdvertisement.Enabled = false;
                 btnStopAdvertisement.Enabled = true;
-                MainPage.NotifyUser("Advertisement started.", NotifyType.StatusMessage);
+                MainPage.Log("Advertisement started.", NotifyType.StatusMessage);
             }
             else
             {
-                MainPage.NotifyUser($"Advertisement failed to start. Status is {_publisher.Status}", NotifyType.ErrorMessage);
+                MainPage.Log($"Advertisement failed to start. Status is {_publisher.Status}", NotifyType.ErrorMessage);
             }
         }
 
@@ -133,13 +133,13 @@ namespace WindowsFormsApp1
             _informationElements.Add(informationElement);
 
             txtInformationElement.Text = "";
-            MainPage.NotifyUser("IE added successfully", NotifyType.StatusMessage);
+            MainPage.Log("IE added successfully", NotifyType.StatusMessage);
         }
 
         private void btnStopAdvertisement_Click(object sender, EventArgs e)
         {
             StopAdvertisement();
-            MainPage.NotifyUser("Advertisement stopped successfully", NotifyType.StatusMessage);
+            MainPage.Log("Advertisement stopped successfully", NotifyType.StatusMessage);
         }
 
         private void StopAdvertisement()
@@ -184,7 +184,7 @@ namespace WindowsFormsApp1
                 }
             }
 
-            MainPage.NotifyUser($"Connecting to {deviceName}...", NotifyType.StatusMessage);
+            MainPage.Log($"Connecting to {deviceName}...", NotifyType.StatusMessage);
 
             // Pair device if not already paired and not using legacy settings
             if (!isPaired && !_publisher.Advertisement.LegacySettings.IsEnabled)
@@ -203,7 +203,7 @@ namespace WindowsFormsApp1
             }
             catch (Exception ex)
             {
-                MainPage.NotifyUser($"Exception in FromIdAsync: {ex}", NotifyType.ErrorMessage);
+                MainPage.Log($"Exception in FromIdAsync: {ex}", NotifyType.ErrorMessage);
                 return false;
             }
 
@@ -224,11 +224,11 @@ namespace WindowsFormsApp1
             }
             catch (Exception ex)
             {
-                MainPage.NotifyUser($"Connect operation threw an exception: {ex.Message}", NotifyType.ErrorMessage);
+                MainPage.Log($"Connect operation threw an exception: {ex.Message}", NotifyType.ErrorMessage);
                 return false;
             }
 
-            MainPage.NotifyUser($"Devices connected on L2, listening on IP Address: {EndpointPairs[0].LocalHostName}" +
+            MainPage.Log($"Devices connected on L2, listening on IP Address: {EndpointPairs[0].LocalHostName}" +
                                 $" Port: {Globals.strServerPort}", NotifyType.StatusMessage);
             return true;
         }
@@ -245,7 +245,7 @@ namespace WindowsFormsApp1
             if (!success)
             {
                 // Decline the connection request
-                MainPage.NotifyUserFromBackground($"Connection request from {connectionRequest.DeviceInformation.Name} was declined", NotifyType.ErrorMessage);
+                MainPage.Log($"Connection request from {connectionRequest.DeviceInformation.Name} was declined", NotifyType.ErrorMessage);
                 connectionRequest.Dispose();
             }
         }
@@ -263,12 +263,12 @@ namespace WindowsFormsApp1
             }
             catch (Exception ex)
             {
-                MainPage.NotifyUser("DeviceInformation.CreateFromIdAsync threw an exception: " + ex.Message, NotifyType.ErrorMessage);
+                MainPage.Log("DeviceInformation.CreateFromIdAsync threw an exception: " + ex.Message, NotifyType.ErrorMessage);
             }
 
             if (devInfo == null)
             {
-                MainPage.NotifyUser("Device Information is null", NotifyType.ErrorMessage);
+                MainPage.Log("Device Information is null", NotifyType.ErrorMessage);
                 return false;
             }
 
@@ -301,7 +301,7 @@ namespace WindowsFormsApp1
                 );
             }
 
-            MainPage.NotifyUserFromBackground($"Advertisement: Status: {statusEventArgs.Status}, Error: {statusEventArgs.Error}", NotifyType.StatusMessage);
+            MainPage.Log($"Advertisement: Status: {statusEventArgs.Status}, Error: {statusEventArgs.Error}", NotifyType.StatusMessage);
             return;
         }
 
@@ -315,14 +315,14 @@ namespace WindowsFormsApp1
         public async Task SocketConnectionReceivedTask(StreamSocketListener sender, StreamSocketListenerConnectionReceivedEventArgs args)
         //var task = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
         {
-            MainPage.NotifyUser("Connecting to remote side on L4 layer...", NotifyType.StatusMessage);
+            MainPage.Log("Connecting to remote side on L4 layer...", NotifyType.StatusMessage);
             StreamSocket serverSocket = args.Socket;
 
             // Look up the WiFiDirectDevice associated with this StreamSocketListener.
             WiFiDirectDevice wfdDevice;
             if (!_pendingConnections.TryRemove(sender, out wfdDevice))
             {
-                MainPage.NotifyUser("Unexpected connection ignored.", NotifyType.ErrorMessage);
+                MainPage.Log("Unexpected connection ignored.", NotifyType.ErrorMessage);
                 serverSocket.Dispose();
                 return;
             }
@@ -343,7 +343,7 @@ namespace WindowsFormsApp1
 
         private void OnConnectionStatusChanged(WiFiDirectDevice sender, object arg)
         {
-            MainPage.NotifyUserFromBackground($"Connection status changed: {sender.ConnectionStatus}", NotifyType.StatusMessage);
+            MainPage.Log($"Connection status changed: {sender.ConnectionStatus}", NotifyType.StatusMessage);
 
             if (sender.ConnectionStatus == WiFiDirectConnectionStatus.Disconnected)
             {

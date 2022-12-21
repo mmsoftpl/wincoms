@@ -115,7 +115,6 @@ namespace WindowsFormsApp1
             this.headerLabel.TabIndex = 8;
             this.headerLabel.Text = "Header";
             this.headerLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.headerLabel.Click += new System.EventHandler(this.headerLabel_Click);
             // 
             // messageLabel
             // 
@@ -146,10 +145,11 @@ namespace WindowsFormsApp1
                 Status = WiFiDirectAdvertisementPublisherStatus.Created;
                 FindDevices();
             }
+            else
             if (Status == WiFiDirectAdvertisementPublisherStatus.Started)
             {
                 Status = WiFiDirectAdvertisementPublisherStatus.Aborted;
-                Disconnect("?");
+                Disconnect("Disconnect requested by user");
             }
             UpdateControls();
         }
@@ -160,11 +160,6 @@ namespace WindowsFormsApp1
         }
 
         public virtual void Disconnect(string reason)
-        {
-
-        }
-
-        private void headerLabel_Click(object sender, EventArgs e)
         {
 
         }

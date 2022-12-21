@@ -57,11 +57,11 @@ namespace SDKTemplate
                 _dataWriter.WriteUInt32(_dataWriter.MeasureString(message));
                 _dataWriter.WriteString(message);
                 await _dataWriter.StoreAsync();
-                MainPage.NotifyUserFromBackground("Sent message: " + message, NotifyType.StatusMessage);
+                MainPage.Log("Sent message: " + message, NotifyType.StatusMessage);
             }
             catch (Exception ex)
             {
-                MainPage.NotifyUserFromBackground("WriteMessage threw exception: " + ex.Message, NotifyType.StatusMessage);
+                MainPage.Log("WriteMessage threw exception: " + ex.Message, NotifyType.StatusMessage);
             }
         }
 
@@ -79,14 +79,14 @@ namespace SDKTemplate
                     {
                         // Decode the string.
                         string message = _dataReader.ReadString(messageLength);
-                        MainPage.NotifyUserFromBackground("Got message: " + message, NotifyType.StatusMessage);
+                        MainPage.Log("Got message: " + message, NotifyType.StatusMessage);
                         return message;
                     }
                 }
             }
             catch (Exception)
             {
-                MainPage.NotifyUserFromBackground("Socket was closed!", NotifyType.StatusMessage);
+                MainPage.Log("Socket was closed!", NotifyType.StatusMessage);
             }
             return null;
         }

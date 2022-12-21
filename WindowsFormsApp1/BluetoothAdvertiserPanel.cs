@@ -39,7 +39,7 @@ namespace WindowsFormsApp1
             catch (Exception ex) when ((uint)ex.HResult == 0x800710DF)
             {
                 // The Bluetooth radio may be off.
-                MainPage.NotifyUser("Make sure your Bluetooth Radio is on: " + ex.Message, NotifyType.ErrorMessage);
+                MainPage.Log("Make sure your Bluetooth Radio is on: " + ex.Message, NotifyType.ErrorMessage);
                 Status = Windows.Devices.WiFiDirect.WiFiDirectAdvertisementPublisherStatus.Stopped;
                 return;
             }
@@ -64,11 +64,11 @@ namespace WindowsFormsApp1
             catch (Exception e)
             {
                 // If you aren't able to get a reference to an RfcommServiceProvider, tell the user why.  Usually throws an exception if user changed their privacy settings to prevent Sync w/ Devices.  
-                MainPage.NotifyUser(e.Message, NotifyType.ErrorMessage);
+                MainPage.Log(e.Message, NotifyType.ErrorMessage);
                 return;
             }
 
-            MainPage.NotifyUser("Listening for incoming connections", NotifyType.StatusMessage);
+            MainPage.Log("Listening for incoming connections", NotifyType.StatusMessage);
 
             Status = WiFiDirectAdvertisementPublisherStatus.Started;
         }
@@ -113,7 +113,7 @@ namespace WindowsFormsApp1
             }
             catch (Exception e)
             {
-                MainPage.NotifyUser(e.Message, NotifyType.ErrorMessage);
+                MainPage.Log(e.Message, NotifyType.ErrorMessage);
                 Disconnect("exception?");
                 return;
             }
@@ -125,7 +125,7 @@ namespace WindowsFormsApp1
             var reader = new DataReader(socket.InputStream);
             bool remoteDisconnection = false;
 
-            MainPage.NotifyUser("Connected to Client: " + remoteDevice.Name, NotifyType.StatusMessage);
+            MainPage.Log("Connected to Client: " + remoteDevice.Name, NotifyType.StatusMessage);
 
             _ = KeepWriting(headerLabel.Text);
 
@@ -161,7 +161,7 @@ namespace WindowsFormsApp1
                 // Catch exception HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED).
                 catch (Exception ex) when ((uint)ex.HResult == 0x800703E3)
                 {
-                    MainPage.NotifyUser("Client Disconnected Successfully", NotifyType.StatusMessage);
+                    MainPage.Log("Client Disconnected Successfully", NotifyType.StatusMessage);
                     break;
                 }
             }
@@ -170,7 +170,7 @@ namespace WindowsFormsApp1
             if (remoteDisconnection)
             {
                 Disconnect("Remote disconnection?");
-                MainPage.NotifyUser("Client disconnected", NotifyType.StatusMessage);
+                MainPage.Log("Client disconnected", NotifyType.StatusMessage);
             }
         }
 
@@ -200,7 +200,7 @@ namespace WindowsFormsApp1
                 socket = null;
             }
 
-            MainPage.NotifyUser(disconnectReason, NotifyType.StatusMessage);
+            MainPage.Log(disconnectReason, NotifyType.StatusMessage);
             //ResetMainUI();
 
             Status = WiFiDirectAdvertisementPublisherStatus.Stopped;
