@@ -127,7 +127,7 @@ namespace WindowsFormsApp1
 
             MainPage.Log("Connected to Client: " + remoteDevice.Name, NotifyType.StatusMessage);
 
-            _ = KeepWriting(headerLabel.Text);
+            _ = KeepWriting();
 
             // Infinite read buffer loop
             while (true)
@@ -155,8 +155,7 @@ namespace WindowsFormsApp1
                         break;
                     }
                     string message = reader.ReadString(currentLength);
-
-                    Value = message;
+                    RecordReciveMessage(message);
                 }
                 // Catch exception HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED).
                 catch (Exception ex) when ((uint)ex.HResult == 0x800703E3)

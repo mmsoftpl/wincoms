@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;
 using Windows.Devices.Enumeration;
@@ -90,7 +91,7 @@ namespace WindowsFormsApp1
                         ReceiveStringLoop(chatReader);
                         Status = WiFiDirectAdvertisementPublisherStatus.Started;
 
-                        _ = KeepWriting(headerLabel.Text);
+                        _ = KeepWriting();
                         break;
                     }
                 }
@@ -141,7 +142,7 @@ namespace WindowsFormsApp1
             }
             catch (Exception ex)
             {
-                MainPage.Log(ex);
+                MainPage.Log(ex.Message, NotifyType.ErrorMessage);
                 //   ResetMainUI();
                 return null;
             }
@@ -255,7 +256,7 @@ namespace WindowsFormsApp1
                     return;
                 }
 
-                Value = chatReader.ReadString(stringLength);
+                RecordReciveMessage(chatReader.ReadString(stringLength));
 
                 ReceiveStringLoop(chatReader);
             }

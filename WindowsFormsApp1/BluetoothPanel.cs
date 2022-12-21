@@ -30,11 +30,14 @@ namespace WindowsFormsApp1
             InitializeComponent();
         }
 
-        protected async Task KeepWriting(string sender)
+        protected async Task KeepWriting()
         {
+            int i = 0;
             while (writer != null)
             {
-                await Utils.SendMessageAsync(writer, $"UTC Time at {sender} is {DateTime.UtcNow}");
+                string msg = (++i).ToString();
+                await Utils.SendMessageAsync(writer, msg);
+                RecordSentMessage(msg);
                 Thread.Sleep(1000);
             }
         }

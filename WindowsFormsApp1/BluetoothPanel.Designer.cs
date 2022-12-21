@@ -28,8 +28,20 @@
         /// </summary>
         private void InitializeComponent()
         {
-            components = new System.ComponentModel.Container();
+            this.SuspendLayout();
+            // 
+            // headerLabel
+            // 
+            this.headerLabel.Size = new System.Drawing.Size(582, 26);
+            // 
+            // BluetoothPanel
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Name = "BluetoothPanel";
+            this.Size = new System.Drawing.Size(582, 367);
+            this.ResumeLayout(false);
+
         }
 
         #endregion

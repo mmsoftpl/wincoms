@@ -118,6 +118,9 @@
     <EmbeddedResource Include="BluetoothConnectorPanel.resx">
       <DependentUpon>BluetoothConnectorPanel.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="BluetoothPanel.resx">
+      <DependentUpon>BluetoothPanel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ConnectionSettingsPanel.resx">
       <DependentUpon>ConnectionSettingsPanel.cs</DependentUpon>
     </EmbeddedResource>

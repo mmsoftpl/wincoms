@@ -1,5 +1,6 @@
 ﻿using SDKTemplate;
 using System;
+using System.Threading;
 using System.Windows.Forms;
 using Windows.Devices.WiFiDirect;
 
@@ -10,7 +11,20 @@ namespace WindowsFormsApp1
         private ProgressBar progressBar;
         private Button button;
         protected Label headerLabel;
-        private Label messageLabel;
+        private Panel lastMessagePanel;
+        private Label lastMessageReceivedTextBox;
+        private Label lastMessageLabel;
+        private Panel panel1;
+        private Label messagesReceivedTextBox;
+        private Label label2;
+        private Panel panel2;
+        private Label messagesSentTextBox;
+        private Label label4;
+        private Panel panel3;
+        private Label lastMessageSentTextBox;
+        private Label label6;
+        private Panel panel4;
+        private Panel panel5;
 
         public MainPage MainPage { get; set; }
 
@@ -58,17 +72,90 @@ namespace WindowsFormsApp1
             }));
         }
 
-        public virtual string Value
+        int messagesRecived = 0;
+        int messagesSent = 0;
+
+        public void Reset()
         {
-            get => messageLabel.Text;
-            set
+            messagesRecived = 0;
+            messagesSent = 0;
+            Invoke((MethodInvoker)(() =>
             {
-                Invoke((MethodInvoker)(() =>
-                {
-                    messageLabel.Text = value;
-                }));
-            }
+                lastMessageSentTextBox.Text = null;
+                lastMessageReceivedTextBox.Text = null;
+                messagesSentTextBox.Text = null;
+                messagesReceivedTextBox.Text = null;
+            }));
         }
+
+        public void RecordReciveMessage(string message)
+        {
+            Interlocked.Increment(ref messagesRecived);
+            Invoke((MethodInvoker)(() =>
+            {
+                lastMessageSentTextBox.Text = message;
+                lastMessageReceivedTextBox.Text = messagesRecived.ToString();
+            }));
+        }
+
+        public void RecordSentMessage(string message)
+        {
+            Interlocked.Increment(ref messagesSent);
+
+            Invoke((MethodInvoker)(() =>
+            {
+                messagesSentTextBox.Text = message;
+                messagesReceivedTextBox.Text = messagesSent.ToString();
+            }));
+        }
+
+        //public string LastMessageReceived
+        //{
+        //    get => lastMessageReceivedTextBox.Text;
+        //    set
+        //    {
+        //        Invoke((MethodInvoker)(() =>
+        //        {
+        //            lastMessageReceivedTextBox.Text = value;
+        //        }));
+        //    }
+        //}
+
+        //public string LastMessageSent
+        //{
+        //    get => lastMessageSentTextBox.Text;
+        //    set
+        //    {
+        //        Invoke((MethodInvoker)(() =>
+        //        {
+        //            lastMessageSentTextBox.Text = value;
+        //        }));
+        //    }
+        //}
+
+        //public string MessagesReceived
+        //{
+        //    get => messagesReceivedTextBox.Text;
+        //    set
+        //    {
+        //        Invoke((MethodInvoker)(() =>
+        //        {
+        //            messagesReceivedTextBox.Text = value;
+        //        }));
+        //    }
+        //}
+
+        //public string MessagesSent
+        //{
+        //    get => messagesSentTextBox.Text;
+        //    set
+        //    {
+        //        Invoke((MethodInvoker)(() =>
+        //        {
+        //            messagesSentTextBox.Text = value;
+        //        }));
+        //    }
+        //}
 
         public ComsPanel()
         {
@@ -80,15 +167,32 @@ namespace WindowsFormsApp1
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.button = new System.Windows.Forms.Button();
             this.headerLabel = new System.Windows.Forms.Label();
-            this.messageLabel = new System.Windows.Forms.Label();
+            this.lastMessagePanel = new System.Windows.Forms.Panel();
+            this.lastMessageReceivedTextBox = new System.Windows.Forms.Label();
+            this.lastMessageLabel = new System.Windows.Forms.Label();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.messagesReceivedTextBox = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.messagesSentTextBox = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.panel3 = new System.Windows.Forms.Panel();
+            this.lastMessageSentTextBox = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.panel4 = new System.Windows.Forms.Panel();
+            this.panel5 = new System.Windows.Forms.Panel();
+            this.lastMessagePanel.SuspendLayout();
+            this.panel1.SuspendLayout();
+            this.panel2.SuspendLayout();
+            this.panel3.SuspendLayout();
             this.SuspendLayout();
             // 
             // progressBar
             // 
             this.progressBar.Dock = System.Windows.Forms.DockStyle.Top;
-            this.progressBar.Location = new System.Drawing.Point(0, 49);
+            this.progressBar.Location = new System.Drawing.Point(0, 72);
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(471, 23);
+            this.progressBar.Size = new System.Drawing.Size(589, 23);
             this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.progressBar.TabIndex = 10;
             this.progressBar.Value = 1;
@@ -97,9 +201,10 @@ namespace WindowsFormsApp1
             // button
             // 
             this.button.Dock = System.Windows.Forms.DockStyle.Top;
+            this.button.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button.Location = new System.Drawing.Point(0, 26);
             this.button.Name = "button";
-            this.button.Size = new System.Drawing.Size(471, 23);
+            this.button.Size = new System.Drawing.Size(589, 46);
             this.button.TabIndex = 9;
             this.button.Text = "Connect";
             this.button.UseVisualStyleBackColor = true;
@@ -111,29 +216,185 @@ namespace WindowsFormsApp1
             this.headerLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.headerLabel.Location = new System.Drawing.Point(0, 0);
             this.headerLabel.Name = "headerLabel";
-            this.headerLabel.Size = new System.Drawing.Size(471, 26);
+            this.headerLabel.Size = new System.Drawing.Size(589, 26);
             this.headerLabel.TabIndex = 8;
             this.headerLabel.Text = "Header";
             this.headerLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
-            // messageLabel
+            // lastMessagePanel
             // 
-            this.messageLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.messageLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.messageLabel.Location = new System.Drawing.Point(0, 72);
-            this.messageLabel.Name = "messageLabel";
-            this.messageLabel.Size = new System.Drawing.Size(471, 141);
-            this.messageLabel.TabIndex = 11;
-            this.messageLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lastMessagePanel.Controls.Add(this.lastMessageReceivedTextBox);
+            this.lastMessagePanel.Controls.Add(this.lastMessageLabel);
+            this.lastMessagePanel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lastMessagePanel.Location = new System.Drawing.Point(0, 270);
+            this.lastMessagePanel.Name = "lastMessagePanel";
+            this.lastMessagePanel.Padding = new System.Windows.Forms.Padding(5);
+            this.lastMessagePanel.Size = new System.Drawing.Size(589, 41);
+            this.lastMessagePanel.TabIndex = 13;
+            // 
+            // lastMessageReceivedTextBox
+            // 
+            this.lastMessageReceivedTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lastMessageReceivedTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lastMessageReceivedTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lastMessageReceivedTextBox.Location = new System.Drawing.Point(274, 5);
+            this.lastMessageReceivedTextBox.Name = "lastMessageReceivedTextBox";
+            this.lastMessageReceivedTextBox.Size = new System.Drawing.Size(310, 31);
+            this.lastMessageReceivedTextBox.TabIndex = 16;
+            this.lastMessageReceivedTextBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lastMessageLabel
+            // 
+            this.lastMessageLabel.AutoSize = true;
+            this.lastMessageLabel.Dock = System.Windows.Forms.DockStyle.Left;
+            this.lastMessageLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lastMessageLabel.Location = new System.Drawing.Point(5, 5);
+            this.lastMessageLabel.Name = "lastMessageLabel";
+            this.lastMessageLabel.Size = new System.Drawing.Size(269, 36);
+            this.lastMessageLabel.TabIndex = 15;
+            this.lastMessageLabel.Text = "Last message sent:";
+            this.lastMessageLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.messagesReceivedTextBox);
+            this.panel1.Controls.Add(this.label2);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel1.Location = new System.Drawing.Point(0, 162);
+            this.panel1.Name = "panel1";
+            this.panel1.Padding = new System.Windows.Forms.Padding(5);
+            this.panel1.Size = new System.Drawing.Size(589, 41);
+            this.panel1.TabIndex = 14;
+            // 
+            // messagesReceivedTextBox
+            // 
+            this.messagesReceivedTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.messagesReceivedTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.messagesReceivedTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.messagesReceivedTextBox.Location = new System.Drawing.Point(275, 5);
+            this.messagesReceivedTextBox.Name = "messagesReceivedTextBox";
+            this.messagesReceivedTextBox.Size = new System.Drawing.Size(309, 31);
+            this.messagesReceivedTextBox.TabIndex = 16;
+            this.messagesReceivedTextBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Dock = System.Windows.Forms.DockStyle.Left;
+            this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(5, 5);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(270, 36);
+            this.label2.TabIndex = 15;
+            this.label2.Text = "Last msg. received:";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.messagesSentTextBox);
+            this.panel2.Controls.Add(this.label4);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel2.Location = new System.Drawing.Point(0, 229);
+            this.panel2.Name = "panel2";
+            this.panel2.Padding = new System.Windows.Forms.Padding(5);
+            this.panel2.Size = new System.Drawing.Size(589, 41);
+            this.panel2.TabIndex = 15;
+            // 
+            // messagesSentTextBox
+            // 
+            this.messagesSentTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.messagesSentTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.messagesSentTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.messagesSentTextBox.Location = new System.Drawing.Point(275, 5);
+            this.messagesSentTextBox.Name = "messagesSentTextBox";
+            this.messagesSentTextBox.Size = new System.Drawing.Size(309, 31);
+            this.messagesSentTextBox.TabIndex = 16;
+            this.messagesSentTextBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Dock = System.Windows.Forms.DockStyle.Left;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label4.Location = new System.Drawing.Point(5, 5);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(270, 36);
+            this.label4.TabIndex = 15;
+            this.label4.Text = "Messages sent:      ";
+            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.label4.Click += new System.EventHandler(this.label4_Click);
+            // 
+            // panel3
+            // 
+            this.panel3.Controls.Add(this.lastMessageSentTextBox);
+            this.panel3.Controls.Add(this.label6);
+            this.panel3.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel3.Location = new System.Drawing.Point(0, 121);
+            this.panel3.Name = "panel3";
+            this.panel3.Padding = new System.Windows.Forms.Padding(5);
+            this.panel3.Size = new System.Drawing.Size(589, 41);
+            this.panel3.TabIndex = 16;
+            // 
+            // lastMessageSentTextBox
+            // 
+            this.lastMessageSentTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lastMessageSentTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lastMessageSentTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lastMessageSentTextBox.Location = new System.Drawing.Point(283, 5);
+            this.lastMessageSentTextBox.Name = "lastMessageSentTextBox";
+            this.lastMessageSentTextBox.Size = new System.Drawing.Size(301, 31);
+            this.lastMessageSentTextBox.TabIndex = 16;
+            this.lastMessageSentTextBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Dock = System.Windows.Forms.DockStyle.Left;
+            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.Location = new System.Drawing.Point(5, 5);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(278, 36);
+            this.label6.TabIndex = 15;
+            this.label6.Text = "Messages received:";
+            this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // panel4
+            // 
+            this.panel4.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel4.Location = new System.Drawing.Point(0, 95);
+            this.panel4.Name = "panel4";
+            this.panel4.Size = new System.Drawing.Size(589, 26);
+            this.panel4.TabIndex = 17;
+            // 
+            // panel5
+            // 
+            this.panel5.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel5.Location = new System.Drawing.Point(0, 203);
+            this.panel5.Name = "panel5";
+            this.panel5.Size = new System.Drawing.Size(589, 26);
+            this.panel5.TabIndex = 18;
             // 
             // ComsPanel
             // 
-            this.Controls.Add(this.messageLabel);
+            this.Controls.Add(this.lastMessagePanel);
+            this.Controls.Add(this.panel2);
+            this.Controls.Add(this.panel5);
+            this.Controls.Add(this.panel1);
+            this.Controls.Add(this.panel3);
+            this.Controls.Add(this.panel4);
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.button);
             this.Controls.Add(this.headerLabel);
             this.Name = "ComsPanel";
-            this.Size = new System.Drawing.Size(471, 213);
+            this.Size = new System.Drawing.Size(589, 363);
+            this.lastMessagePanel.ResumeLayout(false);
+            this.lastMessagePanel.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
+            this.panel3.ResumeLayout(false);
+            this.panel3.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -142,6 +403,7 @@ namespace WindowsFormsApp1
         {
             if (Status == WiFiDirectAdvertisementPublisherStatus.Stopped)
             {
+                Reset();
                 Status = WiFiDirectAdvertisementPublisherStatus.Created;
                 FindDevices();
             }
@@ -160,6 +422,11 @@ namespace WindowsFormsApp1
         }
 
         public virtual void Disconnect(string reason)
+        {
+
+        }
+
+        private void label4_Click(object sender, EventArgs e)
         {
 
         }

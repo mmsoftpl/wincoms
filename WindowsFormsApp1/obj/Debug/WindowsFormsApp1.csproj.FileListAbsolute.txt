@@ -17,3 +17,4 @@ D:\Sources\wincoms\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.csproj.GenerateRe
 D:\Sources\wincoms\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.csproj.CoreCompileInputs.cache
 D:\Sources\wincoms\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.exe
 D:\Sources\wincoms\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.pdb
+D:\Sources\wincoms\WindowsFormsApp1\obj\Debug\WindowsFormsApp1.BluetoothPanel.resources
