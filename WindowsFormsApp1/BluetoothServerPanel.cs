@@ -171,13 +171,23 @@ namespace WindowsFormsApp1
                     MainPage.Log("Client Disconnected Successfully", NotifyType.StatusMessage);
                     break;
                 }
+                catch (Exception e)
+                {
+                    MainPage.Log("Read error", e, NotifyType.ErrorMessage);
+                    remoteDisconnection = true;
+                    break;
+                }
             }
 
             reader.DetachStream();
             if (remoteDisconnection)
             {
-                Disconnect("Remote disconnection?");
-                MainPage.Log("Client disconnected", NotifyType.StatusMessage);
+                if (!Writers.TryRemove(remoteDevice.DeviceId, out _))
+                {
+                    MainPage.Log("Can't remove writer from dictionary?", NotifyType.ErrorMessage);
+                }
+                // Disconnect("Remote disconnection?");
+                MainPage.Log($"Client {remoteDevice.Name} disconnected", NotifyType.StatusMessage);
             }
         }
 

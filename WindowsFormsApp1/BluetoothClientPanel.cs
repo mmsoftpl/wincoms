@@ -1,6 +1,7 @@
 ﻿using SDKTemplate;
 using System;
 using System.Collections.Concurrent;
+using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;

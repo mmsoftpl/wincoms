@@ -12,16 +12,16 @@ namespace WindowsFormsApp1
         private Button button;
         protected Label headerLabel;
         private Panel lastMessagePanel;
-        private Label lastMessageReceivedTextBox;
+        private Label lastMessageSentTextBox;
         private Label lastMessageLabel;
         private Panel panel1;
-        private Label messagesReceivedTextBox;
+        private Label lastMessageReceivedTextBox;
         private Label label2;
         private Panel panel2;
         private Label messagesSentTextBox;
         private Label label4;
         private Panel panel3;
-        private Label lastMessageSentTextBox;
+        private Label messagesReceivedTextBox;
         private Label label6;
         private Panel panel4;
         protected Panel panel5;
@@ -84,10 +84,10 @@ namespace WindowsFormsApp1
             messagesSent = 0;
             Invoke((MethodInvoker)(() =>
             {
-                lastMessageSentTextBox.Text = null;
-                lastMessageReceivedTextBox.Text = null;
-                messagesSentTextBox.Text = null;
                 messagesReceivedTextBox.Text = null;
+                lastMessageSentTextBox.Text = null;
+                messagesSentTextBox.Text = null;
+                lastMessageReceivedTextBox.Text = null;
             }));
         }
 
@@ -96,8 +96,8 @@ namespace WindowsFormsApp1
             Interlocked.Increment(ref messagesRecived);
             Invoke((MethodInvoker)(() =>
             {
-                lastMessageSentTextBox.Text = message;
-                lastMessageReceivedTextBox.Text = messagesRecived.ToString();
+                messagesReceivedTextBox.Text = messagesRecived.ToString();
+                lastMessageReceivedTextBox.Text = message;
             }));
         }
 
@@ -107,8 +107,8 @@ namespace WindowsFormsApp1
 
             Invoke((MethodInvoker)(() =>
             {
-                messagesSentTextBox.Text = message;
-                messagesReceivedTextBox.Text = messagesSent.ToString();
+                messagesSentTextBox.Text = messagesSent.ToString();
+                lastMessageSentTextBox.Text = message;
             }));
         }
 
@@ -206,16 +206,16 @@ namespace WindowsFormsApp1
             this.button = new System.Windows.Forms.Button();
             this.headerLabel = new System.Windows.Forms.Label();
             this.lastMessagePanel = new System.Windows.Forms.Panel();
-            this.lastMessageReceivedTextBox = new System.Windows.Forms.Label();
+            this.lastMessageSentTextBox = new System.Windows.Forms.Label();
             this.lastMessageLabel = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.messagesReceivedTextBox = new System.Windows.Forms.Label();
+            this.lastMessageReceivedTextBox = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
             this.messagesSentTextBox = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
-            this.lastMessageSentTextBox = new System.Windows.Forms.Label();
+            this.messagesReceivedTextBox = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
             this.panel5 = new System.Windows.Forms.Panel();
@@ -266,7 +266,7 @@ namespace WindowsFormsApp1
             // 
             // lastMessagePanel
             // 
-            this.lastMessagePanel.Controls.Add(this.lastMessageReceivedTextBox);
+            this.lastMessagePanel.Controls.Add(this.lastMessageSentTextBox);
             this.lastMessagePanel.Controls.Add(this.lastMessageLabel);
             this.lastMessagePanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.lastMessagePanel.Location = new System.Drawing.Point(0, 321);
@@ -275,16 +275,16 @@ namespace WindowsFormsApp1
             this.lastMessagePanel.Size = new System.Drawing.Size(589, 41);
             this.lastMessagePanel.TabIndex = 13;
             // 
-            // lastMessageReceivedTextBox
+            // lastMessageSentTextBox
             // 
-            this.lastMessageReceivedTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lastMessageReceivedTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lastMessageReceivedTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lastMessageReceivedTextBox.Location = new System.Drawing.Point(274, 5);
-            this.lastMessageReceivedTextBox.Name = "lastMessageReceivedTextBox";
-            this.lastMessageReceivedTextBox.Size = new System.Drawing.Size(310, 31);
-            this.lastMessageReceivedTextBox.TabIndex = 16;
-            this.lastMessageReceivedTextBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lastMessageSentTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lastMessageSentTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lastMessageSentTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lastMessageSentTextBox.Location = new System.Drawing.Point(274, 5);
+            this.lastMessageSentTextBox.Name = "lastMessageSentTextBox";
+            this.lastMessageSentTextBox.Size = new System.Drawing.Size(310, 31);
+            this.lastMessageSentTextBox.TabIndex = 16;
+            this.lastMessageSentTextBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // lastMessageLabel
             // 
@@ -300,7 +300,7 @@ namespace WindowsFormsApp1
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.messagesReceivedTextBox);
+            this.panel1.Controls.Add(this.lastMessageReceivedTextBox);
             this.panel1.Controls.Add(this.label2);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 162);
@@ -309,16 +309,16 @@ namespace WindowsFormsApp1
             this.panel1.Size = new System.Drawing.Size(589, 41);
             this.panel1.TabIndex = 14;
             // 
-            // messagesReceivedTextBox
+            // lastMessageReceivedTextBox
             // 
-            this.messagesReceivedTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.messagesReceivedTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.messagesReceivedTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.messagesReceivedTextBox.Location = new System.Drawing.Point(275, 5);
-            this.messagesReceivedTextBox.Name = "messagesReceivedTextBox";
-            this.messagesReceivedTextBox.Size = new System.Drawing.Size(309, 31);
-            this.messagesReceivedTextBox.TabIndex = 16;
-            this.messagesReceivedTextBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.lastMessageReceivedTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lastMessageReceivedTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lastMessageReceivedTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lastMessageReceivedTextBox.Location = new System.Drawing.Point(275, 5);
+            this.lastMessageReceivedTextBox.Name = "lastMessageReceivedTextBox";
+            this.lastMessageReceivedTextBox.Size = new System.Drawing.Size(309, 31);
+            this.lastMessageReceivedTextBox.TabIndex = 16;
+            this.lastMessageReceivedTextBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // label2
             // 
@@ -369,7 +369,7 @@ namespace WindowsFormsApp1
             // 
             // panel3
             // 
-            this.panel3.Controls.Add(this.lastMessageSentTextBox);
+            this.panel3.Controls.Add(this.messagesReceivedTextBox);
             this.panel3.Controls.Add(this.label6);
             this.panel3.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel3.Location = new System.Drawing.Point(0, 121);
@@ -378,16 +378,16 @@ namespace WindowsFormsApp1
             this.panel3.Size = new System.Drawing.Size(589, 41);
             this.panel3.TabIndex = 16;
             // 
-            // lastMessageSentTextBox
+            // messagesReceivedTextBox
             // 
-            this.lastMessageSentTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lastMessageSentTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lastMessageSentTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lastMessageSentTextBox.Location = new System.Drawing.Point(283, 5);
-            this.lastMessageSentTextBox.Name = "lastMessageSentTextBox";
-            this.lastMessageSentTextBox.Size = new System.Drawing.Size(301, 31);
-            this.lastMessageSentTextBox.TabIndex = 16;
-            this.lastMessageSentTextBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.messagesReceivedTextBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.messagesReceivedTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.messagesReceivedTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.messagesReceivedTextBox.Location = new System.Drawing.Point(283, 5);
+            this.messagesReceivedTextBox.Name = "messagesReceivedTextBox";
+            this.messagesReceivedTextBox.Size = new System.Drawing.Size(301, 31);
+            this.messagesReceivedTextBox.TabIndex = 16;
+            this.messagesReceivedTextBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // label6
             // 

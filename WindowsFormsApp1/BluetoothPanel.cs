@@ -51,7 +51,7 @@ namespace WindowsFormsApp1
             {
                 if (ShouldSendMessages)
                 {
-                    string msg = (++i).ToString();
+                    string msg = $"Time at {headerLabel.Text} is {DateTime.UtcNow}";
 
                     foreach (var writer in Writers.Values)
                     {

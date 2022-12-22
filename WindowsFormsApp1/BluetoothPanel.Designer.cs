@@ -40,6 +40,10 @@
             // 
             this.panel5.Size = new System.Drawing.Size(582, 44);
             // 
+            // cbSendMessages
+            // 
+            this.cbSendMessages.Size = new System.Drawing.Size(180, 4);
+            // 
             // BluetoothPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);

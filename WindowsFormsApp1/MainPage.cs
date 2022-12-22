@@ -24,6 +24,7 @@ namespace SDKTemplate
         private Button copyToClipboardButton;
         private ToolTip toolTip;
         private System.ComponentModel.IContainer components;
+        private Button clearLogButton;
         private Label label2;
 
         public static MainPage mainPage { get; private set; }
@@ -61,6 +62,7 @@ namespace SDKTemplate
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.copyToClipboardButton = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.clearLogButton = new System.Windows.Forms.Button();
             this.leftPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -83,6 +85,7 @@ namespace SDKTemplate
             // 
             this.btnWifiDirectConnector.AutoSize = true;
             this.btnWifiDirectConnector.Dock = System.Windows.Forms.DockStyle.Top;
+            this.btnWifiDirectConnector.Enabled = false;
             this.btnWifiDirectConnector.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnWifiDirectConnector.Location = new System.Drawing.Point(0, 133);
             this.btnWifiDirectConnector.Name = "btnWifiDirectConnector";
@@ -96,6 +99,7 @@ namespace SDKTemplate
             // 
             this.bntWifiDirectAdevrtiser.AutoSize = true;
             this.bntWifiDirectAdevrtiser.Dock = System.Windows.Forms.DockStyle.Top;
+            this.bntWifiDirectAdevrtiser.Enabled = false;
             this.bntWifiDirectAdevrtiser.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.bntWifiDirectAdevrtiser.Location = new System.Drawing.Point(0, 106);
             this.bntWifiDirectAdevrtiser.Name = "bntWifiDirectAdevrtiser";
@@ -195,9 +199,23 @@ namespace SDKTemplate
             this.copyToClipboardButton.UseVisualStyleBackColor = true;
             this.copyToClipboardButton.Click += new System.EventHandler(this.button1_Click);
             // 
+            // clearLogButton
+            // 
+            this.clearLogButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.clearLogButton.AutoSize = true;
+            this.clearLogButton.Location = new System.Drawing.Point(716, 524);
+            this.clearLogButton.Name = "clearLogButton";
+            this.clearLogButton.Size = new System.Drawing.Size(41, 23);
+            this.clearLogButton.TabIndex = 9;
+            this.clearLogButton.Text = "Clear";
+            this.toolTip.SetToolTip(this.clearLogButton, "Clear log");
+            this.clearLogButton.UseVisualStyleBackColor = true;
+            this.clearLogButton.Click += new System.EventHandler(this.clearLogButton_Click);
+            // 
             // MainPage
             // 
             this.ClientSize = new System.Drawing.Size(757, 615);
+            this.Controls.Add(this.clearLogButton);
             this.Controls.Add(this.copyToClipboardButton);
             this.Controls.Add(this.splitter);
             this.Controls.Add(this.leftPanel);
@@ -275,6 +293,11 @@ namespace SDKTemplate
             }
             if (sb.Length > 0)
                 Clipboard.SetText(sb.ToString());
+        }
+
+        private void clearLogButton_Click(object sender, EventArgs e)
+        {
+            listView1.Items.Clear();
         }
     }
 
