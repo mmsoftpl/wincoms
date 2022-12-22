@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using System.Threading;
 using Windows.Storage.Streams;
+using System.Collections.Concurrent;
 
 namespace WindowsFormsApp1
 {
@@ -23,7 +24,20 @@ namespace WindowsFormsApp1
         // The value of the Service Name SDP attribute
         public const string SdpServiceName = "Bluetooth eFM Service";
 
-        protected DataWriter writer;
+        protected ConcurrentDictionary<string, DataWriter> Writers = new ConcurrentDictionary<string, DataWriter>();
+
+        protected void ClearWriters()
+        {
+            foreach (var w in Writers.Keys)
+            {
+                if (Writers.TryRemove(w, out var writer))
+                {
+                    writer.DetachStream();
+                }
+            }
+
+            Writers.Clear();
+        }
 
         public BluetoothPanel()
         {
@@ -33,12 +47,20 @@ namespace WindowsFormsApp1
         protected async Task KeepWriting()
         {
             int i = 0;
-            while (writer != null)
+            while (Writers.Count>0)
             {
-                string msg = (++i).ToString();
-                await Utils.SendMessageAsync(writer, msg);
-                RecordSentMessage(msg);
-                Thread.Sleep(1000);
+                if (ShouldSendMessages)
+                {
+                    string msg = (++i).ToString();
+
+                    foreach (var writer in Writers.Values)
+                    {
+                        await Utils.SendMessageAsync(writer, msg);
+                        RecordSentMessage(msg);
+                    }
+                }
+
+                Thread.Sleep(MessagesInterval);
             }
         }
 

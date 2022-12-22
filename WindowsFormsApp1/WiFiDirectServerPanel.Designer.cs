@@ -1,6 +1,6 @@
 ﻿namespace WindowsFormsApp1
 {
-    partial class WiFiDirectAdvertiserPanel
+    partial class WiFiDirectServerPanel
     {
         /// <summary> 
         /// Required designer variable.
@@ -30,12 +30,17 @@
         {
             this.SuspendLayout();
             // 
-            // WiFiDirectAdvertiserPanel
+            // headerLabel
+            // 
+            this.headerLabel.Size = new System.Drawing.Size(550, 26);
+            this.headerLabel.Text = "Wi-Fi Direct Server";
+            // 
+            // WiFiDirectServerPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Name = "WiFiDirectAdvertiserPanel";
-            this.Size = new System.Drawing.Size(338, 254);
+            this.Name = "WiFiDirectServerPanel";
+            this.Size = new System.Drawing.Size(550, 394);
             this.ResumeLayout(false);
 
         }

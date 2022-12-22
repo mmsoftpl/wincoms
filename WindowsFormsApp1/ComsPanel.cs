@@ -24,7 +24,10 @@ namespace WindowsFormsApp1
         private Label lastMessageSentTextBox;
         private Label label6;
         private Panel panel4;
-        private Panel panel5;
+        protected Panel panel5;
+        protected CheckBox cbSendMessages;
+        private Label label1;
+        protected NumericUpDown numericUpDown;
 
         public MainPage MainPage { get; set; }
 
@@ -109,6 +112,41 @@ namespace WindowsFormsApp1
             }));
         }
 
+        public bool ShouldSendMessages
+        {
+            get => cbSendMessages.Checked;
+        //    set
+        //    {
+        //        Invoke((MethodInvoker)(() =>
+        //        {
+        //            lastMessageReceivedTextBox.Text = value;
+        //        }));
+        //    }
+        }
+        public int MessagesInterval
+        {
+            get
+            {
+                try
+                {
+                    var d = numericUpDown.Value;
+                    return (int)d;
+                }
+                catch
+                {
+
+                }
+                return 1000;
+            }
+            //    set
+            //    {
+            //        Invoke((MethodInvoker)(() =>
+            //        {
+            //            lastMessageReceivedTextBox.Text = value;
+            //        }));
+            //    }
+        }
+
         //public string LastMessageReceived
         //{
         //    get => lastMessageReceivedTextBox.Text;
@@ -181,10 +219,15 @@ namespace WindowsFormsApp1
             this.label6 = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
             this.panel5 = new System.Windows.Forms.Panel();
+            this.label1 = new System.Windows.Forms.Label();
+            this.numericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.cbSendMessages = new System.Windows.Forms.CheckBox();
             this.lastMessagePanel.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
+            this.panel5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // progressBar
@@ -226,7 +269,7 @@ namespace WindowsFormsApp1
             this.lastMessagePanel.Controls.Add(this.lastMessageReceivedTextBox);
             this.lastMessagePanel.Controls.Add(this.lastMessageLabel);
             this.lastMessagePanel.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lastMessagePanel.Location = new System.Drawing.Point(0, 270);
+            this.lastMessagePanel.Location = new System.Drawing.Point(0, 321);
             this.lastMessagePanel.Name = "lastMessagePanel";
             this.lastMessagePanel.Padding = new System.Windows.Forms.Padding(5);
             this.lastMessagePanel.Size = new System.Drawing.Size(589, 41);
@@ -294,7 +337,7 @@ namespace WindowsFormsApp1
             this.panel2.Controls.Add(this.messagesSentTextBox);
             this.panel2.Controls.Add(this.label4);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel2.Location = new System.Drawing.Point(0, 229);
+            this.panel2.Location = new System.Drawing.Point(0, 280);
             this.panel2.Name = "panel2";
             this.panel2.Padding = new System.Windows.Forms.Padding(5);
             this.panel2.Size = new System.Drawing.Size(589, 41);
@@ -368,11 +411,72 @@ namespace WindowsFormsApp1
             // 
             // panel5
             // 
+            this.panel5.Controls.Add(this.label1);
+            this.panel5.Controls.Add(this.numericUpDown);
+            this.panel5.Controls.Add(this.cbSendMessages);
             this.panel5.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel5.Location = new System.Drawing.Point(0, 203);
             this.panel5.Name = "panel5";
-            this.panel5.Size = new System.Drawing.Size(589, 26);
+            this.panel5.Padding = new System.Windows.Forms.Padding(10, 40, 0, 0);
+            this.panel5.Size = new System.Drawing.Size(589, 77);
             this.panel5.TabIndex = 18;
+            // 
+            // label1
+            // 
+            this.label1.Dock = System.Windows.Forms.DockStyle.Left;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(269, 40);
+            this.label1.Name = "label1";
+            this.label1.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
+            this.label1.Size = new System.Drawing.Size(117, 37);
+            this.label1.TabIndex = 2;
+            this.label1.Text = "milliseconds";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // numericUpDown
+            // 
+            this.numericUpDown.AutoSize = true;
+            this.numericUpDown.Dock = System.Windows.Forms.DockStyle.Left;
+            this.numericUpDown.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.numericUpDown.Increment = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.numericUpDown.Location = new System.Drawing.Point(190, 40);
+            this.numericUpDown.Maximum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            0});
+            this.numericUpDown.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            0});
+            this.numericUpDown.Name = "numericUpDown";
+            this.numericUpDown.Size = new System.Drawing.Size(79, 26);
+            this.numericUpDown.TabIndex = 1;
+            this.numericUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.numericUpDown.Value = new decimal(new int[] {
+            1000,
+            0,
+            0,
+            0});
+            // 
+            // cbSendMessages
+            // 
+            this.cbSendMessages.AutoSize = true;
+            this.cbSendMessages.Checked = true;
+            this.cbSendMessages.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cbSendMessages.Dock = System.Windows.Forms.DockStyle.Left;
+            this.cbSendMessages.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbSendMessages.Location = new System.Drawing.Point(10, 40);
+            this.cbSendMessages.Name = "cbSendMessages";
+            this.cbSendMessages.Size = new System.Drawing.Size(180, 37);
+            this.cbSendMessages.TabIndex = 0;
+            this.cbSendMessages.Text = "Send message every ";
+            this.cbSendMessages.UseVisualStyleBackColor = true;
             // 
             // ComsPanel
             // 
@@ -395,6 +499,9 @@ namespace WindowsFormsApp1
             this.panel2.PerformLayout();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
+            this.panel5.ResumeLayout(false);
+            this.panel5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -413,7 +520,6 @@ namespace WindowsFormsApp1
                 Status = WiFiDirectAdvertisementPublisherStatus.Aborted;
                 Disconnect("Disconnect requested by user");
             }
-            UpdateControls();
         }
 
         public virtual void FindDevices()

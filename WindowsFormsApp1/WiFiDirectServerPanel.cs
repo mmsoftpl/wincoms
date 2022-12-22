@@ -4,11 +4,11 @@ using Windows.Devices.WiFiDirect;
 
 namespace WindowsFormsApp1
 {
-    public partial class WiFiDirectAdvertiserPanel : ComsPanel
+    public partial class WiFiDirectServerPanel : ComsPanel
     {
         public WiFiDirectAdvertiserSettings Settings { get; set; }
 
-        public WiFiDirectAdvertiserPanel()
+        public WiFiDirectServerPanel()
         {
             InitializeComponent();
         }

@@ -1,5 +1,7 @@
 ﻿using SDKTemplate;
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;
 using Windows.Devices.WiFiDirect;
@@ -8,13 +10,13 @@ using Windows.Storage.Streams;
 
 namespace WindowsFormsApp1
 {
-    public partial class BluetoothAdvertiserPanel : BluetoothPanel
+    public partial class BluetoothServerPanel : BluetoothPanel
     {
         private StreamSocket socket;
         private RfcommServiceProvider rfcommProvider;
         private StreamSocketListener socketListener;
 
-        public BluetoothAdvertiserPanel()
+        public BluetoothServerPanel()
         {
             InitializeComponent();
         }
@@ -104,8 +106,8 @@ namespace WindowsFormsApp1
             StreamSocketListener sender, StreamSocketListenerConnectionReceivedEventArgs args)
         {
             // Don't need the listener anymore
-            socketListener.Dispose();
-            socketListener = null;
+            //socketListener.Dispose();
+            //socketListener = null;
 
             try
             {
@@ -121,7 +123,13 @@ namespace WindowsFormsApp1
             // Note - this is the supported way to get a Bluetooth device from a given socket
             var remoteDevice = await BluetoothDevice.FromHostNameAsync(socket.Information.RemoteHostName);
 
-            writer = new DataWriter(socket.OutputStream);
+            var writer = new DataWriter(socket.OutputStream);
+            if (!Writers.TryAdd(remoteDevice.DeviceId, writer))
+            {
+                MainPage.Log("Can't add writer to dictionary?", NotifyType.ErrorMessage);
+                return;
+            }
+            
             var reader = new DataReader(socket.InputStream);
             bool remoteDisconnection = false;
 
@@ -187,11 +195,7 @@ namespace WindowsFormsApp1
                 socketListener = null;
             }
 
-            if (writer != null)
-            {
-                writer.DetachStream();
-                writer = null;
-            }
+            ClearWriters();
 
             if (socket != null)
             {

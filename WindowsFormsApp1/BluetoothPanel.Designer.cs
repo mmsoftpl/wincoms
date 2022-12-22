@@ -28,11 +28,17 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.panel5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // headerLabel
             // 
             this.headerLabel.Size = new System.Drawing.Size(582, 26);
+            // 
+            // panel5
+            // 
+            this.panel5.Size = new System.Drawing.Size(582, 44);
             // 
             // BluetoothPanel
             // 
@@ -40,6 +46,9 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Name = "BluetoothPanel";
             this.Size = new System.Drawing.Size(582, 367);
+            this.panel5.ResumeLayout(false);
+            this.panel5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown)).EndInit();
             this.ResumeLayout(false);
 
         }

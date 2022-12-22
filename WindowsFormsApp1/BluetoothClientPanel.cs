@@ -1,10 +1,7 @@
 ﻿using SDKTemplate;
 using System;
 using System.Collections.Concurrent;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;
 using Windows.Devices.Enumeration;
@@ -15,9 +12,9 @@ using Windows.Storage.Streams;
 
 namespace WindowsFormsApp1
 {
-    public partial class BluetoothConnectorPanel : BluetoothPanel
+    public partial class BluetoothClientPanel : BluetoothPanel
     {
-        public BluetoothConnectorPanel()
+        public BluetoothClientPanel()
         {
             InitializeComponent();
         }
@@ -205,10 +202,16 @@ namespace WindowsFormsApp1
                 await chatSocket.ConnectAsync(chatService.ConnectionHostName, chatService.ConnectionServiceName);
 
                // SetChatUI(attributeReader.ReadString(serviceNameLength), bluetoothDevice.Name);
-                writer = new DataWriter(chatSocket.OutputStream);
+                var writer = new DataWriter(chatSocket.OutputStream);
+                if (Writers.TryAdd(deviceInfoDisp.Id, writer))
+                {
+                    DataReader chatReader = new DataReader(chatSocket.InputStream);
+                    return chatReader;
+                }
+                else
+                    MainPage.Log("Can't add writer to dictionary?", NotifyType.ErrorMessage);
 
-                DataReader chatReader = new DataReader(chatSocket.InputStream);
-                return chatReader;
+                return null;
                
             }
             catch (Exception ex) when ((uint)ex.HResult == 0x80070490) // ERROR_ELEMENT_NOT_FOUND
@@ -286,12 +289,7 @@ namespace WindowsFormsApp1
         /// <param name="disconnectReason"></param>
         public override void Disconnect(string disconnectReason)
         {
-            if (writer != null)
-            {
-                writer.DetachStream();
-                writer = null;
-            }
-
+            ClearWriters();
 
             if (chatService != null)
             {

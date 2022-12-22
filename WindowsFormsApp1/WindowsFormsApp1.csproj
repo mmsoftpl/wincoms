@@ -51,17 +51,17 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BluetoothAdvertiserPanel.cs">
+    <Compile Include="BluetoothServerPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="BluetoothAdvertiserPanel.Designer.cs">
-      <DependentUpon>BluetoothAdvertiserPanel.cs</DependentUpon>
+    <Compile Include="BluetoothServerPanel.Designer.cs">
+      <DependentUpon>BluetoothServerPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="BluetoothConnectorPanel.cs">
+    <Compile Include="BluetoothClientPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="BluetoothConnectorPanel.Designer.cs">
-      <DependentUpon>BluetoothConnectorPanel.cs</DependentUpon>
+    <Compile Include="BluetoothClientPanel.Designer.cs">
+      <DependentUpon>BluetoothClientPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="BluetoothPanel.cs">
       <SubType>UserControl</SubType>
@@ -95,28 +95,28 @@
       <DependentUpon>ConnectionSettingsPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Utils.cs" />
-    <Compile Include="WiFiDirectAdvertiserPanel.cs">
+    <Compile Include="WiFiDirectServerPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="WiFiDirectAdvertiserPanel.Designer.cs">
-      <DependentUpon>WiFiDirectAdvertiserPanel.cs</DependentUpon>
+    <Compile Include="WiFiDirectServerPanel.Designer.cs">
+      <DependentUpon>WiFiDirectServerPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="WiFiDirectAdvertiserSettings.cs" />
-    <Compile Include="WiFiDirectConnectorPanel.cs">
+    <Compile Include="WiFiDirectClientPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="WiFiDirectConnectorPanel.Designer.cs">
-      <DependentUpon>WiFiDirectConnectorPanel.cs</DependentUpon>
+    <Compile Include="WiFiDirectClientPanel.Designer.cs">
+      <DependentUpon>WiFiDirectClientPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="WiFiDirectConnectorSettings.cs" />
     <Compile Include="ComsPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <EmbeddedResource Include="BluetoothAdvertiserPanel.resx">
-      <DependentUpon>BluetoothAdvertiserPanel.cs</DependentUpon>
+    <EmbeddedResource Include="BluetoothServerPanel.resx">
+      <DependentUpon>BluetoothServerPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="BluetoothConnectorPanel.resx">
-      <DependentUpon>BluetoothConnectorPanel.cs</DependentUpon>
+    <EmbeddedResource Include="BluetoothClientPanel.resx">
+      <DependentUpon>BluetoothClientPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="BluetoothPanel.resx">
       <DependentUpon>BluetoothPanel.cs</DependentUpon>
@@ -142,11 +142,11 @@
     <EmbeddedResource Include="Scenario2_Connector.resx">
       <DependentUpon>Scenario2_Connector.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="WiFiDirectAdvertiserPanel.resx">
-      <DependentUpon>WiFiDirectAdvertiserPanel.cs</DependentUpon>
+    <EmbeddedResource Include="WiFiDirectServerPanel.resx">
+      <DependentUpon>WiFiDirectServerPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="WiFiDirectConnectorPanel.resx">
-      <DependentUpon>WiFiDirectConnectorPanel.cs</DependentUpon>
+    <EmbeddedResource Include="WiFiDirectClientPanel.resx">
+      <DependentUpon>WiFiDirectClientPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ComsPanel.resx">
       <DependentUpon>ComsPanel.cs</DependentUpon>

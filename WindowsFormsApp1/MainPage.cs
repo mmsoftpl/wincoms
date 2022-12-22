@@ -21,6 +21,9 @@ namespace SDKTemplate
         private Button bntWifiDirectAdevrtiser;
         private ListView listView1;
         private ColumnHeader columnHeader1;
+        private Button copyToClipboardButton;
+        private ToolTip toolTip;
+        private System.ComponentModel.IContainer components;
         private Label label2;
 
         public static MainPage mainPage { get; private set; }
@@ -45,6 +48,7 @@ namespace SDKTemplate
 
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.leftPanel = new System.Windows.Forms.Panel();
             this.btnWifiDirectConnector = new System.Windows.Forms.Button();
             this.bntWifiDirectAdevrtiser = new System.Windows.Forms.Button();
@@ -55,6 +59,8 @@ namespace SDKTemplate
             this.splitter = new System.Windows.Forms.Splitter();
             this.listView1 = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.copyToClipboardButton = new System.Windows.Forms.Button();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.leftPanel.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -70,7 +76,7 @@ namespace SDKTemplate
             this.leftPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.leftPanel.Location = new System.Drawing.Point(0, 0);
             this.leftPanel.Name = "leftPanel";
-            this.leftPanel.Size = new System.Drawing.Size(685, 160);
+            this.leftPanel.Size = new System.Drawing.Size(757, 160);
             this.leftPanel.TabIndex = 0;
             // 
             // btnWifiDirectConnector
@@ -80,9 +86,9 @@ namespace SDKTemplate
             this.btnWifiDirectConnector.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnWifiDirectConnector.Location = new System.Drawing.Point(0, 133);
             this.btnWifiDirectConnector.Name = "btnWifiDirectConnector";
-            this.btnWifiDirectConnector.Size = new System.Drawing.Size(685, 27);
+            this.btnWifiDirectConnector.Size = new System.Drawing.Size(757, 27);
             this.btnWifiDirectConnector.TabIndex = 11;
-            this.btnWifiDirectConnector.Text = "Connector";
+            this.btnWifiDirectConnector.Text = "Wi-Fi Direct Client";
             this.btnWifiDirectConnector.UseVisualStyleBackColor = true;
             this.btnWifiDirectConnector.Click += new System.EventHandler(this.btnWifiDirectConnector_Click);
             // 
@@ -93,9 +99,9 @@ namespace SDKTemplate
             this.bntWifiDirectAdevrtiser.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.bntWifiDirectAdevrtiser.Location = new System.Drawing.Point(0, 106);
             this.bntWifiDirectAdevrtiser.Name = "bntWifiDirectAdevrtiser";
-            this.bntWifiDirectAdevrtiser.Size = new System.Drawing.Size(685, 27);
+            this.bntWifiDirectAdevrtiser.Size = new System.Drawing.Size(757, 27);
             this.bntWifiDirectAdevrtiser.TabIndex = 9;
-            this.bntWifiDirectAdevrtiser.Text = "Advertiser";
+            this.bntWifiDirectAdevrtiser.Text = "Wi-Fi Direct Server";
             this.bntWifiDirectAdevrtiser.UseVisualStyleBackColor = true;
             this.bntWifiDirectAdevrtiser.Click += new System.EventHandler(this.bntWifiDirectAdevrtiser_Click);
             // 
@@ -117,7 +123,7 @@ namespace SDKTemplate
             this.btnBluetoothConnector.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBluetoothConnector.Location = new System.Drawing.Point(0, 53);
             this.btnBluetoothConnector.Name = "btnBluetoothConnector";
-            this.btnBluetoothConnector.Size = new System.Drawing.Size(685, 27);
+            this.btnBluetoothConnector.Size = new System.Drawing.Size(757, 27);
             this.btnBluetoothConnector.TabIndex = 2;
             this.btnBluetoothConnector.Text = "Bluetooth client";
             this.btnBluetoothConnector.UseVisualStyleBackColor = true;
@@ -130,7 +136,7 @@ namespace SDKTemplate
             this.btnBluetoothAdvertiser.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBluetoothAdvertiser.Location = new System.Drawing.Point(0, 26);
             this.btnBluetoothAdvertiser.Name = "btnBluetoothAdvertiser";
-            this.btnBluetoothAdvertiser.Size = new System.Drawing.Size(685, 27);
+            this.btnBluetoothAdvertiser.Size = new System.Drawing.Size(757, 27);
             this.btnBluetoothAdvertiser.TabIndex = 0;
             this.btnBluetoothAdvertiser.Text = "Bluetooth Server";
             this.btnBluetoothAdvertiser.UseVisualStyleBackColor = true;
@@ -150,9 +156,9 @@ namespace SDKTemplate
             // splitter
             // 
             this.splitter.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.splitter.Location = new System.Drawing.Point(0, 418);
+            this.splitter.Location = new System.Drawing.Point(0, 515);
             this.splitter.Name = "splitter";
-            this.splitter.Size = new System.Drawing.Size(685, 3);
+            this.splitter.Size = new System.Drawing.Size(757, 3);
             this.splitter.TabIndex = 5;
             this.splitter.TabStop = false;
             // 
@@ -165,24 +171,39 @@ namespace SDKTemplate
             this.listView1.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
             this.listView1.HideSelection = false;
             this.listView1.LabelWrap = false;
-            this.listView1.Location = new System.Drawing.Point(0, 421);
+            this.listView1.Location = new System.Drawing.Point(0, 518);
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(685, 97);
+            this.listView1.Size = new System.Drawing.Size(757, 97);
             this.listView1.TabIndex = 6;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
             // 
             // columnHeader1
             // 
-            this.columnHeader1.Width = 2577;
+            this.columnHeader1.Width = 753;
+            // 
+            // copyToClipboardButton
+            // 
+            this.copyToClipboardButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.copyToClipboardButton.AutoSize = true;
+            this.copyToClipboardButton.Location = new System.Drawing.Point(716, 585);
+            this.copyToClipboardButton.Name = "copyToClipboardButton";
+            this.copyToClipboardButton.Size = new System.Drawing.Size(41, 30);
+            this.copyToClipboardButton.TabIndex = 8;
+            this.copyToClipboardButton.Text = "Copy";
+            this.toolTip.SetToolTip(this.copyToClipboardButton, "Copy log to clipboard");
+            this.copyToClipboardButton.UseVisualStyleBackColor = true;
+            this.copyToClipboardButton.Click += new System.EventHandler(this.button1_Click);
             // 
             // MainPage
             // 
-            this.ClientSize = new System.Drawing.Size(685, 518);
+            this.ClientSize = new System.Drawing.Size(757, 615);
+            this.Controls.Add(this.copyToClipboardButton);
             this.Controls.Add(this.splitter);
             this.Controls.Add(this.leftPanel);
             this.Controls.Add(this.listView1);
             this.Name = "MainPage";
+            this.Text = "eFM comms spike";
             this.leftPanel.ResumeLayout(false);
             this.leftPanel.PerformLayout();
             this.ResumeLayout(false);
@@ -206,7 +227,7 @@ namespace SDKTemplate
             if (!string.IsNullOrEmpty(message))
                 listView1.Invoke((MethodInvoker)(() =>
             {
-                ListViewItem listViewItem = new ListViewItem(message);
+                ListViewItem listViewItem = new ListViewItem(DateTime.UtcNow.ToString() + " | "+ message);
 
                 if (notifyType == NotifyType.ErrorMessage)
                     listViewItem.ForeColor = System.Drawing.Color.Red;
@@ -220,22 +241,40 @@ namespace SDKTemplate
 
         private void btnBluetoothAdvertiser_Click(object sender, EventArgs e)
         {
-            ShowPanel(new BluetoothAdvertiserPanel());
+            ShowPanel(new BluetoothServerPanel());
         }
 
         private void btnBluetoothConnector_Click(object sender, EventArgs e)
         {
-            ShowPanel(new BluetoothConnectorPanel());
+            ShowPanel(new BluetoothClientPanel());
         }
 
         private void bntWifiDirectAdevrtiser_Click(object sender, EventArgs e)
         {
-            ShowPanel(new WiFiDirectAdvertiserPanel());
+            ShowPanel(new WiFiDirectServerPanel());
         }
 
         private void btnWifiDirectConnector_Click(object sender, EventArgs e)
         {
-            ShowPanel(new WiFiDirectConnectorPanel());
+            ShowPanel(new WiFiDirectClientPanel());
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            foreach (ListViewItem item in listView1.Items)
+            {
+                if (!string.IsNullOrEmpty(item.Text))
+                    sb.AppendLine(item.Text.ToString());
+
+                if (!string.IsNullOrEmpty(item.ToolTipText))
+                    sb.AppendLine(item.ToolTipText.ToString());
+
+                sb.AppendLine();
+            }
+            if (sb.Length > 0)
+                Clipboard.SetText(sb.ToString());
         }
     }
 

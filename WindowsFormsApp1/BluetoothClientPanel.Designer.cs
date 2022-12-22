@@ -1,6 +1,6 @@
 ﻿namespace WindowsFormsApp1
 {
-    partial class BluetoothAdvertiserPanel
+    partial class BluetoothClientPanel
     {
         /// <summary> 
         /// Required designer variable.
@@ -28,20 +28,34 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.panel5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
             // headerLabel
             // 
-            this.headerLabel.Size = new System.Drawing.Size(596, 26);
-            this.headerLabel.Text = "Bluetooth server";
-            this.headerLabel.Click += new System.EventHandler(this.headerLabel_Click);
+            this.headerLabel.Size = new System.Drawing.Size(629, 26);
+            this.headerLabel.Text = "Bluetooth client";
             // 
-            // BluetoothAdvertiserPanel
+            // panel5
+            // 
+            this.panel5.Size = new System.Drawing.Size(629, 80);
+            // 
+            // cbSendMessages
+            // 
+            this.cbSendMessages.Checked = false;
+            this.cbSendMessages.CheckState = System.Windows.Forms.CheckState.Unchecked;
+            this.cbSendMessages.Size = new System.Drawing.Size(180, 40);
+            // 
+            // BluetoothClientPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Name = "BluetoothAdvertiserPanel";
-            this.Size = new System.Drawing.Size(596, 286);
+            this.Name = "BluetoothClientPanel";
+            this.Size = new System.Drawing.Size(629, 338);
+            this.panel5.ResumeLayout(false);
+            this.panel5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown)).EndInit();
             this.ResumeLayout(false);
 
         }

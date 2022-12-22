@@ -21,9 +21,9 @@ using Windows.Devices.I2c;
 namespace WindowsFormsApp1
 {
 
-    public partial class WiFiDirectConnectorPanel : ComsPanel
+    public partial class WiFiDirectClientPanel : ComsPanel
     {
-        public WiFiDirectConnectorPanel()
+        public WiFiDirectClientPanel()
         {
             InitializeComponent();
         }

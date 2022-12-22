@@ -1,6 +1,6 @@
 ﻿namespace WindowsFormsApp1
 {
-    partial class WiFiDirectConnectorPanel
+    partial class BluetoothServerPanel
     {
         /// <summary> 
         /// Required designer variable.
@@ -28,14 +28,33 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.panel5.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
-            // WiFiDirectConnectorPanel
+            // headerLabel
+            // 
+            this.headerLabel.Size = new System.Drawing.Size(623, 26);
+            this.headerLabel.Text = "Bluetooth server";
+            this.headerLabel.Click += new System.EventHandler(this.headerLabel_Click);
+            // 
+            // panel5
+            // 
+            this.panel5.Size = new System.Drawing.Size(623, 66);
+            // 
+            // cbSendMessages
+            // 
+            this.cbSendMessages.Size = new System.Drawing.Size(180, 26);
+            // 
+            // BluetoothServerPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Name = "WiFiDirectConnectorPanel";
-            this.Size = new System.Drawing.Size(494, 292);
+            this.Name = "BluetoothServerPanel";
+            this.Size = new System.Drawing.Size(623, 385);
+            this.panel5.ResumeLayout(false);
+            this.panel5.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown)).EndInit();
             this.ResumeLayout(false);
 
         }
