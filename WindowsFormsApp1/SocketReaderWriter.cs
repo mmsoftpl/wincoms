@@ -19,6 +19,8 @@ using System.Threading.Tasks;
 using Windows.UI.Popups;
 using Windows.UI.Core;
 using Windows.Foundation;
+using System.Net.Sockets;
+using System.Windows.Forms;
 
 namespace SDKTemplate
 {
@@ -116,14 +118,18 @@ namespace SDKTemplate
     public class ConnectedDevice : IDisposable
     {
         public SocketReaderWriter SocketRW { get; }
+
+        public SocketWrapper SocketWrapper { get; set; }
+
         public WiFiDirectDevice WfdDevice { get; }
         public string DisplayName { get; }
 
-        public ConnectedDevice(string displayName, WiFiDirectDevice wfdDevice, SocketReaderWriter socketRW)
+        public ConnectedDevice(string displayName, WiFiDirectDevice wfdDevice, SocketReaderWriter socketRW, SocketWrapper socketWrapper)
         {
             DisplayName = displayName;
             WfdDevice = wfdDevice;
             SocketRW = socketRW;
+            SocketWrapper = socketWrapper;
         }
 
         public override string ToString() => DisplayName;
@@ -135,6 +141,23 @@ namespace SDKTemplate
 
             // Close WiFiDirectDevice object
             WfdDevice.Dispose();
+        }
+
+        public async Task WriteMessageAsync(string message)
+        {
+            if (SocketRW != null)
+                await SocketRW.WriteMessageAsync(message);
+            if (SocketWrapper != null)
+                await SocketWrapper.SendMessageAsync(message);
+        }
+
+        public async Task<string> ReadMessageAsync()
+        {
+            if (SocketRW != null)
+                return await SocketRW.ReadMessageAsync();
+          //  if (SocketWrapper != null)
+            //    return await SocketWrapper.ReceiveMessageAsync();
+            return null;
         }
     }
 }

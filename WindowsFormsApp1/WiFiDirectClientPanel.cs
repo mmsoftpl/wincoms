@@ -196,9 +196,9 @@ namespace WindowsFormsApp1
             {
                 MainPage.Log($"RemoteHostName: {ed.RemoteHostName}, LocalServiceName: {ed.LocalServiceName}, LocalHostName: {ed.LocalHostName}, LocalHostName: {ed.LocalHostName}", NotifyType.StatusMessage);
             }
-
+            
             // Connect to Advertiser on L4 layer
-            StreamSocket clientSocket = new StreamSocket();
+            DatagramSocket clientSocket = new DatagramSocket();
             try
             {
                 var t = clientSocket.ConnectAsync(remoteHostName, Globals.strServerPort).AsTask();
@@ -211,15 +211,16 @@ namespace WindowsFormsApp1
                 return null;
             }
 
-            SocketReaderWriter socketRW = new SocketReaderWriter(clientSocket, MainPage);
+            SocketWrapper socketWrapper = new SocketWrapper(MainPage, null, clientSocket, true);
+            SocketReaderWriter socketRW = null;// new SocketReaderWriter(clientSocket, MainPage);
 
             string sessionId = Path.GetRandomFileName();
-            ConnectedDevice connectedDevice = new ConnectedDevice(sessionId, wfdDevice, socketRW);
+            ConnectedDevice connectedDevice = new ConnectedDevice(sessionId, wfdDevice, socketRW, socketWrapper);
 
             // The first message sent over the socket is the name of the connection.
-            await socketRW.WriteMessageAsync(sessionId);
+            await connectedDevice.WriteMessageAsync(sessionId);
 
-            while (await socketRW.ReadMessageAsync() != null)
+            while (await connectedDevice.ReadMessageAsync() != null)
             {
                 // Keep reading messages
             }

@@ -38,13 +38,13 @@ namespace SDKTemplate
         public static void Log(Exception ex)
         {
             System.Diagnostics.Debug.WriteLine(ex.ToString());
-            mainPage.Log(ex.ToString(), null, NotifyType.ErrorMessage);
+           // mainPage.Log(ex.ToString(), null, NotifyType.ErrorMessage);
         }
 
         public static void Log(string str, NotifyType notifyType)
         {
             System.Diagnostics.Debug.WriteLine(str);
-            mainPage.Log(str, null, notifyType);
+          //  mainPage.Log(str, null, notifyType);
         }
 
         private void InitializeComponent()
@@ -78,18 +78,17 @@ namespace SDKTemplate
             this.leftPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.leftPanel.Location = new System.Drawing.Point(0, 0);
             this.leftPanel.Name = "leftPanel";
-            this.leftPanel.Size = new System.Drawing.Size(757, 160);
+            this.leftPanel.Size = new System.Drawing.Size(871, 160);
             this.leftPanel.TabIndex = 0;
             // 
             // btnWifiDirectConnector
             // 
             this.btnWifiDirectConnector.AutoSize = true;
             this.btnWifiDirectConnector.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnWifiDirectConnector.Enabled = false;
             this.btnWifiDirectConnector.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnWifiDirectConnector.Location = new System.Drawing.Point(0, 133);
             this.btnWifiDirectConnector.Name = "btnWifiDirectConnector";
-            this.btnWifiDirectConnector.Size = new System.Drawing.Size(757, 27);
+            this.btnWifiDirectConnector.Size = new System.Drawing.Size(871, 27);
             this.btnWifiDirectConnector.TabIndex = 11;
             this.btnWifiDirectConnector.Text = "Wi-Fi Direct Client";
             this.btnWifiDirectConnector.UseVisualStyleBackColor = true;
@@ -99,11 +98,10 @@ namespace SDKTemplate
             // 
             this.bntWifiDirectAdevrtiser.AutoSize = true;
             this.bntWifiDirectAdevrtiser.Dock = System.Windows.Forms.DockStyle.Top;
-            this.bntWifiDirectAdevrtiser.Enabled = false;
             this.bntWifiDirectAdevrtiser.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.bntWifiDirectAdevrtiser.Location = new System.Drawing.Point(0, 106);
             this.bntWifiDirectAdevrtiser.Name = "bntWifiDirectAdevrtiser";
-            this.bntWifiDirectAdevrtiser.Size = new System.Drawing.Size(757, 27);
+            this.bntWifiDirectAdevrtiser.Size = new System.Drawing.Size(871, 27);
             this.bntWifiDirectAdevrtiser.TabIndex = 9;
             this.bntWifiDirectAdevrtiser.Text = "Wi-Fi Direct Server";
             this.bntWifiDirectAdevrtiser.UseVisualStyleBackColor = true;
@@ -127,7 +125,7 @@ namespace SDKTemplate
             this.btnBluetoothConnector.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBluetoothConnector.Location = new System.Drawing.Point(0, 53);
             this.btnBluetoothConnector.Name = "btnBluetoothConnector";
-            this.btnBluetoothConnector.Size = new System.Drawing.Size(757, 27);
+            this.btnBluetoothConnector.Size = new System.Drawing.Size(871, 27);
             this.btnBluetoothConnector.TabIndex = 2;
             this.btnBluetoothConnector.Text = "Bluetooth client";
             this.btnBluetoothConnector.UseVisualStyleBackColor = true;
@@ -140,7 +138,7 @@ namespace SDKTemplate
             this.btnBluetoothAdvertiser.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnBluetoothAdvertiser.Location = new System.Drawing.Point(0, 26);
             this.btnBluetoothAdvertiser.Name = "btnBluetoothAdvertiser";
-            this.btnBluetoothAdvertiser.Size = new System.Drawing.Size(757, 27);
+            this.btnBluetoothAdvertiser.Size = new System.Drawing.Size(871, 27);
             this.btnBluetoothAdvertiser.TabIndex = 0;
             this.btnBluetoothAdvertiser.Text = "Bluetooth Server";
             this.btnBluetoothAdvertiser.UseVisualStyleBackColor = true;
@@ -160,9 +158,9 @@ namespace SDKTemplate
             // splitter
             // 
             this.splitter.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.splitter.Location = new System.Drawing.Point(0, 515);
+            this.splitter.Location = new System.Drawing.Point(0, 488);
             this.splitter.Name = "splitter";
-            this.splitter.Size = new System.Drawing.Size(757, 3);
+            this.splitter.Size = new System.Drawing.Size(871, 3);
             this.splitter.TabIndex = 5;
             this.splitter.TabStop = false;
             // 
@@ -175,9 +173,9 @@ namespace SDKTemplate
             this.listView1.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
             this.listView1.HideSelection = false;
             this.listView1.LabelWrap = false;
-            this.listView1.Location = new System.Drawing.Point(0, 518);
+            this.listView1.Location = new System.Drawing.Point(0, 491);
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(757, 97);
+            this.listView1.Size = new System.Drawing.Size(871, 100);
             this.listView1.TabIndex = 6;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -190,9 +188,10 @@ namespace SDKTemplate
             // 
             this.copyToClipboardButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.copyToClipboardButton.AutoSize = true;
-            this.copyToClipboardButton.Location = new System.Drawing.Point(716, 585);
+            this.copyToClipboardButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.copyToClipboardButton.Location = new System.Drawing.Point(830, 568);
             this.copyToClipboardButton.Name = "copyToClipboardButton";
-            this.copyToClipboardButton.Size = new System.Drawing.Size(41, 30);
+            this.copyToClipboardButton.Size = new System.Drawing.Size(41, 23);
             this.copyToClipboardButton.TabIndex = 8;
             this.copyToClipboardButton.Text = "Copy";
             this.toolTip.SetToolTip(this.copyToClipboardButton, "Copy log to clipboard");
@@ -201,9 +200,10 @@ namespace SDKTemplate
             // 
             // clearLogButton
             // 
-            this.clearLogButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.clearLogButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.clearLogButton.AutoSize = true;
-            this.clearLogButton.Location = new System.Drawing.Point(716, 524);
+            this.clearLogButton.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.clearLogButton.Location = new System.Drawing.Point(830, 497);
             this.clearLogButton.Name = "clearLogButton";
             this.clearLogButton.Size = new System.Drawing.Size(41, 23);
             this.clearLogButton.TabIndex = 9;
@@ -214,7 +214,7 @@ namespace SDKTemplate
             // 
             // MainPage
             // 
-            this.ClientSize = new System.Drawing.Size(757, 615);
+            this.ClientSize = new System.Drawing.Size(871, 591);
             this.Controls.Add(this.clearLogButton);
             this.Controls.Add(this.copyToClipboardButton);
             this.Controls.Add(this.splitter);
@@ -242,19 +242,34 @@ namespace SDKTemplate
 
         public void Log(string message, Exception exception, NotifyType notifyType)
         {
-            if (!string.IsNullOrEmpty(message))
-                listView1.Invoke((MethodInvoker)(() =>
+            try
             {
-                ListViewItem listViewItem = new ListViewItem(DateTime.UtcNow.ToString() + " | "+ message);
+                if (!string.IsNullOrEmpty(message))
+                    listView1.Invoke((MethodInvoker)(() =>
+                {
+                    try
+                    {
+                        ListViewItem listViewItem = new ListViewItem(DateTime.UtcNow.ToString() + " | " + message);
 
-                if (notifyType == NotifyType.ErrorMessage)
-                    listViewItem.ForeColor = System.Drawing.Color.Red;
+                        if (notifyType == NotifyType.ErrorMessage)
+                            listViewItem.ForeColor = System.Drawing.Color.Red;
 
-                if (exception!= null)
-                    listViewItem.ToolTipText = exception.ToString();
-                
-                    listView1.Items.Add(listViewItem);
-            }));
+                        if (exception != null)
+                            listViewItem.ToolTipText = exception.ToString();
+
+                        listView1.Items.Add(listViewItem);
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine(ex.ToString());
+                    }
+                }));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(ex.ToString());
+            }
+
         }
 
         private void btnBluetoothAdvertiser_Click(object sender, EventArgs e)
