@@ -1,8 +1,7 @@
-﻿using SDKTemplate;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using SDKTemplate;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
@@ -17,10 +16,19 @@ namespace WindowsFormsApp1
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-
-            Application.Run(new MainPage());
-       }
-
+            var services = new ServiceCollection();
+            ConfigureServices(services);
+            using (ServiceProvider serviceProvider = services.BuildServiceProvider())
+            {
+                var form1 = serviceProvider.GetRequiredService<MainPage>();
+                Application.Run(form1);
+            }
+        }
+        private static void ConfigureServices(ServiceCollection services)
+        {
+            services.AddSingleton<MainPage>()
+                    .AddLogging(configure => configure.AddConsole());
+        }
 
     }
 }

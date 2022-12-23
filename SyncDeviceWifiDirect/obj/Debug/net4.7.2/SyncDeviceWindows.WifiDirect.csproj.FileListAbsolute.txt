@@ -1,0 +1,11 @@
+D:\Sources\wincoms\SyncDeviceWifiDirect\bin\Debug\net4.7.2\SyncDeviceWindows.WifiDirect.dll
+D:\Sources\wincoms\SyncDeviceWifiDirect\bin\Debug\net4.7.2\SyncDeviceWindows.WifiDirect.pdb
+D:\Sources\wincoms\SyncDeviceWifiDirect\obj\Debug\net4.7.2\SyncDeviceWindows.WifiDirect.csproj.AssemblyReference.cache
+D:\Sources\wincoms\SyncDeviceWifiDirect\obj\Debug\net4.7.2\SyncDeviceWindows.WifiDirect.GeneratedMSBuildEditorConfig.editorconfig
+D:\Sources\wincoms\SyncDeviceWifiDirect\obj\Debug\net4.7.2\SyncDeviceWindows.WifiDirect.AssemblyInfoInputs.cache
+D:\Sources\wincoms\SyncDeviceWifiDirect\obj\Debug\net4.7.2\SyncDeviceWindows.WifiDirect.AssemblyInfo.cs
+D:\Sources\wincoms\SyncDeviceWifiDirect\obj\Debug\net4.7.2\SyncDeviceWindows.WifiDirect.csproj.CoreCompileInputs.cache
+D:\Sources\wincoms\SyncDeviceWifiDirect\obj\Debug\net4.7.2\SyncDeviceWindows.WifiDirect.dll
+D:\Sources\wincoms\SyncDeviceWifiDirect\obj\Debug\net4.7.2\SyncDeviceWindows.WifiDirect.pdb
+D:\Sources\wincoms\SyncDeviceWifiDirect\bin\Debug\net4.7.2\Microsoft.Extensions.Logging.Abstractions.dll
+D:\Sources\wincoms\SyncDeviceWifiDirect\obj\Debug\net4.7.2\SyncDeviceWindows.WifiDirect.csproj.CopyComplete

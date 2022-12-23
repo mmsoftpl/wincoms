@@ -1,0 +1,9 @@
+D:\Sources\wincoms\SyncDeviceWifiDirect\obj\Debug\net4.7.2\SyncDeviceWifiDirect.csproj.AssemblyReference.cache
+D:\Sources\wincoms\SyncDeviceWifiDirect\obj\Debug\net4.7.2\SyncDeviceWifiDirect.GeneratedMSBuildEditorConfig.editorconfig
+D:\Sources\wincoms\SyncDeviceWifiDirect\obj\Debug\net4.7.2\SyncDeviceWifiDirect.AssemblyInfoInputs.cache
+D:\Sources\wincoms\SyncDeviceWifiDirect\obj\Debug\net4.7.2\SyncDeviceWifiDirect.AssemblyInfo.cs
+D:\Sources\wincoms\SyncDeviceWifiDirect\obj\Debug\net4.7.2\SyncDeviceWifiDirect.csproj.CoreCompileInputs.cache
+D:\Sources\wincoms\SyncDeviceWifiDirect\bin\Debug\net4.7.2\SyncDeviceWifiDirect.dll
+D:\Sources\wincoms\SyncDeviceWifiDirect\bin\Debug\net4.7.2\SyncDeviceWifiDirect.pdb
+D:\Sources\wincoms\SyncDeviceWifiDirect\obj\Debug\net4.7.2\SyncDeviceWifiDirect.dll
+D:\Sources\wincoms\SyncDeviceWifiDirect\obj\Debug\net4.7.2\SyncDeviceWifiDirect.pdb

@@ -1,0 +1,13 @@
+D:\Sources\wincoms\SyncDeviceBluetooth\bin\Debug\net4.7.2\SyncDeviceWindows.Bluetooth.dll
+D:\Sources\wincoms\SyncDeviceBluetooth\bin\Debug\net4.7.2\SyncDeviceWindows.Bluetooth.pdb
+D:\Sources\wincoms\SyncDeviceBluetooth\bin\Debug\net4.7.2\Microsoft.Extensions.Logging.Abstractions.dll
+D:\Sources\wincoms\SyncDeviceBluetooth\bin\Debug\net4.7.2\SyncDevice.dll
+D:\Sources\wincoms\SyncDeviceBluetooth\bin\Debug\net4.7.2\SyncDevice.pdb
+D:\Sources\wincoms\SyncDeviceBluetooth\obj\Debug\net4.7.2\SyncDeviceWindows.Bluetooth.csproj.AssemblyReference.cache
+D:\Sources\wincoms\SyncDeviceBluetooth\obj\Debug\net4.7.2\SyncDeviceWindows.Bluetooth.GeneratedMSBuildEditorConfig.editorconfig
+D:\Sources\wincoms\SyncDeviceBluetooth\obj\Debug\net4.7.2\SyncDeviceWindows.Bluetooth.AssemblyInfoInputs.cache
+D:\Sources\wincoms\SyncDeviceBluetooth\obj\Debug\net4.7.2\SyncDeviceWindows.Bluetooth.AssemblyInfo.cs
+D:\Sources\wincoms\SyncDeviceBluetooth\obj\Debug\net4.7.2\SyncDeviceWindows.Bluetooth.csproj.CoreCompileInputs.cache
+D:\Sources\wincoms\SyncDeviceBluetooth\obj\Debug\net4.7.2\SyncDeviceWindows.Bluetooth.csproj.CopyComplete
+D:\Sources\wincoms\SyncDeviceBluetooth\obj\Debug\net4.7.2\SyncDeviceWindows.Bluetooth.dll
+D:\Sources\wincoms\SyncDeviceBluetooth\obj\Debug\net4.7.2\SyncDeviceWindows.Bluetooth.pdb

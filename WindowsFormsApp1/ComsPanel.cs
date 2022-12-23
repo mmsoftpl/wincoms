@@ -1,12 +1,13 @@
 ﻿using SDKTemplate;
+using SyncDevice;
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
-using Windows.Devices.WiFiDirect;
 
 namespace WindowsFormsApp1
 {
-    public class ComsPanel : UserControl, IComsPanel
+    public class ComsPanel : UserControl
     {
         private ProgressBar progressBar;
         private Button button;
@@ -31,8 +32,8 @@ namespace WindowsFormsApp1
 
         public MainPage MainPage { get; set; }
 
-        private WiFiDirectAdvertisementPublisherStatus status = WiFiDirectAdvertisementPublisherStatus.Stopped;
-        public WiFiDirectAdvertisementPublisherStatus Status
+        private SyncDeviceStatus status = SyncDeviceStatus.Stopped;
+        public SyncDeviceStatus Status
         {
             get => status;
             set
@@ -42,29 +43,31 @@ namespace WindowsFormsApp1
             }
         }
 
+        public virtual ISyncDevice SyncDevice { get; private set; }
+
         public virtual void OnUpdateControls()
         {
             switch (Status)
             {
-                case WiFiDirectAdvertisementPublisherStatus.Stopped:
+                case SyncDeviceStatus.Stopped:
                     button.Enabled = true;
                     button.Text = "Start";
                     break;
-                case WiFiDirectAdvertisementPublisherStatus.Created:
+                case SyncDeviceStatus.Created:
                     button.Text = "...starting...";
                     button.Enabled = false;
                     break;
-                case WiFiDirectAdvertisementPublisherStatus.Aborted:
+                case SyncDeviceStatus.Aborted:
                     button.Text = "...stopping...";
                     button.Enabled = false;
                     break;
-                case WiFiDirectAdvertisementPublisherStatus.Started:
+                case SyncDeviceStatus.Started:
                     button.Enabled = true;
                     button.Text = "Stop";
                     break;
             }
 
-            progressBar.Visible = Status == WiFiDirectAdvertisementPublisherStatus.Created;
+            progressBar.Visible = Status == SyncDeviceStatus.Created;
         }    
 
         public void UpdateControls() {
@@ -147,57 +150,29 @@ namespace WindowsFormsApp1
             //    }
         }
 
-        //public string LastMessageReceived
-        //{
-        //    get => lastMessageReceivedTextBox.Text;
-        //    set
-        //    {
-        //        Invoke((MethodInvoker)(() =>
-        //        {
-        //            lastMessageReceivedTextBox.Text = value;
-        //        }));
-        //    }
-        //}
+        protected async Task KeepWriting()
+        {
+            while (Status == SyncDeviceStatus.Started)
+            {
+                if (ShouldSendMessages)
+                {
+                    string msg = $"Time at {headerLabel.Text} is {DateTime.UtcNow}";
 
-        //public string LastMessageSent
-        //{
-        //    get => lastMessageSentTextBox.Text;
-        //    set
-        //    {
-        //        Invoke((MethodInvoker)(() =>
-        //        {
-        //            lastMessageSentTextBox.Text = value;
-        //        }));
-        //    }
-        //}
-
-        //public string MessagesReceived
-        //{
-        //    get => messagesReceivedTextBox.Text;
-        //    set
-        //    {
-        //        Invoke((MethodInvoker)(() =>
-        //        {
-        //            messagesReceivedTextBox.Text = value;
-        //        }));
-        //    }
-        //}
-
-        //public string MessagesSent
-        //{
-        //    get => messagesSentTextBox.Text;
-        //    set
-        //    {
-        //        Invoke((MethodInvoker)(() =>
-        //        {
-        //            messagesSentTextBox.Text = value;
-        //        }));
-        //    }
-        //}
+                    await SyncDevice?.SendMessageAsync(msg);
+                    RecordSentMessage(msg);                    
+                }
+                Thread.Sleep(MessagesInterval);
+            }
+        }
 
         public ComsPanel()
         {
             InitializeComponent();
+        }
+
+        public ComsPanel(ISyncDevice syncDevice) : this()
+        {
+            SyncDevice = syncDevice;
         }
 
         private void InitializeComponent()
@@ -365,7 +340,6 @@ namespace WindowsFormsApp1
             this.label4.TabIndex = 15;
             this.label4.Text = "Messages sent:      ";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.label4.Click += new System.EventHandler(this.label4_Click);
             // 
             // panel3
             // 
@@ -508,33 +482,18 @@ namespace WindowsFormsApp1
 
         private void button_Click(object sender, EventArgs e)
         {
-            if (Status == WiFiDirectAdvertisementPublisherStatus.Stopped)
+            if (Status == SyncDeviceStatus.Stopped)
             {
                 Reset();
-                Status = WiFiDirectAdvertisementPublisherStatus.Created;
-                FindDevices();
+                Status = SyncDeviceStatus.Created;
+                SyncDevice.StartAsync("Connect requested by app user");
             }
             else
-            if (Status == WiFiDirectAdvertisementPublisherStatus.Started)
+            if (Status == SyncDeviceStatus.Started)
             {
-                Status = WiFiDirectAdvertisementPublisherStatus.Aborted;
-                Disconnect("Disconnect requested by user");
+                Status = SyncDeviceStatus.Aborted;
+                SyncDevice.StopAsync("Disconnect requested by app user");
             }
-        }
-
-        public virtual void FindDevices()
-        {
-
-        }
-
-        public virtual void Disconnect(string reason)
-        {
-
-        }
-
-        private void label4_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }

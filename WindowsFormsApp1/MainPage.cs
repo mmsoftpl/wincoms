@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,10 +8,11 @@ using System.Windows.Forms;
 using Windows.Devices.WiFiDirect;
 using Windows.UI.Core;
 using WindowsFormsApp1;
+using static System.Windows.Forms.AxHost;
 
 namespace SDKTemplate
 {
-    public class MainPage : Form
+    public class MainPage : Form, ILogger<MainPage>
     {
         private Panel leftPanel;
         private Button btnBluetoothConnector;
@@ -29,22 +31,31 @@ namespace SDKTemplate
 
         public static MainPage mainPage { get; private set; }
 
-        public MainPage()
+        internal readonly ILogger logger;
+        public MainPage(ILogger<MainPage> logger)
         {
+            this.logger = logger;
             this.InitializeComponent();
             mainPage = this;
+
         }
 
         public static void Log(Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine(ex.ToString());
-           // mainPage.Log(ex.ToString(), null, NotifyType.ErrorMessage);
+            mainPage?.logger?.LogError(ex, null);
+            mainPage.logToListView(ex.ToString(), null, LogLevel.Error);
         }
 
-        public static void Log(string str, NotifyType notifyType)
+        public static void Log(string str, LogLevel loglevel)
         {
-            System.Diagnostics.Debug.WriteLine(str);
-          //  mainPage.Log(str, null, notifyType);
+            mainPage?.logger?.Log(loglevel, str);
+            mainPage.logToListView(str, null, loglevel);
+        }
+
+        public static void Log(string str, Exception ex, LogLevel loglevel)
+        {
+            mainPage?.logger?.Log(loglevel, ex, str);
+            mainPage.logToListView(str, null, loglevel);
         }
 
         private void InitializeComponent()
@@ -229,18 +240,18 @@ namespace SDKTemplate
 
         }
 
-        private void ShowPanel(ComsPanel wiFiPanel)
+        private void ShowPanel(ComsPanel comsPanel)
         {
             Controls.Remove(leftPanel);
 
-            wiFiPanel.MainPage = this;
-            wiFiPanel.Dock = DockStyle.Fill;
-            wiFiPanel.BringToFront();
+            comsPanel.MainPage = this;
+            comsPanel.Dock = DockStyle.Fill;
+            comsPanel.BringToFront();
 
-            Controls.Add(wiFiPanel);
+            Controls.Add(comsPanel);
         }
 
-        public void Log(string message, Exception exception, NotifyType notifyType)
+        public void logToListView(string message, Exception exception, LogLevel logLevel)
         {
             try
             {
@@ -251,7 +262,7 @@ namespace SDKTemplate
                     {
                         ListViewItem listViewItem = new ListViewItem(DateTime.UtcNow.ToString() + " | " + message);
 
-                        if (notifyType == NotifyType.ErrorMessage)
+                        if (logLevel == LogLevel.Error)
                             listViewItem.ForeColor = System.Drawing.Color.Red;
 
                         if (exception != null)
@@ -284,12 +295,12 @@ namespace SDKTemplate
 
         private void bntWifiDirectAdevrtiser_Click(object sender, EventArgs e)
         {
-            ShowPanel(new WiFiDirectServerPanel());
+          //  ShowPanel(new WiFiDirectServerPanel());
         }
 
         private void btnWifiDirectConnector_Click(object sender, EventArgs e)
         {
-            ShowPanel(new WiFiDirectClientPanel());
+           // ShowPanel(new WiFiDirectClientPanel());
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -313,6 +324,22 @@ namespace SDKTemplate
         private void clearLogButton_Click(object sender, EventArgs e)
         {
             listView1.Items.Clear();
+        }
+
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        {
+            logger?.Log<TState>(logLevel,eventId, state, exception, formatter);
+            logToListView(state?.ToString(), exception, logLevel);
+        }
+
+        public bool IsEnabled(LogLevel logLevel)
+        {
+            return logger?.IsEnabled(logLevel) == true;
+        }
+
+        public IDisposable BeginScope<TState>(TState state)
+        {
+            return logger.BeginScope<TState>(state);
         }
     }
 

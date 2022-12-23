@@ -36,7 +36,6 @@
             // 
             this.headerLabel.Size = new System.Drawing.Size(623, 26);
             this.headerLabel.Text = "Bluetooth server";
-            this.headerLabel.Click += new System.EventHandler(this.headerLabel_Click);
             // 
             // panel5
             // 
