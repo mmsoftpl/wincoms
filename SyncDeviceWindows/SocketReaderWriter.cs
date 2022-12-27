@@ -55,11 +55,11 @@ namespace SyncDevice.Windows
                 _dataWriter.WriteUInt32(_dataWriter.MeasureString(message));
                 _dataWriter.WriteString(message);
                 await _dataWriter.StoreAsync();
-                _logger?.LogInformation("Sent message: " + message);
+              //  _logger?.LogInformation("Sent message: " + message);
             }
             catch (Exception ex)
             {
-                _logger?.LogInformation("WriteMessage threw exception: " + ex.Message);
+                _logger?.LogError("WriteMessage threw exception: " + ex.Message);
             }
         }
 
@@ -84,7 +84,7 @@ namespace SyncDevice.Windows
             }
             catch (Exception)
             {
-                _logger?.LogInformation("Socket was closed!");
+                _logger?.LogError("Socket was closed!");
             }
             return null;
         }

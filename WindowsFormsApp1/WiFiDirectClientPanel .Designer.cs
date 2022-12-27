@@ -35,7 +35,7 @@
             // headerLabel
             // 
             this.headerLabel.Size = new System.Drawing.Size(623, 26);
-            this.headerLabel.Text = "WiFi Direct server";
+            this.headerLabel.Text = "WiFi Direct client";
             // 
             // panel5
             // 
@@ -45,11 +45,11 @@
             // 
             this.cbSendMessages.Size = new System.Drawing.Size(180, 26);
             // 
-            // WiFiDirectServerPanel
+            // WiFiDirectClientPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Name = "WiFiDirectServerPanel";
+            this.Name = "WiFiDirectClientPanel";
             this.Size = new System.Drawing.Size(623, 385);
             this.panel5.ResumeLayout(false);
             this.panel5.PerformLayout();

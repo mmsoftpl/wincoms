@@ -126,6 +126,8 @@ namespace SyncDevice.Windows.WifiDirect
                     advertiser.PreferredConfigurationMethods.Add(configMethod);
                 }
             }
+            else
+                advertiser.PreferredConfigurationMethods.Add(WiFiDirectServiceConfigurationMethod.Default);
 
             // Advertiser may also be discoverable by a prefix of the service name. Must explicitly specify prefixes allowed here.
             if (prefixList != null && prefixList.Count > 0)

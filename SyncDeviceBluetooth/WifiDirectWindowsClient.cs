@@ -5,9 +5,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Windows.Devices.WiFiDirect.Services;
-using Windows.Networking.Connectivity;
 using Windows.Storage.Streams;
-using static System.Collections.Specialized.BitVector32;
 
 namespace SyncDevice.Windows.Bluetooth
 {

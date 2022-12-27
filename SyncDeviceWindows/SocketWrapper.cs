@@ -131,11 +131,11 @@ namespace SyncDevice.Windows
 
                     uint bytesSent = writer.MeasureString(message);
 
-                    logger?.LogInformation(String.Format("Sent Message: \"{0}\", {1} bytes",
-                            (message.Length > 32) ? message.Substring(0, 32) + "..." : message,
-                            bytesSent
-                            )
-                        );
+                    //logger?.LogInformation(String.Format("Sent Message: \"{0}\", {1} bytes",
+                    //        (message.Length > 32) ? message.Substring(0, 32) + "..." : message,
+                    //        bytesSent
+                    //        )
+                    //    );
                 }
             }
             catch (Exception ex)
