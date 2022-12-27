@@ -7,7 +7,7 @@ using System.Windows.Forms;
 
 namespace WindowsFormsApp1
 {
-    public class ComsPanel : UserControl
+    public class SyncPanel : UserControl
     {
         private ProgressBar progressBar;
         private Button button;
@@ -165,12 +165,12 @@ namespace WindowsFormsApp1
             }
         }
 
-        public ComsPanel()
+        public SyncPanel()
         {
             InitializeComponent();
         }
 
-        public ComsPanel(ISyncDevice syncDevice) : this()
+        public SyncPanel(ISyncDevice syncDevice) : this()
         {
             SyncDevice = syncDevice;
         }
@@ -452,7 +452,7 @@ namespace WindowsFormsApp1
             this.cbSendMessages.Text = "Send message every ";
             this.cbSendMessages.UseVisualStyleBackColor = true;
             // 
-            // ComsPanel
+            // SyncPanel
             // 
             this.Controls.Add(this.lastMessagePanel);
             this.Controls.Add(this.panel2);
@@ -463,7 +463,7 @@ namespace WindowsFormsApp1
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.button);
             this.Controls.Add(this.headerLabel);
-            this.Name = "ComsPanel";
+            this.Name = "SyncPanel";
             this.Size = new System.Drawing.Size(589, 363);
             this.lastMessagePanel.ResumeLayout(false);
             this.lastMessagePanel.PerformLayout();

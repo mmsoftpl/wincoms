@@ -166,6 +166,20 @@
         "runtime": {
           "bin/placeholder/SyncDevice.dll": {}
         }
+      },
+      "SyncDevice.Windows/1.0.0": {
+        "type": "project",
+        "framework": ".NETFramework,Version=v4.7.2",
+        "dependencies": {
+          "Microsoft.Extensions.Logging.Abstractions": "3.1.32",
+          "Microsoft.Windows.SDK.Contracts": "10.0.22621.755"
+        },
+        "compile": {
+          "bin/placeholder/SyncDevice.Windows.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/SyncDevice.Windows.dll": {}
+        }
       }
     }
   },
@@ -580,13 +594,19 @@
       "type": "project",
       "path": "../SyncDevice/SyncDevice.csproj",
       "msbuildProject": "../SyncDevice/SyncDevice.csproj"
+    },
+    "SyncDevice.Windows/1.0.0": {
+      "type": "project",
+      "path": "../SyncDeviceWindows/SyncDevice.Windows.csproj",
+      "msbuildProject": "../SyncDeviceWindows/SyncDevice.Windows.csproj"
     }
   },
   "projectFileDependencyGroups": {
     ".NETFramework,Version=v4.7.2": [
       "Microsoft.Extensions.Logging.Abstractions >= 3.1.32",
       "Microsoft.Windows.SDK.Contracts >= 10.0.22621.755",
-      "SyncDevice >= 1.0.0"
+      "SyncDevice >= 1.0.0",
+      "SyncDevice.Windows >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -596,9 +616,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Sources\\wincoms\\SyncDeviceBluetooth\\SyncDeviceWindows.Bluetooth.csproj",
-      "projectName": "SyncDeviceWindows.Bluetooth",
-      "projectPath": "D:\\Sources\\wincoms\\SyncDeviceBluetooth\\SyncDeviceWindows.Bluetooth.csproj",
+      "projectUniqueName": "D:\\Sources\\wincoms\\SyncDeviceBluetooth\\SyncDevice.Windows.Bluetooth.csproj",
+      "projectName": "SyncDevice.Windows.Bluetooth",
+      "projectPath": "D:\\Sources\\wincoms\\SyncDeviceBluetooth\\SyncDevice.Windows.Bluetooth.csproj",
       "packagesPath": "C:\\Users\\Marcin\\.nuget\\packages\\",
       "outputPath": "D:\\Sources\\wincoms\\SyncDeviceBluetooth\\obj\\",
       "projectStyle": "PackageReference",
@@ -622,6 +642,9 @@
         "net472": {
           "targetAlias": "net4.7.2",
           "projectReferences": {
+            "D:\\Sources\\wincoms\\SyncDeviceWindows\\SyncDevice.Windows.csproj": {
+              "projectPath": "D:\\Sources\\wincoms\\SyncDeviceWindows\\SyncDevice.Windows.csproj"
+            },
             "D:\\Sources\\wincoms\\SyncDevice\\SyncDevice.csproj": {
               "projectPath": "D:\\Sources\\wincoms\\SyncDevice\\SyncDevice.csproj"
             }

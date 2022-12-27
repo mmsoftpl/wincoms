@@ -10,6 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SyncDeviceWindows\SyncDevice.Windows.csproj" />
     <ProjectReference Include="..\SyncDevice\SyncDevice.csproj" />
   </ItemGroup>
 

@@ -3,7 +3,7 @@ using SyncDevice.Windows.Bluetooth;
 
 namespace WindowsFormsApp1
 {
-    public partial class BluetoothClientPanel : ComsPanel
+    public partial class BluetoothClientPanel : SyncPanel
     {
         readonly BluetoothWindowsClient client = null;
         public override ISyncDevice SyncDevice => client;

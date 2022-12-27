@@ -1,19 +1,20 @@
 ﻿using SyncDevice;
 using SyncDevice.Windows.Bluetooth;
+using SyncDevice.Windows.WifiDirect;
 
 namespace WindowsFormsApp1
 {
-    public partial class BluetoothServerPanel : SyncPanel
+    public partial class WiFiDirectServerPanel : SyncPanel
     {
-        readonly BluetoothWindowsServer server = null;
+        readonly WifiDirectWindowsServer server = null;
 
         public override ISyncDevice SyncDevice => server;
 
-        public BluetoothServerPanel()
+        public WiFiDirectServerPanel()
         {
             InitializeComponent();
 
-            server = new BluetoothWindowsServer() { Logger = SDKTemplate.MainPage.mainPage };
+            server = new WifiDirectWindowsServer() { Logger = SDKTemplate.MainPage.mainPage };
             server.OnStatus += Server_OnStatus;
             server.OnMessage += Server_OnMessage;
             server.OnDeviceConnected += Server_OnDeviceConnected;

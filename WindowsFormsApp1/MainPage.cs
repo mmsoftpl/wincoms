@@ -240,7 +240,7 @@ namespace SDKTemplate
 
         }
 
-        private void ShowPanel(ComsPanel comsPanel)
+        private void ShowPanel(SyncPanel comsPanel)
         {
             Controls.Remove(leftPanel);
 
@@ -295,7 +295,7 @@ namespace SDKTemplate
 
         private void bntWifiDirectAdevrtiser_Click(object sender, EventArgs e)
         {
-          //  ShowPanel(new WiFiDirectServerPanel());
+            ShowPanel(new WiFiDirectServerPanel());
         }
 
         private void btnWifiDirectConnector_Click(object sender, EventArgs e)

@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WindowsFormsApp1", "WindowsFormsApp1\WindowsFormsApp1.csproj", "{F02CE960-9C88-4CAB-A31E-5F44C16DBCCE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncSpike", "WindowsFormsApp1\SyncSpike.csproj", "{F02CE960-9C88-4CAB-A31E-5F44C16DBCCE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SyncDevice", "SyncDevice\SyncDevice.csproj", "{B9AB7571-7A11-44DB-BEF0-A63B1766BA52}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SyncDeviceWindows.Bluetooth", "SyncDeviceBluetooth\SyncDeviceWindows.Bluetooth.csproj", "{CB09DC44-1FC0-4F88-A424-A6A3E212C77E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SyncDevice.Windows.Bluetooth", "SyncDeviceBluetooth\SyncDevice.Windows.Bluetooth.csproj", "{CB09DC44-1FC0-4F88-A424-A6A3E212C77E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SyncDeviceWindows.WifiDirect", "SyncDeviceWifiDirect\SyncDeviceWindows.WifiDirect.csproj", "{57050912-2031-426C-9D7B-BE07D97CA573}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SyncDevice.Windows.WifiDirect", "SyncDeviceWifiDirect\SyncDevice.Windows.WifiDirect.csproj", "{57050912-2031-426C-9D7B-BE07D97CA573}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncDevice.Windows", "SyncDeviceWindows\SyncDevice.Windows.csproj", "{3B22F0C3-B892-45F5-ADB1-12DD0D4C61FE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SyncDevice.Windows", "SyncDeviceWindows\SyncDevice.Windows.csproj", "{3B22F0C3-B892-45F5-ADB1-12DD0D4C61FE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

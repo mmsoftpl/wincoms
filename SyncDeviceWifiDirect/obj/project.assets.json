@@ -577,9 +577,9 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\Sources\\wincoms\\SyncDeviceWifiDirect\\SyncDeviceWindows.WifiDirect.csproj",
-      "projectName": "SyncDeviceWindows.WifiDirect",
-      "projectPath": "D:\\Sources\\wincoms\\SyncDeviceWifiDirect\\SyncDeviceWindows.WifiDirect.csproj",
+      "projectUniqueName": "D:\\Sources\\wincoms\\SyncDeviceWifiDirect\\SyncDevice.Windows.WifiDirect.csproj",
+      "projectName": "SyncDevice.Windows.WifiDirect",
+      "projectPath": "D:\\Sources\\wincoms\\SyncDeviceWifiDirect\\SyncDevice.Windows.WifiDirect.csproj",
       "packagesPath": "C:\\Users\\Marcin\\.nuget\\packages\\",
       "outputPath": "D:\\Sources\\wincoms\\SyncDeviceWifiDirect\\obj\\",
       "projectStyle": "PackageReference",
