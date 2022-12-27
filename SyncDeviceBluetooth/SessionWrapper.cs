@@ -2,21 +2,19 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.WiFiDirect.Services;
 using Windows.Networking.Sockets;
-using SyncDevice.Windows;
 
 namespace SyncDevice.Windows.WifiDirect
 {
     public class SessionWrapper : IDisposable
     {
         private WiFiDirectServiceSession session;
+        
         //// Used to update main state
-        //private WiFiDirectServiceManager manager = null;
+        private WifiDirectWindows WifiDirectWindows = null;
 
         // Stream Socket Listeners are created when locally opening TCP ports
         private IList<StreamSocketListener> streamSocketListeners = new List<StreamSocketListener>();
@@ -29,10 +27,11 @@ namespace SyncDevice.Windows.WifiDirect
 
         public ILogger Logger { get; set; }
 
-        public SessionWrapper(
+        public SessionWrapper(WifiDirectWindows wifiDirectWindows,
             WiFiDirectServiceSession session)
         {
             this.session = session;
+            this.WifiDirectWindows= wifiDirectWindows;
 
             this.session.SessionStatusChanged += OnSessionStatusChanged;
             this.session.RemotePortAdded += OnRemotePortAdded;
@@ -125,6 +124,8 @@ namespace SyncDevice.Windows.WifiDirect
                 Logger?.LogInformation("AddStreamSocketListenerAsync...");
                 await session.AddStreamSocketListenerAsync(listenerSocket);
                 Logger?.LogInformation("AddStreamSocketListenerAsync Done");
+
+                WifiDirectWindows.RaiseOnDeviceConnected(session.SessionAddress);
             }
             catch (Exception ex)
             {
@@ -167,6 +168,8 @@ namespace SyncDevice.Windows.WifiDirect
 
                 //// Update manager so UI can add to list
                 //manager.AddSocket(socketWrapper);
+
+                WifiDirectWindows.RaiseOnDeviceConnected(session.SessionAddress);
             }
             catch (Exception ex)
             {
@@ -248,6 +251,8 @@ namespace SyncDevice.Windows.WifiDirect
                 if (session.Status == WiFiDirectServiceSessionStatus.Closed)
                 {
                     sessionClosedEvent.Set();
+
+                    WifiDirectWindows.RaiseOnDeviceDisconnected(session.SessionAddress);
                     //// Cleanup
                     //manager.RemoveSession(this);
                 }
@@ -255,6 +260,17 @@ namespace SyncDevice.Windows.WifiDirect
             catch (Exception ex)
             {
                 Logger?.LogError("OnSessionStatusChanged Failed: " + ex.Message);
+            }
+        }
+
+        public async Task SendMessageAsync(string message)
+        {
+            if (!string.IsNullOrEmpty(message))
+            {
+                foreach (var socket in socketList)
+                {
+                    await socket.SendMessageAsync(message);
+                }
             }
         }
 

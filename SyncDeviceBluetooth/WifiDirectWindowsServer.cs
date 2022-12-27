@@ -13,57 +13,33 @@ namespace SyncDevice.Windows.WifiDirect
     {
         private WiFiDirectServiceAdvertiser advertiser { get; set; }
 
-        //// Keep track of all devices found during previous discovery
-        //private IList<SyncDevice.Windows.DiscoveredDevice> discoveredDevices = new List<DiscoveredDevice>();
-
-        //// Keep track of all sessions that are connected to this device
-        //// NOTE: it may make sense to track sessions per-advertiser and a second list for the seeker, but this sample keeps a global list
-        private IList<SessionWrapper> connectedSessions = new List<SessionWrapper>();
-
         public override Task StartAsync(string reason)
         {
-            StartAdvertisement(BluetoothWindows.RfcommChatServiceUuid.ToString(), true, true, "", null, WiFiDirectServiceStatus.Available, 2,
+            StartAdvertisement("efm", true, true, "", null, WiFiDirectServiceStatus.Available, 2,
                 BluetoothWindows.SdpServiceName, null, null);
 
             return Task.CompletedTask;
         }
 
+        private void Stop()
+        {
+            advertiser?.Stop();
+            advertiser = null;
+
+            foreach (var session in connectedSessions)
+            {
+                session.Dispose();
+            }
+            connectedSessions.Clear();
+        }
+
         public override Task StopAsync(string reason)
         {
-            // Stop advertising
-            // If for some reason the advertiser is stopping between the time that we check
-            // the AdvertisementStatus and when we call Stop, this will throw
-            try
-            {
-                if (advertiser.AdvertisementStatus == WiFiDirectServiceAdvertisementStatus.Started)
-                {
-                    advertiser.Stop();
-                }
-            }
-            catch (Exception)
-            {
-                // Stop can throw if it is already stopped or stopping, ignore
-            }
-
-            // Remove event handlers
-            advertiser.AdvertisementStatusChanged -= OnAdvertisementStatusChanged;
-            advertiser.AutoAcceptSessionConnected -= OnAutoAcceptSessionConnected;
-            advertiser.SessionRequested -= OnSessionRequested;
-
-            //foreach (var request in requestList)
-            //{
-            //    request.Dispose();
-            //}
-            //requestList.Clear();
+            Stop();
 
             Status = SyncDeviceStatus.Stopped;
 
             return Task.CompletedTask;
-        }
-
-        public override Task SendMessageAsync(string message)
-        {
-            throw new NotImplementedException();
         }
 
         public void StartAdvertisement(
@@ -223,9 +199,13 @@ namespace SyncDevice.Windows.WifiDirect
 
                 Logger?.LogInformation("Auto-Accept Session Connected: sessionInfo=" + sessionInfo);
 
-                SessionWrapper sessionWrapper = new SessionWrapper(args.Session) { Logger= Logger };
+                SessionWrapper sessionWrapper = new SessionWrapper(this, args.Session) { Logger= Logger };
                 connectedSessions.Add(sessionWrapper);
-                //manager.AddSession(sessionWrapper);
+
+                sessionWrapper.AddStreamSocketListenerAsync(9801);
+                //sessionWrapper.AddDatagramSocketAsync(55555);
+                
+                //manager.AddSession(sessionWrapper);                
             }
             catch (Exception ex)
             {
@@ -264,7 +244,7 @@ namespace SyncDevice.Windows.WifiDirect
                 
                 Logger?.LogInformation("Session request accepted");
 
-                SessionWrapper sessionWrapper = new SessionWrapper(session) { Logger = Logger };
+                SessionWrapper sessionWrapper = new SessionWrapper(this, session) { Logger = Logger };
                 connectedSessions.Add(sessionWrapper);
             }
             catch (Exception ex)
@@ -272,7 +252,44 @@ namespace SyncDevice.Windows.WifiDirect
                 Logger?.LogError("OnSessionRequest Failed: " + ex.Message);
             }
         }
+        #region Dispose
+        bool disposed = false;
 
+        ~WifiDirectWindowsServer()
+        {
+            Dispose(false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                Stop();
+
+            }
+
+            disposed = true;
+        }
+
+        private void ThrowIfDisposed()
+        {
+            if (disposed)
+            {
+                throw new ObjectDisposedException("WiFiDirectServiceManager");
+            }
+        }
+        #endregion
 
     }
 }

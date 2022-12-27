@@ -79,6 +79,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="WiFiDirectClientPanel .cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="WiFiDirectClientPanel .Designer.cs">
+      <DependentUpon>WiFiDirectClientPanel .cs</DependentUpon>
+    </Compile>
     <Compile Include="WiFiDirectServerPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -105,6 +111,9 @@
     <Compile Include="SyncPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <EmbeddedResource Include="WiFiDirectClientPanel .resx">
+      <DependentUpon>WiFiDirectClientPanel .cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="WiFiDirectServerPanel.resx">
       <DependentUpon>WiFiDirectServerPanel.cs</DependentUpon>
     </EmbeddedResource>

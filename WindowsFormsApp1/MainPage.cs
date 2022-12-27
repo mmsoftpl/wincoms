@@ -300,7 +300,7 @@ namespace SDKTemplate
 
         private void btnWifiDirectConnector_Click(object sender, EventArgs e)
         {
-           // ShowPanel(new WiFiDirectClientPanel());
+            ShowPanel(new WiFiDirectClientPanel());
         }
 
         private void button1_Click(object sender, EventArgs e)
