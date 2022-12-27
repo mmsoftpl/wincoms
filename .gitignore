@@ -1,3 +1,7 @@
 WindowsFormsApp1/bin/
 WindowsFormsApp1/obj/
 .vs/
+SyncDevice/obj/
+SyncDeviceBluetooth/obj/
+SyncDeviceWifiDirect/obj/
+SyncDeviceWindows/obj/
