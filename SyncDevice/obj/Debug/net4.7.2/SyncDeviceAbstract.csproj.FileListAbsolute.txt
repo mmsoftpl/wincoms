@@ -1,9 +1,0 @@
-D:\Sources\wincoms\SyncDevice\obj\Debug\net4.7.2\SyncDeviceAbstract.csproj.AssemblyReference.cache
-D:\Sources\wincoms\SyncDevice\obj\Debug\net4.7.2\SyncDeviceAbstract.GeneratedMSBuildEditorConfig.editorconfig
-D:\Sources\wincoms\SyncDevice\obj\Debug\net4.7.2\SyncDeviceAbstract.AssemblyInfoInputs.cache
-D:\Sources\wincoms\SyncDevice\obj\Debug\net4.7.2\SyncDeviceAbstract.AssemblyInfo.cs
-D:\Sources\wincoms\SyncDevice\obj\Debug\net4.7.2\SyncDeviceAbstract.csproj.CoreCompileInputs.cache
-D:\Sources\wincoms\SyncDevice\bin\Debug\net4.7.2\SyncDeviceAbstract.dll
-D:\Sources\wincoms\SyncDevice\bin\Debug\net4.7.2\SyncDeviceAbstract.pdb
-D:\Sources\wincoms\SyncDevice\obj\Debug\net4.7.2\SyncDeviceAbstract.dll
-D:\Sources\wincoms\SyncDevice\obj\Debug\net4.7.2\SyncDeviceAbstract.pdb
