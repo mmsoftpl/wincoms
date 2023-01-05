@@ -158,6 +158,8 @@ namespace WindowsFormsApp1
                 {
                     string msg = $"Time at {headerLabel.Text} is {DateTime.UtcNow}";
 
+                    msg = "{\"TargetNodeId\":7777,\"SourceNodeId\":8888,\"PayloadLength\":105,\"Payload\":\"eyJNZXNzYWdlSWQiOiJJc0FsaXZlIiwiUGF5bG9hZCI6IntcIk1lc3NhZ2VJZFwiOlwiSXNBbGl2ZVwiLFwiTnVtQ2xpZW50c1wiOjEsXCJDb25uZWN0ZWROb2RlSWRzXCI6WzFdfSJ9\"}";
+
                     await SyncDevice?.SendMessageAsync(msg);
                     RecordSentMessage(msg);                    
                 }
@@ -433,7 +435,7 @@ namespace WindowsFormsApp1
             this.numericUpDown.TabIndex = 1;
             this.numericUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.numericUpDown.Value = new decimal(new int[] {
-            1000,
+            5000,
             0,
             0,
             0});
