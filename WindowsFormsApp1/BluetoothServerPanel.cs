@@ -25,6 +25,10 @@ namespace WindowsFormsApp1
         private void Server_OnConnectionStarted(object sender, string deviceId)
         {
             _ = KeepWriting();
+
+            string s = "{\"TargetNodeId\":1,\"SourceNodeId\":2,\"PayloadLength\":105,\"Payload\":\"eyJNZXNzYWdlSWQiOiJJc0FsaXZlIiwiUGF5bG9hZCI6IntcIk1lc3NhZ2VJZFwiOlwiSXNBbGl2ZVwiLFwiTnVtQ2xpZW50c1wiOjEsXCJDb25uZWN0ZWROb2RlSWRzXCI6WzFdfSJ9\"}";
+
+            SyncDevice?.SendMessageAsync(s);
         }
 
         private void Server_OnDeviceDisconnected(object sender, ISyncDevice device)
