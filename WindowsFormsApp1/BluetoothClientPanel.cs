@@ -16,18 +16,23 @@ namespace WindowsFormsApp1
             client.OnStatus += Server_OnStatus;
             client.OnMessage += Server_OnMessage;
             client.OnDeviceConnected += Server_OnDeviceConnected;
+            client.OnConnectionStarted += Client_OnConnectionStarted;
             client.OnDeviceDisconnected += Server_OnDeviceDisconnected;
         }
 
-        private void Server_OnDeviceDisconnected(object sender, string deviceId)
+        private void Client_OnConnectionStarted(object sender, string deviceId)
         {
+            _ = KeepWriting();
         }
 
-
-
-        private void Server_OnDeviceConnected(object sender, string deviceId)
+        private void Server_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
         {
-            KeepWriting();
+            //
+        }
+
+        private void Server_OnDeviceConnected(object sender, ISyncDevice syncDevice)
+        {
+            _ = syncDevice.StartAsync("client auto starting device");
         }
 
         private void Server_OnMessage(object sender, MessageEventArgs e)

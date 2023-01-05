@@ -154,7 +154,7 @@ namespace WindowsFormsApp1
         {
             while (Status == SyncDeviceStatus.Started)
             {
-                if (ShouldSendMessages)
+                if (ShouldSendMessages && SyncDevice.Connections > 0)
                 {
                     string msg = $"Time at {headerLabel.Text} is {DateTime.UtcNow}";
 

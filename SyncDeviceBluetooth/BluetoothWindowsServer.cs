@@ -14,10 +14,14 @@ namespace SyncDevice.Windows.Bluetooth
         private RfcommServiceProvider rfcommProvider;
         private StreamSocketListener socketListener;
 
-        public override async Task StartAsync(string reason)
+        public override Task StartAsync(string reason)
         {
-            Logger?.LogInformation(reason);
-            InitializeRfcommServer();
+            if (Status == SyncDeviceStatus.Stopped)
+            {
+                Logger?.LogInformation(reason);
+                return InitializeRfcommServer();
+            }
+            return Task.CompletedTask;
         }
 
         public override Task StopAsync(string reason)
@@ -30,7 +34,7 @@ namespace SyncDevice.Windows.Bluetooth
         /// Initializes the server using RfcommServiceProvider to advertise the Chat Service UUID and start listening
         /// for incoming connections.
         /// </summary>
-        private async void InitializeRfcommServer()
+        private async Task InitializeRfcommServer()
         {
             try
             {
@@ -117,78 +121,19 @@ namespace SyncDevice.Windows.Bluetooth
                 Disconnect("exception?");
                 return;
             }
-            
-            
 
             // Note - this is the supported way to get a Bluetooth device from a given socket
             var remoteDevice = await BluetoothDevice.FromHostNameAsync(socket.Information.RemoteHostName);
+            var channel = new BluetoothWindowsChannel(this, remoteDevice.DeviceId, socket) { Logger = Logger };
 
-            var writer = new DataWriter(socket.OutputStream);
-            if (!Writers.TryAdd(remoteDevice.DeviceId, writer))
+            if (!Channels.TryAdd(remoteDevice.DeviceId, channel))
             {
-                Logger?.LogError("Can't add writer to dictionary?");
-                return;
+                Logger?.LogError("Can't add channel to dictionary?");
             }
-
-            var reader = new DataReader(socket.InputStream);
-            bool remoteDisconnection = false;
-
-            Logger?.LogInformation("Connected to Client: " + remoteDevice.Name);
-
-            RaiseOnDeviceConnected(remoteDevice.DeviceId);
-
-            // Infinite read buffer loop
-            while (true)
+            else
             {
-                try
-                {
-                    // Based on the protocol we've defined, the first uint is the size of the message
-                    uint readLength = await reader.LoadAsync(sizeof(uint));
-
-                    // Check if the size of the data is expected (otherwise the remote has already terminated the connection)
-                    if (readLength < sizeof(uint))
-                    {
-                        remoteDisconnection = true;
-                        break;
-                    }
-                    uint currentLength = reader.ReadUInt32();
-
-                    // Load the rest of the message since you already know the length of the data expected.  
-                    readLength = await reader.LoadAsync(currentLength);
-
-                    // Check if the size of the data is expected (otherwise the remote has already terminated the connection)
-                    if (readLength < currentLength)
-                    {
-                        remoteDisconnection = true;
-                        break;
-                    }
-                    string message = reader.ReadString(currentLength);
-                    RaiseOnMessage(message);
-                }
-                // Catch exception HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED).
-                catch (Exception ex) when ((uint)ex.HResult == 0x800703E3)
-                {
-                    Logger?.LogInformation("Client Disconnected Successfully");
-                    break;
-                }
-                catch (Exception e)
-                {
-                    Logger?.LogError("Read error", e);
-                    remoteDisconnection = true;
-                    break;
-                }
-            }
-
-            reader.DetachStream();
-            if (remoteDisconnection)
-            {
-                if (!Writers.TryRemove(remoteDevice.DeviceId, out _))
-                {
-                    RaiseOnDeviceConnected(remoteDevice.DeviceId);
-                    Logger?.LogError("Can't remove writer from dictionary?");
-                }
-                // Disconnect("Remote disconnection?");
-                Logger?.LogInformation($"Client {remoteDevice.Name} disconnected");
+                Logger?.LogInformation("Channel added to dictionary");
+                RaiseOnDeviceConnected(channel);
             }
         }
 
@@ -206,7 +151,7 @@ namespace SyncDevice.Windows.Bluetooth
                 socketListener = null;
             }
 
-            ClearWriters();
+            ClearChannels();
 
             if (socket != null)
             {

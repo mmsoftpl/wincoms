@@ -23,6 +23,8 @@ namespace SyncDevice.Windows.WifiDirect
 
         public ILogger Logger { get; set; }
 
+        public int Connections => 1;
+
         public event OnMessageEventHandler OnMessage;
         public event OnStatusEventHandler OnStatus;
         public event OnDeviceConnected OnDeviceConnected;
@@ -33,14 +35,14 @@ namespace SyncDevice.Windows.WifiDirect
             OnMessage?.Invoke(this, new MessageEventArgs() { Message = message });
         }
 
-        public void RaiseOnDeviceConnected(string deviceId)
+        public void RaiseOnDeviceConnected(ISyncDevice device)
         {
-            OnDeviceConnected?.Invoke(this, deviceId);
+            OnDeviceConnected?.Invoke(this, device);
         }
 
-        public void RaiseOnDeviceDisconnected(string deviceId)
+        public void RaiseOnDeviceDisconnected(ISyncDevice device)
         {
-            OnDeviceDisconnected?.Invoke(this, deviceId);
+            OnDeviceDisconnected?.Invoke(this, device);
         }
 
         public abstract Task StartAsync(string reason);

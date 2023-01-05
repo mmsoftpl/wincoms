@@ -24,21 +24,35 @@ namespace SyncDevice.Windows.Bluetooth
         public event OnMessageEventHandler OnMessage;
         public event OnStatusEventHandler OnStatus;
         public event OnDeviceConnected OnDeviceConnected;
+        public event OnConnectionStarted OnConnectionStarted;
         public event OnDeviceDisconnected OnDeviceDisconnected;
 
-        protected void RaiseOnMessage(string message)
+        internal virtual void RaiseOnMessage(string message)
         {
             OnMessage?.Invoke(this, new MessageEventArgs() { Message = message });
         }
 
-        protected void RaiseOnDeviceConnected(string deviceId)
+        internal virtual void RaiseOnConnectionStarted(string deviceId)
         {
-            OnDeviceConnected?.Invoke(this, deviceId);
+            OnConnectionStarted?.Invoke(this, deviceId);
         }
 
-        protected void RaiseOnDeviceDisconnected(string deviceId)
+        internal virtual void RaiseOnDeviceConnected(ISyncDevice device)
         {
-            OnDeviceDisconnected?.Invoke(this, deviceId);
+            OnDeviceConnected?.Invoke(this, device);
+        }
+
+        internal virtual void RaiseOnDeviceDisconnected(ISyncDevice device)
+        {
+            OnDeviceDisconnected?.Invoke(this, device);
+
+            if (device is BluetoothWindowsChannel channel)
+            {
+                if (Channels.TryRemove(channel.DeviceId, out var writer))
+                {
+                    writer.StopAsync($"Stoping & removing {writer.DeviceId} from directory");
+                }
+            }
         }
 
         internal async Task WriteMessageAsync(DataWriter chatWriter, string message)
@@ -65,10 +79,8 @@ namespace SyncDevice.Windows.Bluetooth
         {
             if (!string.IsNullOrEmpty(message))
             {
-                foreach (var writer in Writers.Values)
-                {
-                    await WriteMessageAsync(writer, message);
-                }
+                foreach (var writer in Channels.Values)
+                    await writer.SendMessageAsync(message);
             }
         }
 
@@ -91,20 +103,18 @@ namespace SyncDevice.Windows.Bluetooth
         // The value of the Service Name SDP attribute
         public const string SdpServiceName = "Bluetooth eFM Service";
 
-        protected ConcurrentDictionary<string, DataWriter> Writers = new ConcurrentDictionary<string, DataWriter>();
+        protected ConcurrentDictionary<string, BluetoothWindowsChannel> Channels = new ConcurrentDictionary<string, BluetoothWindowsChannel>();
 
-        protected void ClearWriters()
+        public int Connections { get => Channels.Count; }
+
+        protected void ClearChannels()
         {
-            foreach (var w in Writers.Keys)
+            foreach (var w in Channels.Values)
             {
-                if (Writers.TryRemove(w, out var writer))
-                {
-                    writer.DetachStream();
-                    RaiseOnDeviceConnected(w);
-                }
+                RaiseOnDeviceDisconnected(w);
             }
 
-            Writers.Clear();
+            Channels.Clear();
         }
     }
 }

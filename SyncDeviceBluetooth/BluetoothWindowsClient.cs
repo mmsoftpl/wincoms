@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Concurrent;
 using Windows.Foundation;
 using Windows.Storage.Streams;
+using System.Runtime.Remoting.Messaging;
 
 namespace SyncDevice.Windows.Bluetooth
 {
@@ -15,8 +16,8 @@ namespace SyncDevice.Windows.Bluetooth
     {
         private DeviceWatcher deviceWatcher = null;
         private BluetoothDevice bluetoothDevice = null;
-        private RfcommDeviceService chatService = null;
-        private StreamSocket chatSocket = null;
+        //private RfcommDeviceService chatService = null;
+       // private StreamSocket chatSocket = null;
 
         public override Task StartAsync(string reason)
         {
@@ -82,25 +83,24 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 Logger?.LogInformation($"{ResultCollection.Count} devices found. Enumeration completed. Scanning for service...");
 
-                DataReader chatReader = null;
+                BluetoothWindowsChannel channel = null;
 
                 foreach (var deviceInfo in ResultCollection.Values)
                 {
-                    chatReader = Task.Run(() => Connect(deviceInfo)).Result;
+                    channel = Task.Run(() => Connect(deviceInfo)).Result;
 
-                    if (chatReader != null)
+                    if (channel != null)
                     {
-                        Logger?.LogInformation($"Connecting to {deviceInfo.Name}...");
+                        Logger?.LogInformation($"Connected to {deviceInfo.Name}...");
 
-                        ReceiveStringLoop(chatReader);
-                        Status = SyncDeviceStatus.Started;
+                        Status = channel.Status;
 
-                        RaiseOnDeviceConnected(deviceInfo.Id);
+                        RaiseOnDeviceConnected(channel);
                         break;
                     }
                 }
 
-                if (chatReader == null)
+                if (channel == null)
                 {
                     Logger?.LogInformation($"Could not discover the {SdpServiceName}");
                     // ResetMainUI();
@@ -116,7 +116,7 @@ namespace SyncDevice.Windows.Bluetooth
             deviceWatcher.Start();
         }
 
-        public async Task<DataReader> Connect(DeviceInformation deviceInfoDisp)
+        public async Task<BluetoothWindowsChannel> Connect(DeviceInformation deviceInfoDisp)
         {
             // Make sure user has selected a device first
             if (deviceInfoDisp != null)
@@ -159,12 +159,24 @@ namespace SyncDevice.Windows.Bluetooth
             }
 
             // This should return a list of uncached Bluetooth services (so if the server was not active when paired, it will still be detected by this call
-            var rfcommServices = await bluetoothDevice.GetRfcommServicesForIdAsync(
-                RfcommServiceId.FromUuid(RfcommChatServiceUuid), BluetoothCacheMode.Uncached);
+            var rfcommServicesTask = bluetoothDevice.GetRfcommServicesForIdAsync(
+                RfcommServiceId.FromUuid(RfcommChatServiceUuid), BluetoothCacheMode.Uncached).AsTask();
+
+            rfcommServicesTask.Wait();
+
+            var rfcommServices = rfcommServicesTask.Result;
+            RfcommDeviceService rfcommDeviceService;
 
             if (rfcommServices.Services.Count > 0)
             {
-                chatService = rfcommServices.Services[0];
+                rfcommDeviceService = rfcommServices.Services[0];
+
+                if (rfcommDeviceService == null)
+                {
+                    Logger?.LogError(
+                        "The Chat service is null?");
+                    return null;
+                }
             }
             else
             {
@@ -172,7 +184,7 @@ namespace SyncDevice.Windows.Bluetooth
             }
 
             // Do various checks of the SDP record to make sure you are talking to a device that actually supports the Bluetooth Rfcomm Chat Service
-            var attributes = await chatService.GetSdpRawAttributesAsync();
+            var attributes = await rfcommDeviceService.GetSdpRawAttributesAsync();
             if (!attributes.ContainsKey(SdpServiceNameAttributeId))
             {
                 Logger?.LogError(
@@ -197,38 +209,33 @@ namespace SyncDevice.Windows.Bluetooth
 
             StopWatcher();
 
-            lock (this)
-            {
-                chatSocket = new StreamSocket();
-            }
-            try
-            {
-                await chatSocket.ConnectAsync(chatService.ConnectionHostName, chatService.ConnectionServiceName);
+            //var streamSocket = new StreamSocket();
+            //await streamSocket.ConnectAsync(rfcommDeviceService.ConnectionHostName, rfcommDeviceService.ConnectionServiceName);
 
-                // SetChatUI(attributeReader.ReadString(serviceNameLength), bluetoothDevice.Name);
-                var writer = new DataWriter(chatSocket.OutputStream);
-                if (Writers.TryAdd(deviceInfoDisp.Id, writer))
-                {
-                    DataReader chatReader = new DataReader(chatSocket.InputStream);
-                    return chatReader;
-                }
-                else
-                    Logger?.LogError("Can't add writer to dictionary?");
+            var channel = new BluetoothWindowsChannel(this, deviceInfoDisp.Id, rfcommDeviceService) {  Logger = Logger };
 
+            if (!Channels.TryAdd(deviceInfoDisp.Id, channel))
+            {
+                Logger?.LogError("Can't add channel to dictionary?");
                 return null;
+            }
+            else
+            {
 
+                Logger?.LogInformation("Channel added to dictionary?");
+                return channel;
             }
-            catch (Exception ex) when ((uint)ex.HResult == 0x80070490) // ERROR_ELEMENT_NOT_FOUND
-            {
-                Logger?.LogError("Please verify that you are running the BluetoothRfcommChat server.");
-                //   ResetMainUI();
-            }
-            catch (Exception ex) when ((uint)ex.HResult == 0x80072740) // WSAEADDRINUSE
-            {
-                Logger?.LogError("Please verify that there is no other RFCOMM connection to the same device.");
-                //  ResetMainUI();
-            }
-            return null;
+            //catch (Exception ex) when ((uint)ex.HResult == 0x80070490) // ERROR_ELEMENT_NOT_FOUND
+            //{
+            //    Logger?.LogError("Please verify that you are running the BluetoothRfcommChat server.");
+            //    //   ResetMainUI();
+            //}
+            //catch (Exception ex) when ((uint)ex.HResult == 0x80072740) // WSAEADDRINUSE
+            //{
+            //    Logger?.LogError("Please verify that there is no other RFCOMM connection to the same device.");
+            //    //  ResetMainUI();
+            //}
+            //  return null;
         }
 
         private void StopWatcher()
@@ -243,7 +250,7 @@ namespace SyncDevice.Windows.Bluetooth
                 deviceWatcher = null;
             }
         }
-
+        /*
         private async void ReceiveStringLoop(DataReader chatReader)
         {
             try
@@ -286,32 +293,32 @@ namespace SyncDevice.Windows.Bluetooth
                 }
             }
         }
-
+        */
         /// <summary>
         /// Cleans up the socket and DataWriter and reset the UI
         /// </summary>
         /// <param name="disconnectReason"></param>
         public void Disconnect(string disconnectReason)
         {
-            ClearWriters();
+            ClearChannels();
 
-            if (chatService != null)
-            {
-                chatService.Dispose();
-                chatService = null;
-            }
-            lock (this)
-            {
-                if (chatSocket != null)
-                {
-                    chatSocket.Dispose();
-                    chatSocket = null;
-                }
-            }
+            //if (chatService != null)
+            //{
+            //    chatService.Dispose();
+            //    chatService = null;
+            //}
+            //lock (this)
+            //{
+            //    if (chatSocket != null)
+            //    {
+            //        chatSocket.Dispose();
+            //        chatSocket = null;
+            //    }
+            //}
 
             Logger?.LogInformation(disconnectReason);
 
-            RaiseOnDeviceDisconnected(disconnectReason);
+            RaiseOnDeviceDisconnected(this);
 
             Status = SyncDeviceStatus.Stopped;
 

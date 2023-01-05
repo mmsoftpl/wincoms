@@ -20,11 +20,11 @@ namespace WindowsFormsApp1
             client.OnDeviceDisconnected += Server_OnDeviceDisconnected;
         }
 
-        private void Server_OnDeviceDisconnected(object sender, string deviceId)
+        private void Server_OnDeviceDisconnected(object sender, ISyncDevice device)
         {
         }
 
-        private void Server_OnDeviceConnected(object sender, string deviceId)
+        private void Server_OnDeviceConnected(object sender, ISyncDevice device)
         {
             KeepWriting();
         }

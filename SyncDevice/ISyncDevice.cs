@@ -21,15 +21,19 @@ namespace SyncDevice
 
     public delegate void OnStatusEventHandler(object sender, SyncDeviceStatus status);
 
-    public delegate void OnDeviceConnected(object sender, string deviceId);
+    public delegate void OnDeviceConnected(object sender, ISyncDevice syncDevice);
 
-    public delegate void OnDeviceDisconnected(object sender, string deviceId);
+    public delegate void OnConnectionStarted(object sender, string deviceId);
+
+    public delegate void OnDeviceDisconnected(object sender, ISyncDevice syncDevice);
 
     public interface ISyncDevice
     {        
         Task SendMessageAsync(string message);
 
         SyncDeviceStatus Status { get; }
+
+        int Connections { get; }
 
         ILogger Logger { get; }
 

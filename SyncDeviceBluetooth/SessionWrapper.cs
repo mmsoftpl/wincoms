@@ -125,7 +125,7 @@ namespace SyncDevice.Windows.WifiDirect
                 await session.AddStreamSocketListenerAsync(listenerSocket);
                 Logger?.LogInformation("AddStreamSocketListenerAsync Done");
 
-                WifiDirectWindows.RaiseOnDeviceConnected(session.SessionAddress);
+               // WifiDirectWindows.RaiseOnDeviceConnected(session.SessionAddress);
             }
             catch (Exception ex)
             {
@@ -169,7 +169,7 @@ namespace SyncDevice.Windows.WifiDirect
                 //// Update manager so UI can add to list
                 //manager.AddSocket(socketWrapper);
 
-                WifiDirectWindows.RaiseOnDeviceConnected(session.SessionAddress);
+               // WifiDirectWindows.RaiseOnDeviceConnected(session.SessionAddress);
             }
             catch (Exception ex)
             {
@@ -252,7 +252,7 @@ namespace SyncDevice.Windows.WifiDirect
                 {
                     sessionClosedEvent.Set();
 
-                    WifiDirectWindows.RaiseOnDeviceDisconnected(session.SessionAddress);
+                   // WifiDirectWindows.RaiseOnDeviceDisconnected(session.SessionAddress);
                     //// Cleanup
                     //manager.RemoveSession(this);
                 }
