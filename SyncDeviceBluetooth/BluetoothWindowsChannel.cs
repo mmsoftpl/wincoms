@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
@@ -22,8 +21,8 @@ namespace SyncDevice.Windows.Bluetooth
 
         public override Task StopAsync(string reason)
         {
-            Status = SyncDeviceStatus.Aborted;
-            Writer.DetachStream();
+            Status = SyncDeviceStatus.Stopped;
+            Writer?.DetachStream();
 
 
             if (ChatService != null)
@@ -60,7 +59,6 @@ namespace SyncDevice.Windows.Bluetooth
             Logger?.LogInformation("Connected to Client: " + DeviceId);
 
             RaiseOnConnectionStarted(DeviceId);
-            Status = SyncDeviceStatus.Started;
 
             // Infinite read buffer loop
             while (Status == SyncDeviceStatus.Started)
@@ -131,12 +129,14 @@ namespace SyncDevice.Windows.Bluetooth
 
         internal override void RaiseOnDeviceDisconnected(ISyncDevice device)
         {
+            Status = SyncDeviceStatus.Aborted;
             base.RaiseOnDeviceDisconnected(device);
-            Creator?.RaiseOnDeviceDisconnected(device);
+            Creator?.RaiseOnDeviceDisconnected(device);            
         }
 
         internal override void RaiseOnConnectionStarted(string deviceId)
         {
+            Status = SyncDeviceStatus.Started;
             base.RaiseOnConnectionStarted(deviceId);
             Creator?.RaiseOnConnectionStarted(deviceId);
         }

@@ -34,16 +34,19 @@ namespace SyncDevice.Windows.Bluetooth
 
         internal virtual void RaiseOnConnectionStarted(string deviceId)
         {
+            Status = SyncDeviceStatus.Started;
             OnConnectionStarted?.Invoke(this, deviceId);
         }
 
         internal virtual void RaiseOnDeviceConnected(ISyncDevice device)
-        {
+        {            
             OnDeviceConnected?.Invoke(this, device);
         }
 
         internal virtual void RaiseOnDeviceDisconnected(ISyncDevice device)
         {
+            Status = SyncDeviceStatus.Stopped;
+
             OnDeviceDisconnected?.Invoke(this, device);
 
             if (device is BluetoothWindowsChannel channel)

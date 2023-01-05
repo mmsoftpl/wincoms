@@ -16,12 +16,11 @@ namespace SyncDevice.Windows.Bluetooth
     {
         private DeviceWatcher deviceWatcher = null;
         private BluetoothDevice bluetoothDevice = null;
-        //private RfcommDeviceService chatService = null;
-       // private StreamSocket chatSocket = null;
 
         public override Task StartAsync(string reason)
         {
             Logger?.LogInformation(reason);
+            Status = SyncDeviceStatus.Created;
             FindDevices();
             return Task.CompletedTask;
         }
@@ -42,7 +41,6 @@ namespace SyncDevice.Windows.Bluetooth
         {
             Logger?.LogInformation($"Enumeration started. Scanning for devices...");
 
-            Status = SyncDeviceStatus.Created;
             // Request additional properties
             string[] requestedProperties = new string[] { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
 
@@ -319,9 +317,6 @@ namespace SyncDevice.Windows.Bluetooth
             Logger?.LogInformation(disconnectReason);
 
             RaiseOnDeviceDisconnected(this);
-
-            Status = SyncDeviceStatus.Stopped;
-
         }
     }
 
