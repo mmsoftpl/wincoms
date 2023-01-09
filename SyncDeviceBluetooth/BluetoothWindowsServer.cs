@@ -125,6 +125,7 @@ namespace SyncDevice.Windows.Bluetooth
             if (Status != SyncDeviceStatus.Started)
             {
                 Logger?.LogError("Can't accept connection. Server not started");
+                return;
             }
 
             StreamSocket socket;                 
