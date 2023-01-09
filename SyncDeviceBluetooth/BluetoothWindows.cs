@@ -19,6 +19,8 @@ namespace SyncDevice.Windows.Bluetooth
             }
         }
 
+        public string SessionName { get; protected set; }
+
         public ILogger Logger { get; set; }
 
         public event OnMessageEventHandler OnMessage;
@@ -87,7 +89,7 @@ namespace SyncDevice.Windows.Bluetooth
             }
         }
 
-        public abstract Task StartAsync(string reason);
+        public abstract Task StartAsync(string sessionName, string reason);
 
         public abstract Task StopAsync(string reason);
 
@@ -96,7 +98,7 @@ namespace SyncDevice.Windows.Bluetooth
         public static readonly Guid BluetoothProtocolId = Guid.Parse("e0cbf06c-cd8b-4647-bb8a-263b43f0f974");
 
         // The Id of the Service Name SDP attribute
-        protected const UInt16 SdpServiceNameAttributeId = 0x100;
+        protected const ushort SdpServiceNameAttributeId = 0x100;
 
         // The SDP Type of the Service Name SDP attribute.
         // The first byte in the SDP Attribute encodes the SDP Attribute Type as follows :
@@ -104,8 +106,10 @@ namespace SyncDevice.Windows.Bluetooth
         //    -  the SDP Attribute Type value in the most significant 5 bits.
         protected const byte SdpServiceNameAttributeType = (4 << 3) | 5;
 
+        public bool IsEFMserviceName(string serviceName) => serviceName?.StartsWith("Bluetooth eFM Service ") == true;
+
         // The value of the Service Name SDP attribute
-        public const string SdpServiceName = "Bluetooth eFM Service";
+        public static string SdpServiceName(ISyncDevice syncDevice) => $"Bluetooth eFM Service [{syncDevice?.SessionName}]";
 
         protected ConcurrentDictionary<string, BluetoothWindowsChannel> Channels = new ConcurrentDictionary<string, BluetoothWindowsChannel>();
 

@@ -32,7 +32,7 @@ namespace WindowsFormsApp1
 
         private void Server_OnDeviceConnected(object sender, ISyncDevice syncDevice)
         {
-            _ = syncDevice.StartAsync("client auto starting device");
+            _ = syncDevice.StartAsync(syncDevice.SessionName, "client auto starting device");
         }
 
         private void Server_OnMessage(object sender, MessageEventArgs e)

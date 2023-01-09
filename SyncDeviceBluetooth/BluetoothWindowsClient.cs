@@ -1,15 +1,12 @@
-﻿using System;
-using System.Threading.Tasks;
-using Windows.Devices.Bluetooth.Rfcomm;
-using Windows.Devices.Bluetooth;
-using Windows.Devices.Enumeration;
-using Windows.Networking.Sockets;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
+using Windows.Devices.Bluetooth;
+using Windows.Devices.Bluetooth.Rfcomm;
+using Windows.Devices.Enumeration;
 using Windows.Foundation;
 using Windows.Storage.Streams;
-using System.Runtime.Remoting.Messaging;
-using System.Diagnostics;
 
 namespace SyncDevice.Windows.Bluetooth
 {
@@ -18,8 +15,9 @@ namespace SyncDevice.Windows.Bluetooth
         private DeviceWatcher deviceWatcher = null;
         private BluetoothDevice bluetoothDevice = null;
 
-        public override Task StartAsync(string reason)
+        public override Task StartAsync(string sessionName, string reason)
         {
+            SessionName = sessionName;
             Logger?.LogInformation(reason);
             Status = SyncDeviceStatus.Created;
             FindDevices();
@@ -56,7 +54,7 @@ namespace SyncDevice.Windows.Bluetooth
             // Hook up handlers for the watcher events before starting the watcher
             deviceWatcher.Added += new TypedEventHandler<DeviceWatcher, DeviceInformation>((watcher, deviceInfo) =>
             {
-                if (deviceInfo.Name == SdpServiceName)
+                if (IsEFMserviceName(deviceInfo.Name))
                 {
                     ResultCollection.TryAdd(deviceInfo.Id, deviceInfo);
 
@@ -106,7 +104,7 @@ namespace SyncDevice.Windows.Bluetooth
                 if (channel == null)
                 {
                     Status = SyncDeviceStatus.Stopped;
-                    Disconnect($"Could not discover the {SdpServiceName}");
+                    Disconnect($"Could not discover the {SdpServiceName(this)}");
                 }
             });
 
@@ -123,7 +121,7 @@ namespace SyncDevice.Windows.Bluetooth
             // Make sure user has selected a device first
             if (deviceInfoDisp != null)
             {
-                Logger?.LogInformation($"Testing remote device {deviceInfoDisp.Name} for presence of {SdpServiceName}...");
+                Logger?.LogInformation($"Testing remote device {deviceInfoDisp.Name} for presence of {SdpServiceName(this)}...");
             }
             else
             {

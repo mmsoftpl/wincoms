@@ -33,6 +33,8 @@ namespace SyncDevice
 
         SyncDeviceStatus Status { get; }
 
+        string SessionName { get; }
+
         int Connections { get; }
 
         ILogger Logger { get; }
@@ -42,7 +44,7 @@ namespace SyncDevice
         event OnDeviceConnected OnDeviceConnected;
         event OnDeviceDisconnected OnDeviceDisconnected;
 
-        Task StartAsync(string reason);
+        Task StartAsync(string sessionName, string reason);
 
         Task StopAsync(string reason);
     }

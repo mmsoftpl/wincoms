@@ -21,6 +21,8 @@ namespace SyncDevice.Windows.WifiDirect
             }
         }
 
+        public string SessionName { get; set; }
+
         public ILogger Logger { get; set; }
 
         public int Connections => 1;
@@ -45,7 +47,7 @@ namespace SyncDevice.Windows.WifiDirect
             OnDeviceDisconnected?.Invoke(this, device);
         }
 
-        public abstract Task StartAsync(string reason);
+        public abstract Task StartAsync(string sessionName, string reason);
 
         public abstract Task StopAsync(string reason);
 

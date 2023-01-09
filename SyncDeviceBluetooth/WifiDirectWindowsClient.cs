@@ -36,8 +36,9 @@ namespace SyncDevice.Windows.Bluetooth
             return Task.CompletedTask;
         }
 
-        public override Task StartAsync(string reason)
+        public override Task StartAsync(string sessionName, string reason)
         {
+            SessionName = sessionName;
             DiscoverServicesAsync("efm", null);
             return Task.CompletedTask;
         }

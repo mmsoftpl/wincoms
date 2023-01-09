@@ -13,10 +13,11 @@ namespace SyncDevice.Windows.WifiDirect
     {
         private WiFiDirectServiceAdvertiser advertiser { get; set; }
 
-        public override Task StartAsync(string reason)
+        public override Task StartAsync(string sessionName, string reason)
         {
+            SessionName = sessionName;
             StartAdvertisement("efm", true, true, "", null, WiFiDirectServiceStatus.Available, 2,
-                BluetoothWindows.SdpServiceName, null, null);
+                BluetoothWindows.SdpServiceName(this), null, null);
 
             return Task.CompletedTask;
         }

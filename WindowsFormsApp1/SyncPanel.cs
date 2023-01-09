@@ -29,6 +29,8 @@ namespace WindowsFormsApp1
         protected CheckBox cbSendMessages;
         private Label label1;
         protected NumericUpDown numericUpDown;
+        private TextBox textBox1;
+        private Label label3;
 
         public MainPage MainPage { get; set; }
 
@@ -68,6 +70,7 @@ namespace WindowsFormsApp1
             }
 
             progressBar.Visible = Status == SyncDeviceStatus.Created;
+            textBox1.Enabled = Status == SyncDeviceStatus.Stopped;
         }    
 
         public void UpdateControls() {
@@ -152,18 +155,19 @@ namespace WindowsFormsApp1
 
         protected async Task KeepWriting()
         {
-            while (Status == SyncDeviceStatus.Started)
+            if (Status == SyncDeviceStatus.Started)
             {
                 if (ShouldSendMessages && SyncDevice.Connections > 0)
                 {
                     string msg = $"Time at {headerLabel.Text} is {DateTime.UtcNow}";
 
-                    msg = "{\"TargetNodeId\":7777,\"SourceNodeId\":8888,\"PayloadLength\":105,\"Payload\":\"eyJNZXNzYWdlSWQiOiJJc0FsaXZlIiwiUGF5bG9hZCI6IntcIk1lc3NhZ2VJZFwiOlwiSXNBbGl2ZVwiLFwiTnVtQ2xpZW50c1wiOjEsXCJDb25uZWN0ZWROb2RlSWRzXCI6WzFdfSJ9\"}";
+                   // msg = "{\"TargetNodeId\":7777,\"SourceNodeId\":8888,\"PayloadLength\":105,\"Payload\":\"eyJNZXNzYWdlSWQiOiJJc0FsaXZlIiwiUGF5bG9hZCI6IntcIk1lc3NhZ2VJZFwiOlwiSXNBbGl2ZVwiLFwiTnVtQ2xpZW50c1wiOjEsXCJDb25uZWN0ZWROb2RlSWRzXCI6WzFdfSJ9\"}";
 
                     await SyncDevice?.SendMessageAsync(msg);
                     RecordSentMessage(msg);                    
                 }
-                Thread.Sleep(MessagesInterval);
+                await Task.Delay(MessagesInterval);
+                _ = KeepWriting();
             }
         }
 
@@ -199,6 +203,8 @@ namespace WindowsFormsApp1
             this.label1 = new System.Windows.Forms.Label();
             this.numericUpDown = new System.Windows.Forms.NumericUpDown();
             this.cbSendMessages = new System.Windows.Forms.CheckBox();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.lastMessagePanel.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -454,8 +460,31 @@ namespace WindowsFormsApp1
             this.cbSendMessages.Text = "Send message every ";
             this.cbSendMessages.UseVisualStyleBackColor = true;
             // 
+            // textBox1
+            // 
+            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.textBox1.Location = new System.Drawing.Point(450, 42);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(134, 20);
+            this.textBox1.TabIndex = 19;
+            this.textBox1.Text = "09JAN2023 LO1234z";
+            this.textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            // 
+            // label3
+            // 
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(386, 45);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(58, 13);
+            this.label3.TabIndex = 20;
+            this.label3.Text = "Session id:";
+            // 
             // SyncPanel
             // 
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.textBox1);
             this.Controls.Add(this.lastMessagePanel);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel5);
@@ -479,6 +508,7 @@ namespace WindowsFormsApp1
             this.panel5.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -488,7 +518,7 @@ namespace WindowsFormsApp1
             {
                 Reset();
                 Status = SyncDeviceStatus.Created;
-                SyncDevice.StartAsync("Connect requested by app user");
+                SyncDevice.StartAsync(textBox1.Text, "Connect requested by app user");
             }
             else
             if (Status == SyncDeviceStatus.Started)
@@ -496,6 +526,10 @@ namespace WindowsFormsApp1
                 Status = SyncDeviceStatus.Aborted;
                 SyncDevice.StopAsync("Disconnect requested by app user");
             }
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
         }
     }
 }

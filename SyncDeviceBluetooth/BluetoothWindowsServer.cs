@@ -14,10 +14,11 @@ namespace SyncDevice.Windows.Bluetooth
         private RfcommServiceProvider rfcommProvider;
         private StreamSocketListener socketListener;
 
-        public override Task StartAsync(string reason)
+        public override Task StartAsync(string sessionName, string reason)
         {
             if (Status == SyncDeviceStatus.Stopped)
             {
+                SessionName = sessionName;
                 Logger?.LogInformation(reason);
                 return InitializeRfcommServer();
             }
@@ -72,7 +73,7 @@ namespace SyncDevice.Windows.Bluetooth
                 return;
             }
 
-            Logger?.LogInformation("Listening for incoming connections");
+            Logger?.LogInformation($"Listening for incoming connections from [{SessionName}]");
 
             Status = SyncDeviceStatus.Started;
         }
@@ -88,12 +89,14 @@ namespace SyncDevice.Windows.Bluetooth
             // Write the Service Name Attribute.
             sdpWriter.WriteByte(SdpServiceNameAttributeType);
 
+            string sdpServiceName = SdpServiceName(this);
+
             // The length of the UTF-8 encoded Service Name SDP Attribute.
-            sdpWriter.WriteByte((byte)SdpServiceName.Length);
+            sdpWriter.WriteByte((byte)sdpServiceName.Length);
 
             // The UTF-8 encoded Service Name value.
             sdpWriter.UnicodeEncoding = UnicodeEncoding.Utf8;
-            sdpWriter.WriteString(SdpServiceName);
+            sdpWriter.WriteString(sdpServiceName);
 
             // Set the SDP Attribute on the RFCOMM Service Provider.
             rfcommProvider.SdpRawAttributes.Add(SdpServiceNameAttributeId, sdpWriter.DetachBuffer());

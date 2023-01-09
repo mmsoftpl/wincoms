@@ -9,11 +9,12 @@ namespace SyncDevice.Windows.Bluetooth
 {
     public class BluetoothWindowsChannel : BluetoothWindows
     {
-        public override Task StartAsync(string reason)
+        public override Task StartAsync(string sessionName, string reason)
         {
+            SessionName = sessionName;
             if (Writer == null)
             {
-                _ = ListenOnChannel();
+                return ListenOnChannel();
             }
 
             return Task.CompletedTask;
@@ -42,9 +43,6 @@ namespace SyncDevice.Windows.Bluetooth
 
         public async Task ListenOnChannel()
         {
-            // Note - this is the supported way to get a Bluetooth device from a given socket
-           // var remoteDevice = await BluetoothDevice.FromHostNameAsync(Socket.Information.RemoteHostName);
-
             if (ChatService != null)
             {
                 Socket = new StreamSocket();
@@ -54,7 +52,6 @@ namespace SyncDevice.Windows.Bluetooth
             Writer = new DataWriter(Socket.OutputStream);
 
             var reader = new DataReader(Socket.InputStream);
-            bool remoteDisconnection = false;
 
             Logger?.LogInformation("Connected to Client: " + DeviceId);
 
@@ -71,7 +68,6 @@ namespace SyncDevice.Windows.Bluetooth
                     // Check if the size of the data is expected (otherwise the remote has already terminated the connection)
                     if (readLength < sizeof(uint))
                     {
-                        remoteDisconnection = true;
                         break;
                     }
                     uint currentLength = reader.ReadUInt32();
@@ -82,7 +78,6 @@ namespace SyncDevice.Windows.Bluetooth
                     // Check if the size of the data is expected (otherwise the remote has already terminated the connection)
                     if (readLength < currentLength)
                     {
-                        remoteDisconnection = true;
                         break;
                     }
                     string message = reader.ReadString(currentLength);
@@ -97,7 +92,6 @@ namespace SyncDevice.Windows.Bluetooth
                 catch (Exception e)
                 {
                     Logger?.LogError("Read error", e);
-                    remoteDisconnection = true;
                     break;
                 }
             }

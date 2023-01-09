@@ -37,7 +37,7 @@ namespace WindowsFormsApp1
 
         private void Server_OnDeviceConnected(object sender, ISyncDevice device)
         {
-            _ = device.StartAsync("server auto starting device");
+            _ = device.StartAsync(device.SessionName, "server auto starting device");
         }
 
         private void Server_OnMessage(object sender, MessageEventArgs e)
