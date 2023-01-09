@@ -6,3 +6,5 @@ SyncDeviceBluetooth/obj/
 SyncDeviceWifiDirect/obj/
 SyncDeviceWindows/obj/
 SyncDeviceBluetooth/bin/
+SyncDevice/bin/
+SyncDeviceWindows/bin/

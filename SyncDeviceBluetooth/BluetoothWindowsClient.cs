@@ -52,6 +52,7 @@ namespace SyncDevice.Windows.Bluetooth
 
         public void FindDevices()
         {
+            StopWatcher();
             Logger?.LogInformation($"Enumeration started. Scanning for devices...");
 
             // Request additional properties
@@ -154,14 +155,13 @@ namespace SyncDevice.Windows.Bluetooth
                     }
                     else
                     {
-                        StopWatcher();
                         ConnectStrategy = ConnectStrategy.ScanDevices;
                         RestartAsync("Switching to devices scan mode (slow)");
                     }
                 }
             });
 
-            deviceWatcher.Stopped += new TypedEventHandler<DeviceWatcher, Object>((watcher, obj) =>
+            deviceWatcher.Stopped += new TypedEventHandler<DeviceWatcher, object>((watcher, obj) =>
             {
                 ResultCollection.Clear();
             });
@@ -363,6 +363,8 @@ namespace SyncDevice.Windows.Bluetooth
             ClearChannels();
 
             StopWatcher();
+
+            BluetoothDevice?.Dispose();
 
             //if (chatService != null)
             //{
