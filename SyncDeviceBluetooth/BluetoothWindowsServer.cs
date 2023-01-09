@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;
+using Windows.Devices.Enumeration;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 
@@ -38,7 +39,7 @@ namespace SyncDevice.Windows.Bluetooth
         {
             try
             {
-                rfcommProvider = await RfcommServiceProvider.CreateAsync(RfcommServiceId.FromUuid(RfcommChatServiceUuid));
+                rfcommProvider = await RfcommServiceProvider.CreateAsync(RfcommServiceId.FromUuid(RfcommChatServiceUuid));                
             }
             // Catch exception HRESULT_FROM_WIN32(ERROR_DEVICE_NOT_AVAILABLE).
             catch (Exception ex) when ((uint)ex.HResult == 0x800710DF)
@@ -72,7 +73,19 @@ namespace SyncDevice.Windows.Bluetooth
                 return;
             }
 
-            Logger?.LogInformation($"Advertising service name: {SdpServiceName(this)}");
+            var machineName = System.Environment.MachineName;
+            //var f = BluetoothDiagnostics.BluetoothComPort.FindAll();
+
+            var serviceInfoCollection = await DeviceInformation.FindAllAsync(RfcommDeviceService.GetDeviceSelector(RfcommServiceId.SerialPort), new string[] { "System.Devices.AepService.AepId" });
+
+            foreach (var serviceInfo in serviceInfoCollection)
+            {
+                var deviceInfo = await DeviceInformation.CreateFromIdAsync((string)serviceInfo.Properties["System.Devices.AepService.AepId"]);
+
+                Logger?.LogInformation($"This device name is: '{deviceInfo.Name}' and id is: '{deviceInfo.Id}'");
+            }
+
+            Logger?.LogInformation($"Advertising service name: {SdpServiceName(this)} on {machineName}");
 
             Status = SyncDeviceStatus.Started;
         }

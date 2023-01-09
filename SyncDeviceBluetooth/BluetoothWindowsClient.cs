@@ -88,7 +88,7 @@ namespace SyncDevice.Windows.Bluetooth
                     if (b != null)
                     {
                         var s = Task.Run(() => GetRfcommDeviceService(b)).Result;
-                        serviceName = s?.ToString();
+                        serviceName = s?.Item2;
                     }
                 }
 
@@ -276,7 +276,7 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 var s = await GetRfcommDeviceService(BluetoothDevice);
 
-                RfcommDeviceService rfcommDeviceService = s.Item1;
+                RfcommDeviceService rfcommDeviceService = s?.Item1;
 
                 if (rfcommDeviceService != null)
                 {
