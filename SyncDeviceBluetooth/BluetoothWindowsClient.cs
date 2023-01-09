@@ -10,14 +10,28 @@ using Windows.Storage.Streams;
 
 namespace SyncDevice.Windows.Bluetooth
 {
+    public enum ConnectStrategy
+    {
+        ScanDevices,
+        ScanServices
+    }
+
     public class BluetoothWindowsClient : BluetoothWindows
     {
         private DeviceWatcher deviceWatcher = null;
-        private BluetoothDevice bluetoothDevice = null;
+        private BluetoothDevice BluetoothDevice = null;
+
+        private ConnectStrategy ConnectStrategy = ConnectStrategy.ScanServices;
 
         public override Task StartAsync(string sessionName, string reason)
         {
             SessionName = sessionName;
+            ConnectStrategy = ConnectStrategy.ScanServices;
+            return RestartAsync(reason);
+        }
+
+        private Task RestartAsync(string reason)
+        {
             Logger?.LogInformation(reason);
             Status = SyncDeviceStatus.Created;
             FindDevices();
@@ -43,27 +57,50 @@ namespace SyncDevice.Windows.Bluetooth
             // Request additional properties
             string[] requestedProperties = new string[] { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
 
-            string protocolId = "e0cbf06c-cd8b-4647-bb8a-263b43f0f974";
-            string asqFilter = $"(System.Devices.AepService.ProtocolId:=\"{protocolId}\" AND\r\nSystem.Devices.AepService.ServiceClassId:=\"{RfcommChatServiceUuid}\")";
-            asqFilter = $"(System.Devices.AepService.ProtocolId:=\"{{{protocolId}}}\")";
+            string asqFilter = $"(System.Devices.AepService.ProtocolId:=\"{BluetoothProtocolId}\" AND\r\nSystem.Devices.AepService.ServiceClassId:=\"{RfcommChatServiceUuid}\")";
+            asqFilter = $"(System.Devices.AepService.ProtocolId:=\"{{{BluetoothProtocolId}}}\")";
 
-            deviceWatcher = DeviceInformation.CreateWatcher(asqFilter,
-                                                            requestedProperties,
-                                                            DeviceInformationKind.AssociationEndpointService);
-
-            // Hook up handlers for the watcher events before starting the watcher
-            deviceWatcher.Added += new TypedEventHandler<DeviceWatcher, DeviceInformation>((watcher, deviceInfo) =>
+            if (ConnectStrategy == ConnectStrategy.ScanDevices)
             {
-                if (IsEFMserviceName(deviceInfo.Name))
+                Logger?.LogInformation("Scaning for devices (slow)");
+                deviceWatcher = DeviceInformation.CreateWatcher(asqFilter,
+                                                                requestedProperties,
+                                                                DeviceInformationKind.AssociationEndpoint);
+            }
+            else
+            if (ConnectStrategy == ConnectStrategy.ScanServices)
+            {
+                Logger?.LogInformation("Scaning for services (quick)");
+                deviceWatcher = DeviceInformation.CreateWatcher(asqFilter,
+                                                                requestedProperties,
+                                                                DeviceInformationKind.AssociationEndpointService);
+            }
+
+                // Hook up handlers for the watcher events before starting the watcher
+            deviceWatcher.Added += new TypedEventHandler<DeviceWatcher, DeviceInformation>(async (watcher, deviceInfo) =>
+            {
+                var serviceName = deviceInfo.Name;
+
+                if (ConnectStrategy == ConnectStrategy.ScanDevices)
                 {
-                    if (deviceInfo.Name.Contains(SessionName))
+                    var b = Task.Run(() => CreateBluetoothDevice(deviceInfo)).Result;
+                    if (b != null)
+                    {
+                        var s = Task.Run(() => GetRfcommDeviceService(b)).Result;
+                        serviceName = s?.ToString();
+                    }
+                }
+
+                if (IsEFMserviceName(serviceName))
+                {
+                    if (serviceName.Contains(SessionName))
                     {
                         ResultCollection.TryAdd(deviceInfo.Id, deviceInfo);
-                        Logger?.LogInformation($"{deviceInfo.Id}, {deviceInfo.Name} (device info added)");
+                        Logger?.LogInformation($"{deviceInfo.Id}, {deviceInfo.Name} (device info added) for session {serviceName}");
                     }
                     else
                     {
-                        Logger?.LogInformation($"{deviceInfo.Id}, {deviceInfo.Name} (device info NOT added) - different session");
+                        Logger?.LogInformation($"{deviceInfo.Id}, {deviceInfo.Name} (device info NOT added) - different session {serviceName}");
                     }
                 }
             });
@@ -98,6 +135,7 @@ namespace SyncDevice.Windows.Bluetooth
 
                     if (channel != null)
                     {
+                        StopWatcher();
                         Logger?.LogInformation($"Connected to {deviceInfo.Name}...");
 
                         Status = channel.Status;
@@ -109,8 +147,17 @@ namespace SyncDevice.Windows.Bluetooth
 
                 if (channel == null)
                 {
-                    Status = SyncDeviceStatus.Stopped;
-                    Disconnect($"Could not discover the {SdpServiceName(this)}");
+                    if (ConnectStrategy == ConnectStrategy.ScanDevices)
+                    {
+                        Status = SyncDeviceStatus.Stopped;
+                        Disconnect($"Could not discover {SdpServiceName(this)}");
+                    }
+                    else
+                    {
+                        StopWatcher();
+                        ConnectStrategy = ConnectStrategy.ScanDevices;
+                        RestartAsync("Switching to devices scan mode (slow)");
+                    }
                 }
             });
 
@@ -122,8 +169,64 @@ namespace SyncDevice.Windows.Bluetooth
             deviceWatcher.Start();
         }
 
-        public async Task<BluetoothWindowsChannel> Connect(DeviceInformation deviceInfoDisp)
+        private async Task<Tuple<RfcommDeviceService,string>> GetRfcommDeviceService(BluetoothDevice bluetoothDevice)
         {
+            if (bluetoothDevice == null)
+                return null;
+
+            // This should return a list of uncached Bluetooth services (so if the server was not active when paired, it will still be detected by this call
+            var rfcommServicesTask = bluetoothDevice.GetRfcommServicesForIdAsync(
+                RfcommServiceId.FromUuid(RfcommChatServiceUuid), BluetoothCacheMode.Uncached).AsTask();
+
+            rfcommServicesTask.Wait();
+
+            var rfcommServices = rfcommServicesTask.Result;
+            RfcommDeviceService rfcommDeviceService = null;
+
+            if (rfcommServices.Services.Count > 0)
+                rfcommDeviceService = rfcommServices.Services[0];
+
+            string serviceName = String.Empty;
+
+            if (rfcommDeviceService != null)
+            {
+                // Do various checks of the SDP record to make sure you are talking to a device that actually supports the Bluetooth Rfcomm Chat Service
+                var attributes = await rfcommDeviceService.GetSdpRawAttributesAsync();
+                if (!attributes.ContainsKey(SdpServiceNameAttributeId))
+                {
+                    Logger?.LogError(
+                        "The Chat service is not advertising the Service Name attribute (attribute id=0x100). " +
+                        "Please verify that you are running the BluetoothRfcommChat server.");
+                    return null;
+                }
+                var attributeReader = DataReader.FromBuffer(attributes[SdpServiceNameAttributeId]);
+                var attributeType = attributeReader.ReadByte();
+                if (attributeType != SdpServiceNameAttributeType)
+                {
+                    Logger?.LogError(
+                        "The Chat service is using an unexpected format for the Service Name attribute. " +
+                        "Please verify that you are running the BluetoothRfcommChat server.");
+                    // ResetMainUI();
+                    return null;
+                }
+                var serviceNameLength = attributeReader.ReadByte();
+                // The Service Name attribute requires UTF-8 encoding.
+                attributeReader.UnicodeEncoding = UnicodeEncoding.Utf8;
+                serviceName = attributeReader.ReadString(serviceNameLength);
+
+                if (!serviceName.Contains(SessionName))
+                {
+                    Logger?.LogError($"This is not proper service. Wrong session group {SessionName}");
+
+                    return null;
+                }
+            }
+
+            return new Tuple<RfcommDeviceService, string>(rfcommDeviceService, serviceName);
+        }
+
+        private async Task<BluetoothDevice> CreateBluetoothDevice(DeviceInformation deviceInfoDisp)
+        {    
             // Make sure user has selected a device first
             if (deviceInfoDisp != null)
             {
@@ -135,8 +238,7 @@ namespace SyncDevice.Windows.Bluetooth
                 return null;
             }
 
-            // RfcommChatDeviceDisplay deviceInfoDisp = resultsListView.SelectedItem as RfcommChatDeviceDisplay;
-
+            BluetoothDevice bluetoothDevice;
             // Perform device access checks before trying to get the device.
             // First, we check if consent has been explicitly denied by the user.
             DeviceAccessStatus accessStatus = DeviceAccessInformation.CreateFromId(deviceInfoDisp.Id).CurrentStatus;
@@ -163,85 +265,37 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 Logger?.LogError("Bluetooth Device returned null. Access Status = " + accessStatus.ToString());
             }
+            return bluetoothDevice;
+        }
 
-            // This should return a list of uncached Bluetooth services (so if the server was not active when paired, it will still be detected by this call
-            var rfcommServicesTask = bluetoothDevice.GetRfcommServicesForIdAsync(
-                RfcommServiceId.FromUuid(RfcommChatServiceUuid), BluetoothCacheMode.Uncached).AsTask();
+        public async Task<BluetoothWindowsChannel> Connect(DeviceInformation deviceInfoDisp)
+        {
+            BluetoothDevice = await CreateBluetoothDevice(deviceInfoDisp);
 
-            rfcommServicesTask.Wait();
-
-            var rfcommServices = rfcommServicesTask.Result;
-            RfcommDeviceService rfcommDeviceService;
-
-            if (rfcommServices.Services.Count > 0)
+            if (BluetoothDevice != null)
             {
-                rfcommDeviceService = rfcommServices.Services[0];
+                var s = await GetRfcommDeviceService(BluetoothDevice);
 
-                if (rfcommDeviceService == null)
+                RfcommDeviceService rfcommDeviceService = s.Item1;
+
+                if (rfcommDeviceService != null)
                 {
-                    Logger?.LogError(
-                        "The Chat service is null?");
-                    return null;
+                    var channel = new BluetoothWindowsChannel(this, deviceInfoDisp.Id, rfcommDeviceService) { Logger = Logger };
+
+                    if (!Channels.TryAdd(deviceInfoDisp.Id, channel))
+                    {
+                        BluetoothDevice = null;
+                        Logger?.LogError("Can't add channel to dictionary?");
+                        return null;
+                    }
+                    else
+                    {
+                        Logger?.LogInformation("Channel added to dictionary?");
+                        return channel;
+                    }
                 }
             }
-            else
-            {
-                return null;
-            }
-
-            // Do various checks of the SDP record to make sure you are talking to a device that actually supports the Bluetooth Rfcomm Chat Service
-            var attributes = await rfcommDeviceService.GetSdpRawAttributesAsync();
-            if (!attributes.ContainsKey(SdpServiceNameAttributeId))
-            {
-                Logger?.LogError(
-                    "The Chat service is not advertising the Service Name attribute (attribute id=0x100). " +
-                    "Please verify that you are running the BluetoothRfcommChat server.");
-                return null;
-            }
-            var attributeReader = DataReader.FromBuffer(attributes[SdpServiceNameAttributeId]);
-            var attributeType = attributeReader.ReadByte();
-            if (attributeType != SdpServiceNameAttributeType)
-            {
-                Logger?.LogError(
-                    "The Chat service is using an unexpected format for the Service Name attribute. " +
-                    "Please verify that you are running the BluetoothRfcommChat server.");
-                // ResetMainUI();
-                return null;
-            }
-            var serviceNameLength = attributeReader.ReadByte();
-
-            // The Service Name attribute requires UTF-8 encoding.
-            attributeReader.UnicodeEncoding = UnicodeEncoding.Utf8;
-
-            StopWatcher();
-
-            //var streamSocket = new StreamSocket();
-            //await streamSocket.ConnectAsync(rfcommDeviceService.ConnectionHostName, rfcommDeviceService.ConnectionServiceName);
-
-            var channel = new BluetoothWindowsChannel(this, deviceInfoDisp.Id, rfcommDeviceService) {  Logger = Logger };
-
-            if (!Channels.TryAdd(deviceInfoDisp.Id, channel))
-            {
-                Logger?.LogError("Can't add channel to dictionary?");
-                return null;
-            }
-            else
-            {
-
-                Logger?.LogInformation("Channel added to dictionary?");
-                return channel;
-            }
-            //catch (Exception ex) when ((uint)ex.HResult == 0x80070490) // ERROR_ELEMENT_NOT_FOUND
-            //{
-            //    Logger?.LogError("Please verify that you are running the BluetoothRfcommChat server.");
-            //    //   ResetMainUI();
-            //}
-            //catch (Exception ex) when ((uint)ex.HResult == 0x80072740) // WSAEADDRINUSE
-            //{
-            //    Logger?.LogError("Please verify that there is no other RFCOMM connection to the same device.");
-            //    //  ResetMainUI();
-            //}
-            //  return null;
+            return null;
         }
 
         private void StopWatcher()
