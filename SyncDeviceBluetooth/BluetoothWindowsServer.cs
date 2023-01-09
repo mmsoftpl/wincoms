@@ -124,7 +124,7 @@ namespace SyncDevice.Windows.Bluetooth
         {
             if (Status != SyncDeviceStatus.Started)
             {
-                Logger?.LogError("Can't accept connection. Server not started");
+                Disconnect("Can't accept connection. Server not started");
                 return;
             }
 
