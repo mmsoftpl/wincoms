@@ -53,7 +53,6 @@ namespace SyncDevice.Windows.Bluetooth
         public void FindDevices()
         {
             StopWatcher();
-            Logger?.LogInformation($"Enumeration started. Scanning for devices...");
 
             // Request additional properties
             string[] requestedProperties = new string[] { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
@@ -97,11 +96,11 @@ namespace SyncDevice.Windows.Bluetooth
                     if (serviceName.Contains(SessionName))
                     {
                         ResultCollection.TryAdd(deviceInfo.Id, deviceInfo);
-                        Logger?.LogInformation($"{deviceInfo.Id}, {deviceInfo.Name} (device info added) for session {serviceName}");
+                        Logger?.LogInformation($"[Device added] {deviceInfo.Id}, {deviceInfo.Name}");
                     }
                     else
                     {
-                        Logger?.LogInformation($"{deviceInfo.Id}, {deviceInfo.Name} (device info NOT added) - different session {serviceName}");
+                        Logger?.LogInformation($"[Device NOT added] {deviceInfo.Id}, {deviceInfo.Name}");
                     }
                 }
             });
@@ -112,7 +111,7 @@ namespace SyncDevice.Windows.Bluetooth
                 {
                     rfcommInfoDisp.Update(deviceInfoUpdate);
 
-                    Logger?.LogInformation($"{rfcommInfoDisp.Id}, {rfcommInfoDisp.Name} (device info updated)");
+                    Logger?.LogInformation($"[Device updated] {rfcommInfoDisp.Id}, {rfcommInfoDisp.Name}");
                 }
             });
 
@@ -120,13 +119,13 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 if (ResultCollection.TryRemove(deviceInfoUpdate.Id, out var rfcommInfoDisp))
                 {
-                    Logger?.LogInformation($"{rfcommInfoDisp.Id}, {rfcommInfoDisp.Name} (device info removed)");
+                    Logger?.LogInformation($"[Device removed] {rfcommInfoDisp.Id}, {rfcommInfoDisp.Name}");
                 }
             });
 
-            deviceWatcher.EnumerationCompleted += new TypedEventHandler<DeviceWatcher, Object>((watcher, obj) =>
+            deviceWatcher.EnumerationCompleted += new TypedEventHandler<DeviceWatcher, object>((watcher, obj) =>
             {
-                Logger?.LogInformation($"{ResultCollection.Count} devices found. Enumeration completed. Scanning for service...");
+                Logger?.LogInformation($"[Enumeration completed] {ResultCollection.Count} devices found");
 
                 BluetoothWindowsChannel channel = null;
 
@@ -156,7 +155,7 @@ namespace SyncDevice.Windows.Bluetooth
                     else
                     {
                         ConnectStrategy = ConnectStrategy.ScanDevices;
-                        RestartAsync("Switching to devices scan mode (slow)");
+                        RestartAsync("Restart in scan mode");
                     }
                 }
             });
@@ -186,7 +185,7 @@ namespace SyncDevice.Windows.Bluetooth
             if (rfcommServices.Services.Count > 0)
                 rfcommDeviceService = rfcommServices.Services[0];
 
-            string serviceName = String.Empty;
+            string serviceName = string.Empty;
 
             if (rfcommDeviceService != null)
             {
@@ -216,7 +215,7 @@ namespace SyncDevice.Windows.Bluetooth
 
                 if (!serviceName.Contains(SessionName))
                 {
-                    Logger?.LogError($"This is not proper service. Wrong session group {SessionName}");
+                    Logger?.LogError($"This is not proper service. Wrong session {SessionName}");
 
                     return null;
                 }
@@ -233,10 +232,7 @@ namespace SyncDevice.Windows.Bluetooth
                 Logger?.LogInformation($"Testing remote device {deviceInfoDisp.Name} for presence of {SdpServiceName(this)}...");
             }
             else
-            {
-                Logger?.LogError("Please select an item to connect to");
                 return null;
-            }
 
             BluetoothDevice bluetoothDevice;
             // Perform device access checks before trying to get the device.
@@ -285,12 +281,12 @@ namespace SyncDevice.Windows.Bluetooth
                     if (!Channels.TryAdd(deviceInfoDisp.Id, channel))
                     {
                         BluetoothDevice = null;
-                        Logger?.LogError("Can't add channel to dictionary?");
+                        Logger?.LogError("Channel not added");
                         return null;
                     }
                     else
                     {
-                        Logger?.LogInformation("Channel added to dictionary?");
+                        Logger?.LogInformation("Channel added");
                         return channel;
                     }
                 }
@@ -310,54 +306,7 @@ namespace SyncDevice.Windows.Bluetooth
                 deviceWatcher = null;
             }
         }
-        /*
-        private async void ReceiveStringLoop(DataReader chatReader)
-        {
-            try
-            {
-                uint size = await chatReader.LoadAsync(sizeof(uint));
-                if (size < sizeof(uint))
-                {
-                    Disconnect("Remote device terminated connection - make sure only one instance of server is running on remote device");
-                    return;
-                }
 
-                uint stringLength = chatReader.ReadUInt32();
-                uint actualStringLength = await chatReader.LoadAsync(stringLength);
-                if (actualStringLength != stringLength)
-                {
-                    // The underlying socket was closed before we were able to read the whole data
-                    return;
-                }
-
-                RaiseOnMessage(chatReader.ReadString(stringLength));
-
-                ReceiveStringLoop(chatReader);
-            }
-            catch (Exception ex)
-            {
-                lock (this)
-                {
-                    if (chatSocket == null)
-                    {
-                        // Do not print anything here -  the user closed the socket.
-                        if ((uint)ex.HResult == 0x80072745)
-                            Logger?.LogInformation("Disconnect triggered by remote device");
-                        else if ((uint)ex.HResult == 0x800703E3)
-                            Logger?.LogInformation("The I/O operation has been aborted because of either a thread exit or an application request.");
-                    }
-                    else
-                    {
-                        Disconnect("Read stream failed with error: " + ex.Message);
-                    }
-                }
-            }
-        }
-        */
-        /// <summary>
-        /// Cleans up the socket and DataWriter and reset the UI
-        /// </summary>
-        /// <param name="disconnectReason"></param>
         public void Disconnect(string disconnectReason)
         {
             ClearChannels();
@@ -366,19 +315,6 @@ namespace SyncDevice.Windows.Bluetooth
 
             BluetoothDevice?.Dispose();
             BluetoothDevice = null;
-            //if (chatService != null)
-            //{
-            //    chatService.Dispose();
-            //    chatService = null;
-            //}
-            //lock (this)
-            //{
-            //    if (chatSocket != null)
-            //    {
-            //        chatSocket.Dispose();
-            //        chatSocket = null;
-            //    }
-            //}
 
             Logger?.LogInformation(disconnectReason);
 
