@@ -193,7 +193,7 @@ namespace SDKTemplate
             // 
             // columnHeader1
             // 
-            this.columnHeader1.Width = 753;
+            this.columnHeader1.Width = 2000;
             // 
             // copyToClipboardButton
             // 
