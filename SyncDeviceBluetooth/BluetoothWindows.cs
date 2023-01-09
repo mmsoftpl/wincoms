@@ -92,7 +92,9 @@ namespace SyncDevice.Windows.Bluetooth
         public abstract Task StopAsync(string reason);
 
         // The Chat Server's custom service Uuid: 34B1CF4D-1069-4AD6-89B6-E161D79BE4D8
-        public static readonly Guid RfcommChatServiceUuid = Guid.Parse("34B1CF4D-1069-4AD6-89B6-E161D79BE4D8");
+        public static readonly Guid RfcommChatServiceUuid = Guid.Parse("00000003-0000-1000-8000-00805F9B34FB");
+        public static readonly Guid BluetoothProtocolId = Guid.Parse("e0cbf06c-cd8b-4647-bb8a-263b43f0f974");
+
 
         // The Id of the Service Name SDP attribute
         protected const UInt16 SdpServiceNameAttributeId = 0x100;

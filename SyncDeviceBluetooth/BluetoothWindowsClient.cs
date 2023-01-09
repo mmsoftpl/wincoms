@@ -14,8 +14,7 @@ namespace SyncDevice.Windows.Bluetooth
 {
     public class BluetoothWindowsClient : BluetoothWindows
     {
-        private DeviceWatcher deviceWatcher = null;
-        private BluetoothDevice bluetoothDevice = null;
+        private DeviceWatcher deviceWatcher = null;        
 
         public override Task StartAsync(string reason)
         {
@@ -44,7 +43,11 @@ namespace SyncDevice.Windows.Bluetooth
             // Request additional properties
             string[] requestedProperties = new string[] { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
 
-            deviceWatcher = DeviceInformation.CreateWatcher("(System.Devices.Aep.ProtocolId:=\"{e0cbf06c-cd8b-4647-bb8a-263b43f0f974}\")",
+            string asqFilter = $"(System.Devices.Aep.ProtocolId:=\"{{{BluetoothProtocolId}\"}} AND System.Devices.AepService.ServiceClassId:=\"{{{RfcommChatServiceUuid}}}\")";
+
+
+            deviceWatcher = DeviceInformation.CreateWatcher($"(System.Devices.Aep.ProtocolId:=\"{{{BluetoothProtocolId}}}\")",
+           //            deviceWatcher = DeviceInformation.CreateWatcher(asqFilter,
                                                             requestedProperties,
                                                             DeviceInformationKind.AssociationEndpoint);
 
@@ -77,7 +80,7 @@ namespace SyncDevice.Windows.Bluetooth
                 }
             });
 
-            deviceWatcher.EnumerationCompleted += new TypedEventHandler<DeviceWatcher, Object>((watcher, obj) =>
+            deviceWatcher.EnumerationCompleted += new TypedEventHandler<DeviceWatcher, Object>(async (watcher, obj) =>
             {
                 Logger?.LogInformation($"{ResultCollection.Count} devices found. Enumeration completed. Scanning for service...");
 
@@ -85,7 +88,7 @@ namespace SyncDevice.Windows.Bluetooth
 
                 foreach (var deviceInfo in ResultCollection.Values)
                 {
-                    channel = Task.Run(() => Connect(deviceInfo)).Result;
+                    channel = await Connect(deviceInfo);
 
                     if (channel != null)
                     {
@@ -114,8 +117,32 @@ namespace SyncDevice.Windows.Bluetooth
             deviceWatcher.Start();
         }
 
-        public async Task<BluetoothWindowsChannel> Connect(DeviceInformation deviceInfoDisp)
+        private async Task<BluetoothWindowsChannel> TryConnect(DeviceInformation deviceInfoDisp)
         {
+            BluetoothWindowsChannel channel = null;
+            
+            Logger?.LogInformation($"Scanning for service at {deviceInfoDisp.Id}");
+
+            foreach (var deviceInfo in ResultCollection.Values)
+            {
+                channel = await Connect(deviceInfo);
+
+                if (channel != null)
+                {
+                    Logger?.LogInformation($"Connected to {deviceInfo.Name}...");
+
+                    Status = channel.Status;
+
+                    RaiseOnDeviceConnected(channel);
+                    break;
+                }
+            }
+            return channel;
+        }
+
+        private async Task<RfcommDeviceService> GetRfcommDeviceService(DeviceInformation deviceInfoDisp)
+        {
+            BluetoothDevice bluetoothDevice = null;
             // Make sure user has selected a device first
             if (deviceInfoDisp != null)
             {
@@ -180,6 +207,13 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 return null;
             }
+
+            return rfcommDeviceService;
+        }
+
+        public async Task<BluetoothWindowsChannel> Connect(DeviceInformation deviceInfoDisp)
+        {
+            var rfcommDeviceService = await GetRfcommDeviceService(deviceInfoDisp);
 
             // Do various checks of the SDP record to make sure you are talking to a device that actually supports the Bluetooth Rfcomm Chat Service
             var attributes = await rfcommDeviceService.GetSdpRawAttributesAsync();
