@@ -56,9 +56,15 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 if (IsEFMserviceName(deviceInfo.Name))
                 {
-                    ResultCollection.TryAdd(deviceInfo.Id, deviceInfo);
-
-                    Logger?.LogInformation($"{deviceInfo.Id}, {deviceInfo.Name} (device info added)");
+                    if (deviceInfo.Name.Contains(SessionName))
+                    {
+                        ResultCollection.TryAdd(deviceInfo.Id, deviceInfo);
+                        Logger?.LogInformation($"{deviceInfo.Id}, {deviceInfo.Name} (device info added)");
+                    }
+                    else
+                    {
+                        Logger?.LogInformation($"{deviceInfo.Id}, {deviceInfo.Name} (device info NOT added) - different session");
+                    }
                 }
             });
 

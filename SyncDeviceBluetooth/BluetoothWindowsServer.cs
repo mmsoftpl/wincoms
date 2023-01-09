@@ -73,7 +73,7 @@ namespace SyncDevice.Windows.Bluetooth
                 return;
             }
 
-            Logger?.LogInformation($"Listening for incoming connections from [{SessionName}]");
+            Logger?.LogInformation($"Advertising service name: {SdpServiceName(this)}");
 
             Status = SyncDeviceStatus.Started;
         }

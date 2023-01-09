@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
+using Windows.Graphics.Printing;
 
 namespace SyncDevice.Windows.Bluetooth
 {
@@ -106,10 +107,12 @@ namespace SyncDevice.Windows.Bluetooth
         //    -  the SDP Attribute Type value in the most significant 5 bits.
         protected const byte SdpServiceNameAttributeType = (4 << 3) | 5;
 
-        public bool IsEFMserviceName(string serviceName) => serviceName?.StartsWith("Bluetooth eFM Service ") == true;
+        public const string BluetoothServiceName = "EFM Service";
+
+        public bool IsEFMserviceName(string serviceName) => serviceName?.ToUpper().Contains(BluetoothServiceName.ToUpper()) == true;
 
         // The value of the Service Name SDP attribute
-        public static string SdpServiceName(ISyncDevice syncDevice) => $"Bluetooth eFM Service [{syncDevice?.SessionName}]";
+        public static string SdpServiceName(ISyncDevice syncDevice) => $"{BluetoothServiceName} {syncDevice?.SessionName}";
 
         protected ConcurrentDictionary<string, BluetoothWindowsChannel> Channels = new ConcurrentDictionary<string, BluetoothWindowsChannel>();
 
