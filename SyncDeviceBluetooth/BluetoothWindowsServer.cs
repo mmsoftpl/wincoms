@@ -10,7 +10,6 @@ namespace SyncDevice.Windows.Bluetooth
 {
     public class BluetoothWindowsServer : BluetoothWindows
     {
-        private StreamSocket socket;
         private RfcommServiceProvider rfcommProvider;
         private StreamSocketListener socketListener;
 
@@ -110,10 +109,12 @@ namespace SyncDevice.Windows.Bluetooth
         private async void OnConnectionReceived(
             StreamSocketListener sender, StreamSocketListenerConnectionReceivedEventArgs args)
         {
-            // Don't need the listener anymore
-            //socketListener.Dispose();
-            //socketListener = null;
+            if (Status != SyncDeviceStatus.Started)
+            {
+                Logger?.LogError("Can't accept connection. Server not started");
+            }
 
+            StreamSocket socket;                 
             try
             {
                 socket = args.Socket;
@@ -150,17 +151,12 @@ namespace SyncDevice.Windows.Bluetooth
 
             if (socketListener != null)
             {
+                socketListener.ConnectionReceived -= OnConnectionReceived;
                 socketListener.Dispose();
                 socketListener = null;
             }
 
             ClearChannels();
-
-            if (socket != null)
-            {
-                socket.Dispose();
-                socket = null;
-            }
 
             Logger?.LogInformation(disconnectReason);
 

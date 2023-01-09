@@ -365,7 +365,7 @@ namespace SyncDevice.Windows.Bluetooth
             StopWatcher();
 
             BluetoothDevice?.Dispose();
-
+            BluetoothDevice = null;
             //if (chatService != null)
             //{
             //    chatService.Dispose();
