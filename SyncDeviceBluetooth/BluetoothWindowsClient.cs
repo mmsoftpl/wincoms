@@ -21,6 +21,10 @@ namespace SyncDevice.Windows.Bluetooth
         private DeviceWatcher deviceWatcher = null;
         private BluetoothDevice BluetoothDevice = null;
 
+        public bool AutoAccept { get; set; }
+
+        public override string Id { get => BluetoothDevice?.DeviceInformation?.Id; }
+
         private ConnectStrategy ConnectStrategy = ConnectStrategy.ScanServices;
 
         public override Task StartAsync(string sessionName, string reason)
@@ -276,7 +280,7 @@ namespace SyncDevice.Windows.Bluetooth
 
                 if (rfcommDeviceService != null)
                 {
-                    var channel = new BluetoothWindowsChannel(this, deviceInfoDisp.Id, rfcommDeviceService) { Logger = Logger };
+                    var channel = new BluetoothWindowsChannel(this, deviceInfoDisp.Id, rfcommDeviceService) { Logger = Logger, SessionName = SessionName };
 
                     if (!Channels.TryAdd(deviceInfoDisp.Id, channel))
                     {

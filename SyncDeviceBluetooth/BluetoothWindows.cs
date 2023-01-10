@@ -4,6 +4,8 @@ using System;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
 using Windows.Graphics.Printing;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SyncDevice.Windows.Bluetooth
 {
@@ -20,7 +22,7 @@ namespace SyncDevice.Windows.Bluetooth
             }
         }
 
-        public string SessionName { get; protected set; }
+        public string SessionName { get; internal set; }
 
         public ILogger Logger { get; set; }
 
@@ -116,7 +118,9 @@ namespace SyncDevice.Windows.Bluetooth
 
         protected ConcurrentDictionary<string, BluetoothWindowsChannel> Channels = new ConcurrentDictionary<string, BluetoothWindowsChannel>();
 
-        public int Connections { get => Channels.Count; }
+        public IList<ISyncDevice> Connections { get => Channels?.Values?.Cast<ISyncDevice>().ToList(); }
+
+        public abstract string Id { get; }
 
         protected void ClearChannels()
         {

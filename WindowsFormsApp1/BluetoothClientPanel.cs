@@ -27,12 +27,13 @@ namespace WindowsFormsApp1
 
         private void Server_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
         {
-            //
+            UpdateControls();
         }
 
         private void Server_OnDeviceConnected(object sender, ISyncDevice syncDevice)
         {
-            _ = syncDevice.StartAsync(syncDevice.SessionName, "client auto starting device");
+            UpdateControls();
+            //_ = syncDevice.StartAsync(syncDevice.SessionName, "client auto starting device");
         }
 
         private void Server_OnMessage(object sender, MessageEventArgs e)
@@ -43,6 +44,7 @@ namespace WindowsFormsApp1
         private void Server_OnStatus(object sender, SyncDeviceStatus status)
         {
             Status = status;
+            UpdateControls();
         }
 
     }

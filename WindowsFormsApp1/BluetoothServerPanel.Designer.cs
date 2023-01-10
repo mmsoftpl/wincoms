@@ -34,27 +34,30 @@
             // 
             // headerLabel
             // 
-            this.headerLabel.Size = new System.Drawing.Size(623, 26);
             this.headerLabel.Text = "Bluetooth server";
             // 
             // panel5
             // 
-            this.panel5.Size = new System.Drawing.Size(623, 66);
+            this.panel5.Size = new System.Drawing.Size(714, 66);
             // 
             // cbSendMessages
             // 
             this.cbSendMessages.Size = new System.Drawing.Size(180, 26);
+            // 
+            // userTextBox
+            // 
+            this.userTextBox.Text = "PilotA";
             // 
             // BluetoothServerPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Name = "BluetoothServerPanel";
-            this.Size = new System.Drawing.Size(623, 385);
             this.panel5.ResumeLayout(false);
             this.panel5.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 

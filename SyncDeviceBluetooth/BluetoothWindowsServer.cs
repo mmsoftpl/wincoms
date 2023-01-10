@@ -14,6 +14,8 @@ namespace SyncDevice.Windows.Bluetooth
         private RfcommServiceProvider rfcommProvider;
         private StreamSocketListener socketListener;
 
+        public override string Id { get => rfcommProvider?.ToString(); }
+
         public override Task StartAsync(string sessionName, string reason)
         {
             if (Status == SyncDeviceStatus.Stopped)
@@ -142,7 +144,7 @@ namespace SyncDevice.Windows.Bluetooth
 
             // Note - this is the supported way to get a Bluetooth device from a given socket
             var remoteDevice = await BluetoothDevice.FromHostNameAsync(socket.Information.RemoteHostName);
-            var channel = new BluetoothWindowsChannel(this, remoteDevice.DeviceId, socket) { Logger = Logger };
+            var channel = new BluetoothWindowsChannel(this, remoteDevice.DeviceId, socket) { Logger = Logger, SessionName = SessionName };
 
             if (!Channels.TryAdd(remoteDevice.DeviceId, channel))
             {

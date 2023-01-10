@@ -10,6 +10,10 @@ namespace WindowsFormsApp1
 
         public override ISyncDevice SyncDevice => server;
 
+        protected override string StartText => "Start hosting";
+
+        protected override string StopText => "Stop hosting";
+
         public BluetoothServerPanel()
         {
             InitializeComponent();
@@ -33,11 +37,13 @@ namespace WindowsFormsApp1
 
         private void Server_OnDeviceDisconnected(object sender, ISyncDevice device)
         {
+            UpdateControls();
         }
 
         private void Server_OnDeviceConnected(object sender, ISyncDevice device)
         {
-            _ = device.StartAsync(device.SessionName, "server auto starting device");
+            UpdateControls();
+            //_ = device.StartAsync(device.SessionName, "server auto starting device");
         }
 
         private void Server_OnMessage(object sender, MessageEventArgs e)
@@ -47,7 +53,8 @@ namespace WindowsFormsApp1
 
         private void Server_OnStatus(object sender, SyncDeviceStatus status)
         {
-            Status = status;
+            Status = status; 
+            UpdateControls();
         }
     }
 }

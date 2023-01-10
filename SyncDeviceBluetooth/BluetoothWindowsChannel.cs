@@ -105,6 +105,8 @@ namespace SyncDevice.Windows.Bluetooth
         public StreamSocket Socket { get; set; }
         public string DeviceId { get; set; }
 
+        public override string Id { get => SessionName + " ["+ DeviceId + "]"; }
+
         public RfcommDeviceService ChatService { get; set; }
 
         public BluetoothWindows Creator { get; set; }

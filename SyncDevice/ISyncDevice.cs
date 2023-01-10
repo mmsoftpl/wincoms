@@ -1,9 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace SyncDevice
 {
-
     public class MessageEventArgs
     {
         public string Message { get; set; }
@@ -14,7 +15,9 @@ namespace SyncDevice
         Stopped,
         Created,
         Started,        
-        Aborted,        
+        Aborted,
+        Connecting,
+        Connected
     }
 
     public delegate void OnMessageEventHandler(object sender, MessageEventArgs e);
@@ -35,8 +38,9 @@ namespace SyncDevice
 
         string SessionName { get; }
 
-        int Connections { get; }
+        IList<ISyncDevice> Connections { get; }
 
+        string Id { get; }        
         ILogger Logger { get; }
 
         event OnMessageEventHandler OnMessage;

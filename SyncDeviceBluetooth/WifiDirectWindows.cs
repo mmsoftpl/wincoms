@@ -22,10 +22,11 @@ namespace SyncDevice.Windows.WifiDirect
         }
 
         public string SessionName { get; set; }
-
         public ILogger Logger { get; set; }
 
-        public int Connections => 1;
+        public IList<ISyncDevice> Connections { get => null; }
+
+        public string Id { get => "???"; }
 
         public event OnMessageEventHandler OnMessage;
         public event OnStatusEventHandler OnStatus;

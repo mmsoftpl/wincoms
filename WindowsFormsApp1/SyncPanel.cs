@@ -29,8 +29,13 @@ namespace WindowsFormsApp1
         protected CheckBox cbSendMessages;
         private Label label1;
         protected NumericUpDown numericUpDown;
-        private TextBox textBox1;
-        private Label label3;
+        protected TextBox sessionIdTextBox;
+        protected Label sessionIdLabel;
+        private ListBox connectionsListBox;
+        private Button buttonConnect;
+        private Button buttonDisconnect;
+        protected Label userLabel;
+        protected TextBox userTextBox;
 
         public MainPage MainPage { get; set; }
 
@@ -47,13 +52,16 @@ namespace WindowsFormsApp1
 
         public virtual ISyncDevice SyncDevice { get; private set; }
 
+        protected virtual string StartText { get; } = "Start";
+        protected virtual string StopText { get; } = "Stop";
+
         public virtual void OnUpdateControls()
         {
             switch (Status)
             {
                 case SyncDeviceStatus.Stopped:
                     button.Enabled = true;
-                    button.Text = "Start";
+                    button.Text = StartText;
                     break;
                 case SyncDeviceStatus.Created:
                     button.Text = "...starting...";
@@ -65,12 +73,37 @@ namespace WindowsFormsApp1
                     break;
                 case SyncDeviceStatus.Started:
                     button.Enabled = true;
-                    button.Text = "Stop";
+                    button.Text = StopText;
                     break;
             }
 
             progressBar.Visible = Status == SyncDeviceStatus.Created;
-            textBox1.Enabled = Status == SyncDeviceStatus.Stopped;
+            sessionIdTextBox.Enabled = Status == SyncDeviceStatus.Stopped;
+            userTextBox.Enabled = Status == SyncDeviceStatus.Stopped;
+
+            var selectedDevice = GetSelectedDevice();
+
+            if (SyncDevice != null)
+            {
+                connectionsListBox.BeginUpdate();
+                try
+                {
+                    connectionsListBox.Items.Clear();
+
+                    foreach (var connection in SyncDevice.Connections)
+                    {
+                        connectionsListBox.Items.Add(connection.Id);
+                    }
+                    connectionsListBox.SelectedItem = selectedDevice?.Id;
+
+                    buttonConnect.Enabled = selectedDevice?.Status == SyncDeviceStatus.Created;
+                    buttonDisconnect.Enabled = selectedDevice?.Status == SyncDeviceStatus.Started;
+                }
+                finally
+                {
+                    connectionsListBox.EndUpdate();
+                }
+            }
         }    
 
         public void UpdateControls() {
@@ -157,7 +190,7 @@ namespace WindowsFormsApp1
         {
             if (Status == SyncDeviceStatus.Started)
             {
-                if (ShouldSendMessages && SyncDevice.Connections > 0)
+                if (ShouldSendMessages && SyncDevice.Connections?.Count > 0)
                 {
                     string msg = $"Time at {headerLabel.Text} is {DateTime.UtcNow}";
 
@@ -174,11 +207,17 @@ namespace WindowsFormsApp1
         public SyncPanel()
         {
             InitializeComponent();
+
+
+            OnUpdateControls();
         }
 
         public SyncPanel(ISyncDevice syncDevice) : this()
         {
             SyncDevice = syncDevice;
+
+
+            OnUpdateControls();
         }
 
         private void InitializeComponent()
@@ -199,16 +238,22 @@ namespace WindowsFormsApp1
             this.messagesReceivedTextBox = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
+            this.buttonDisconnect = new System.Windows.Forms.Button();
+            this.buttonConnect = new System.Windows.Forms.Button();
+            this.connectionsListBox = new System.Windows.Forms.ListBox();
             this.panel5 = new System.Windows.Forms.Panel();
             this.label1 = new System.Windows.Forms.Label();
             this.numericUpDown = new System.Windows.Forms.NumericUpDown();
             this.cbSendMessages = new System.Windows.Forms.CheckBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
+            this.sessionIdTextBox = new System.Windows.Forms.TextBox();
+            this.sessionIdLabel = new System.Windows.Forms.Label();
+            this.userLabel = new System.Windows.Forms.Label();
+            this.userTextBox = new System.Windows.Forms.TextBox();
             this.lastMessagePanel.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
+            this.panel4.SuspendLayout();
             this.panel5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown)).BeginInit();
             this.SuspendLayout();
@@ -216,9 +261,9 @@ namespace WindowsFormsApp1
             // progressBar
             // 
             this.progressBar.Dock = System.Windows.Forms.DockStyle.Top;
-            this.progressBar.Location = new System.Drawing.Point(0, 72);
+            this.progressBar.Location = new System.Drawing.Point(0, 99);
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(589, 23);
+            this.progressBar.Size = new System.Drawing.Size(732, 23);
             this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
             this.progressBar.TabIndex = 10;
             this.progressBar.Value = 1;
@@ -227,10 +272,10 @@ namespace WindowsFormsApp1
             // button
             // 
             this.button.Dock = System.Windows.Forms.DockStyle.Top;
-            this.button.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button.Location = new System.Drawing.Point(0, 26);
+            this.button.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button.Location = new System.Drawing.Point(0, 60);
             this.button.Name = "button";
-            this.button.Size = new System.Drawing.Size(589, 46);
+            this.button.Size = new System.Drawing.Size(732, 39);
             this.button.TabIndex = 9;
             this.button.Text = "Connect";
             this.button.UseVisualStyleBackColor = true;
@@ -242,7 +287,7 @@ namespace WindowsFormsApp1
             this.headerLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.headerLabel.Location = new System.Drawing.Point(0, 0);
             this.headerLabel.Name = "headerLabel";
-            this.headerLabel.Size = new System.Drawing.Size(589, 26);
+            this.headerLabel.Size = new System.Drawing.Size(732, 60);
             this.headerLabel.TabIndex = 8;
             this.headerLabel.Text = "Header";
             this.headerLabel.TextAlign = System.Drawing.ContentAlignment.TopCenter;
@@ -252,10 +297,10 @@ namespace WindowsFormsApp1
             this.lastMessagePanel.Controls.Add(this.lastMessageSentTextBox);
             this.lastMessagePanel.Controls.Add(this.lastMessageLabel);
             this.lastMessagePanel.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lastMessagePanel.Location = new System.Drawing.Point(0, 321);
+            this.lastMessagePanel.Location = new System.Drawing.Point(0, 430);
             this.lastMessagePanel.Name = "lastMessagePanel";
             this.lastMessagePanel.Padding = new System.Windows.Forms.Padding(5);
-            this.lastMessagePanel.Size = new System.Drawing.Size(589, 41);
+            this.lastMessagePanel.Size = new System.Drawing.Size(732, 41);
             this.lastMessagePanel.TabIndex = 13;
             // 
             // lastMessageSentTextBox
@@ -265,7 +310,7 @@ namespace WindowsFormsApp1
             this.lastMessageSentTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lastMessageSentTextBox.Location = new System.Drawing.Point(274, 5);
             this.lastMessageSentTextBox.Name = "lastMessageSentTextBox";
-            this.lastMessageSentTextBox.Size = new System.Drawing.Size(310, 31);
+            this.lastMessageSentTextBox.Size = new System.Drawing.Size(453, 31);
             this.lastMessageSentTextBox.TabIndex = 16;
             this.lastMessageSentTextBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
@@ -286,10 +331,10 @@ namespace WindowsFormsApp1
             this.panel1.Controls.Add(this.lastMessageReceivedTextBox);
             this.panel1.Controls.Add(this.label2);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel1.Location = new System.Drawing.Point(0, 162);
+            this.panel1.Location = new System.Drawing.Point(0, 271);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(5);
-            this.panel1.Size = new System.Drawing.Size(589, 41);
+            this.panel1.Size = new System.Drawing.Size(732, 41);
             this.panel1.TabIndex = 14;
             // 
             // lastMessageReceivedTextBox
@@ -299,7 +344,7 @@ namespace WindowsFormsApp1
             this.lastMessageReceivedTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lastMessageReceivedTextBox.Location = new System.Drawing.Point(275, 5);
             this.lastMessageReceivedTextBox.Name = "lastMessageReceivedTextBox";
-            this.lastMessageReceivedTextBox.Size = new System.Drawing.Size(309, 31);
+            this.lastMessageReceivedTextBox.Size = new System.Drawing.Size(452, 31);
             this.lastMessageReceivedTextBox.TabIndex = 16;
             this.lastMessageReceivedTextBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
@@ -320,10 +365,10 @@ namespace WindowsFormsApp1
             this.panel2.Controls.Add(this.messagesSentTextBox);
             this.panel2.Controls.Add(this.label4);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel2.Location = new System.Drawing.Point(0, 280);
+            this.panel2.Location = new System.Drawing.Point(0, 389);
             this.panel2.Name = "panel2";
             this.panel2.Padding = new System.Windows.Forms.Padding(5);
-            this.panel2.Size = new System.Drawing.Size(589, 41);
+            this.panel2.Size = new System.Drawing.Size(732, 41);
             this.panel2.TabIndex = 15;
             // 
             // messagesSentTextBox
@@ -333,7 +378,7 @@ namespace WindowsFormsApp1
             this.messagesSentTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.messagesSentTextBox.Location = new System.Drawing.Point(275, 5);
             this.messagesSentTextBox.Name = "messagesSentTextBox";
-            this.messagesSentTextBox.Size = new System.Drawing.Size(309, 31);
+            this.messagesSentTextBox.Size = new System.Drawing.Size(452, 31);
             this.messagesSentTextBox.TabIndex = 16;
             this.messagesSentTextBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
@@ -354,10 +399,10 @@ namespace WindowsFormsApp1
             this.panel3.Controls.Add(this.messagesReceivedTextBox);
             this.panel3.Controls.Add(this.label6);
             this.panel3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel3.Location = new System.Drawing.Point(0, 121);
+            this.panel3.Location = new System.Drawing.Point(0, 230);
             this.panel3.Name = "panel3";
             this.panel3.Padding = new System.Windows.Forms.Padding(5);
-            this.panel3.Size = new System.Drawing.Size(589, 41);
+            this.panel3.Size = new System.Drawing.Size(732, 41);
             this.panel3.TabIndex = 16;
             // 
             // messagesReceivedTextBox
@@ -367,7 +412,7 @@ namespace WindowsFormsApp1
             this.messagesReceivedTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 22F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.messagesReceivedTextBox.Location = new System.Drawing.Point(283, 5);
             this.messagesReceivedTextBox.Name = "messagesReceivedTextBox";
-            this.messagesReceivedTextBox.Size = new System.Drawing.Size(301, 31);
+            this.messagesReceivedTextBox.Size = new System.Drawing.Size(444, 31);
             this.messagesReceivedTextBox.TabIndex = 16;
             this.messagesReceivedTextBox.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
@@ -385,11 +430,46 @@ namespace WindowsFormsApp1
             // 
             // panel4
             // 
+            this.panel4.Controls.Add(this.buttonDisconnect);
+            this.panel4.Controls.Add(this.buttonConnect);
+            this.panel4.Controls.Add(this.connectionsListBox);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel4.Location = new System.Drawing.Point(0, 95);
+            this.panel4.Location = new System.Drawing.Point(0, 122);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(589, 26);
+            this.panel4.Size = new System.Drawing.Size(732, 108);
             this.panel4.TabIndex = 17;
+            // 
+            // buttonDisconnect
+            // 
+            this.buttonDisconnect.Location = new System.Drawing.Point(5, 35);
+            this.buttonDisconnect.Name = "buttonDisconnect";
+            this.buttonDisconnect.Size = new System.Drawing.Size(75, 23);
+            this.buttonDisconnect.TabIndex = 2;
+            this.buttonDisconnect.Text = "Disconnect";
+            this.buttonDisconnect.UseVisualStyleBackColor = true;
+            this.buttonDisconnect.Click += new System.EventHandler(this.buttonDisconnect_Click);
+            // 
+            // buttonConnect
+            // 
+            this.buttonConnect.Location = new System.Drawing.Point(5, 6);
+            this.buttonConnect.Name = "buttonConnect";
+            this.buttonConnect.Size = new System.Drawing.Size(75, 23);
+            this.buttonConnect.TabIndex = 1;
+            this.buttonConnect.Text = "Connect";
+            this.buttonConnect.UseVisualStyleBackColor = true;
+            this.buttonConnect.Click += new System.EventHandler(this.buttonConnect_Click);
+            // 
+            // connectionsListBox
+            // 
+            this.connectionsListBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.connectionsListBox.FormattingEnabled = true;
+            this.connectionsListBox.Location = new System.Drawing.Point(86, 6);
+            this.connectionsListBox.Name = "connectionsListBox";
+            this.connectionsListBox.Size = new System.Drawing.Size(631, 82);
+            this.connectionsListBox.TabIndex = 0;
+            this.connectionsListBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.connectionsListBox_MouseClick);
             // 
             // panel5
             // 
@@ -397,10 +477,10 @@ namespace WindowsFormsApp1
             this.panel5.Controls.Add(this.numericUpDown);
             this.panel5.Controls.Add(this.cbSendMessages);
             this.panel5.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel5.Location = new System.Drawing.Point(0, 203);
+            this.panel5.Location = new System.Drawing.Point(0, 312);
             this.panel5.Name = "panel5";
             this.panel5.Padding = new System.Windows.Forms.Padding(10, 40, 0, 0);
-            this.panel5.Size = new System.Drawing.Size(589, 77);
+            this.panel5.Size = new System.Drawing.Size(732, 77);
             this.panel5.TabIndex = 18;
             // 
             // label1
@@ -441,7 +521,7 @@ namespace WindowsFormsApp1
             this.numericUpDown.TabIndex = 1;
             this.numericUpDown.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.numericUpDown.Value = new decimal(new int[] {
-            5000,
+            1000,
             0,
             0,
             0});
@@ -460,31 +540,55 @@ namespace WindowsFormsApp1
             this.cbSendMessages.Text = "Send message every ";
             this.cbSendMessages.UseVisualStyleBackColor = true;
             // 
-            // textBox1
+            // sessionIdTextBox
             // 
-            this.textBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.textBox1.Location = new System.Drawing.Point(450, 42);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(134, 20);
-            this.textBox1.TabIndex = 19;
-            this.textBox1.Text = "09JAN2023 LO1234z";
-            this.textBox1.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            this.sessionIdTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.sessionIdTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.sessionIdTextBox.Location = new System.Drawing.Point(593, 32);
+            this.sessionIdTextBox.Name = "sessionIdTextBox";
+            this.sessionIdTextBox.Size = new System.Drawing.Size(134, 20);
+            this.sessionIdTextBox.TabIndex = 19;
+            this.sessionIdTextBox.Text = "09JAN2023 LO1234z";
+            this.sessionIdTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.sessionIdTextBox.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
-            // label3
+            // sessionIdLabel
             // 
-            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(386, 45);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(58, 13);
-            this.label3.TabIndex = 20;
-            this.label3.Text = "Session id:";
+            this.sessionIdLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.sessionIdLabel.AutoSize = true;
+            this.sessionIdLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.sessionIdLabel.Location = new System.Drawing.Point(650, 7);
+            this.sessionIdLabel.Name = "sessionIdLabel";
+            this.sessionIdLabel.Size = new System.Drawing.Size(77, 17);
+            this.sessionIdLabel.TabIndex = 20;
+            this.sessionIdLabel.Text = "Session id:";
+            // 
+            // userLabel
+            // 
+            this.userLabel.AutoSize = true;
+            this.userLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.userLabel.Location = new System.Drawing.Point(8, 7);
+            this.userLabel.Margin = new System.Windows.Forms.Padding(0);
+            this.userLabel.Name = "userLabel";
+            this.userLabel.Size = new System.Drawing.Size(38, 17);
+            this.userLabel.TabIndex = 24;
+            this.userLabel.Text = "User";
+            // 
+            // userTextBox
+            // 
+            this.userTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.userTextBox.Location = new System.Drawing.Point(10, 32);
+            this.userTextBox.Name = "userTextBox";
+            this.userTextBox.Size = new System.Drawing.Size(134, 20);
+            this.userTextBox.TabIndex = 23;
+            this.userTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // SyncPanel
             // 
-            this.Controls.Add(this.label3);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.userLabel);
+            this.Controls.Add(this.userTextBox);
+            this.Controls.Add(this.sessionIdLabel);
+            this.Controls.Add(this.sessionIdTextBox);
             this.Controls.Add(this.lastMessagePanel);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel5);
@@ -495,7 +599,7 @@ namespace WindowsFormsApp1
             this.Controls.Add(this.button);
             this.Controls.Add(this.headerLabel);
             this.Name = "SyncPanel";
-            this.Size = new System.Drawing.Size(589, 363);
+            this.Size = new System.Drawing.Size(732, 475);
             this.lastMessagePanel.ResumeLayout(false);
             this.lastMessagePanel.PerformLayout();
             this.panel1.ResumeLayout(false);
@@ -504,6 +608,7 @@ namespace WindowsFormsApp1
             this.panel2.PerformLayout();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
+            this.panel4.ResumeLayout(false);
             this.panel5.ResumeLayout(false);
             this.panel5.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown)).EndInit();
@@ -518,7 +623,7 @@ namespace WindowsFormsApp1
             {
                 Reset();
                 Status = SyncDeviceStatus.Created;
-                SyncDevice.StartAsync(textBox1.Text, "Connect requested by app user");
+                SyncDevice.StartAsync(sessionIdTextBox.Text, "Connect requested by app user");
             }
             else
             if (Status == SyncDeviceStatus.Started)
@@ -530,6 +635,52 @@ namespace WindowsFormsApp1
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
+        }
+
+        private void label5_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private ISyncDevice GetSelectedDevice()
+        {
+                var v = connectionsListBox.SelectedItem;
+                if (v != null && SyncDevice != null)
+                {
+                    foreach (var c in SyncDevice.Connections)
+                    {
+                        if (c.Id == v.ToString())
+                            return c;
+                    }
+
+                }
+                return null;
+        }
+
+
+        private void buttonConnect_Click(object sender, EventArgs e)
+        {
+            var selectedDevice = GetSelectedDevice();
+
+            if (selectedDevice != null)
+            {
+                _ = selectedDevice.StartAsync(selectedDevice.SessionName, "Manual connect");
+            }
+        }
+
+        private void connectionsListBox_MouseClick(object sender, MouseEventArgs e)
+        {
+            UpdateControls();
+        }
+
+        private void buttonDisconnect_Click(object sender, EventArgs e)
+        {
+            var selectedDevice = GetSelectedDevice();
+
+            if (selectedDevice != null)
+            {
+                _ = selectedDevice.StopAsync("Manual disconnect");
+            }
         }
     }
 }
