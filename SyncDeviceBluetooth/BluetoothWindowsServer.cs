@@ -144,7 +144,9 @@ namespace SyncDevice.Windows.Bluetooth
 
             // Note - this is the supported way to get a Bluetooth device from a given socket
             var remoteDevice = await BluetoothDevice.FromHostNameAsync(socket.Information.RemoteHostName);
-            var channel = new BluetoothWindowsChannel(this, remoteDevice.DeviceId, socket) { Logger = Logger, SessionName = SessionName };
+
+            
+            var channel = new BluetoothWindowsChannel(this, remoteDevice.DeviceId, socket) { Logger = Logger, SessionName = SessionName.Replace("PilotA","PilotB") };
 
             if (!Channels.TryAdd(remoteDevice.DeviceId, channel))
             {
