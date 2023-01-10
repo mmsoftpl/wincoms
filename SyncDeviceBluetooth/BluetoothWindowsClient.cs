@@ -21,11 +21,9 @@ namespace SyncDevice.Windows.Bluetooth
         private DeviceWatcher deviceWatcher = null;
         private BluetoothDevice BluetoothDevice = null;
 
-        public bool AutoAccept { get; set; }
-
         public override string Id { get => BluetoothDevice?.DeviceInformation?.Id; }
 
-        private ConnectStrategy ConnectStrategy = ConnectStrategy.ScanServices;
+        public ConnectStrategy ConnectStrategy = ConnectStrategy.ScanServices;
 
         public override Task StartAsync(string sessionName, string reason)
         {
@@ -34,7 +32,7 @@ namespace SyncDevice.Windows.Bluetooth
             return RestartAsync(reason);
         }
 
-        private Task RestartAsync(string reason)
+        public Task RestartAsync(string reason)
         {
             Logger?.LogInformation(reason);
             Status = SyncDeviceStatus.Created;
@@ -97,15 +95,15 @@ namespace SyncDevice.Windows.Bluetooth
 
                 if (IsEFMserviceName(serviceName))
                 {
-                    if (serviceName.Contains(SessionName))
+                   // if (serviceName.Contains(SessionName))
                     {
                         ResultCollection.TryAdd(deviceInfo.Id, deviceInfo);
                         Logger?.LogInformation($"[Device added] {deviceInfo.Id}, {deviceInfo.Name}");
                     }
-                    else
-                    {
-                        Logger?.LogInformation($"[Device NOT added] {deviceInfo.Id}, {deviceInfo.Name}");
-                    }
+                    //else
+                    //{
+                    //    Logger?.LogInformation($"[Device NOT added] {deviceInfo.Id}, {deviceInfo.Name}");
+                    //}
                 }
             });
 
@@ -219,9 +217,9 @@ namespace SyncDevice.Windows.Bluetooth
 
                 if (!serviceName.Contains(SessionName))
                 {
-                    Logger?.LogError($"This is not proper service. Wrong session {SessionName}");
+                    Logger?.LogWarning($"This is not proper service. Wrong session {SessionName} ?!?!?!?");
 
-                    return null;
+                    //return null;
                 }
             }
 

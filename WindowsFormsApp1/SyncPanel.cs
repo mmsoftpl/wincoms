@@ -24,7 +24,7 @@ namespace WindowsFormsApp1
         private Panel panel3;
         private Label messagesReceivedTextBox;
         private Label label6;
-        private Panel panel4;
+        protected Panel panel4;
         protected Panel panel5;
         protected CheckBox cbSendMessages;
         private Label label1;
@@ -38,6 +38,8 @@ namespace WindowsFormsApp1
         protected TextBox userTextBox;
 
         public MainPage MainPage { get; set; }
+
+        protected string SessionId => $"{userTextBox?.Text}-{sessionIdTextBox?.Text}";
 
         private SyncDeviceStatus status = SyncDeviceStatus.Stopped;
         public SyncDeviceStatus Status
@@ -617,13 +619,14 @@ namespace WindowsFormsApp1
 
         }
 
-        private void button_Click(object sender, EventArgs e)
+
+        protected void button_Click(object sender, EventArgs e)
         {
             if (Status == SyncDeviceStatus.Stopped)
             {
                 Reset();
                 Status = SyncDeviceStatus.Created;
-                SyncDevice.StartAsync(sessionIdTextBox.Text, "Connect requested by app user");
+                SyncDevice.StartAsync(SessionId, "Connect requested by app user");
             }
             else
             if (Status == SyncDeviceStatus.Started)
@@ -664,7 +667,7 @@ namespace WindowsFormsApp1
 
             if (selectedDevice != null)
             {
-                _ = selectedDevice.StartAsync(selectedDevice.SessionName, "Manual connect");
+                _ = selectedDevice.StartAsync(selectedDevice?.SessionName, "Manual connect");
             }
         }
 

@@ -47,5 +47,23 @@ namespace WindowsFormsApp1
             UpdateControls();
         }
 
+        public override void OnUpdateControls()
+        {
+            base.OnUpdateControls();
+
+            if (rescanButton != null)
+                rescanButton.Enabled = (client?.Status == SyncDeviceStatus.Started) ||
+                    (client?.Status == SyncDeviceStatus.Created);
+
+
+        }
+
+        private void rescanButton_Click(object sender, System.EventArgs e)
+        {
+            client.StopAsync("Rescan");
+            Reset();
+            client.ConnectStrategy = ConnectStrategy.ScanDevices;
+            client.RestartAsync("Rescan");
+        }
     }
 }
