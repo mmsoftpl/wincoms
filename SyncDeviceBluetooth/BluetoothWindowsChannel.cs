@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.Rfcomm;
 using Windows.Networking.Sockets;
@@ -87,19 +86,37 @@ namespace SyncDevice.Windows.Bluetooth
             }            
         }
 
-        public async Task SendWelcomeOnChannelAsync(CancellationToken cancellationToken, int maxNbrOfMessages)
+        private async Task<DataReader> EnsureReaderWriterCreated()
         {
-            if (ChatService != null)
+            if (Socket == null)
             {
-                Socket = new StreamSocket();
-                await Socket.ConnectAsync(ChatService.ConnectionHostName, ChatService.ConnectionServiceName);
+                if (ChatService != null)
+                {
+                    Socket = new StreamSocket();
+                    await Socket.ConnectAsync(ChatService.ConnectionHostName, ChatService.ConnectionServiceName);
+                }
             }
+            if (Writer == null)
+                Writer = new DataWriter(Socket.OutputStream);
+            return new DataReader(Socket.InputStream);
+        }
 
-            Writer = new DataWriter(Socket.OutputStream);
+        public async Task WelcomeOnChannel()
+        {
+            var reader = await EnsureReaderWriterCreated();
+
+            bool welcomed = false;
+            OnMessageEventHandler onMsg = (a, b) =>
+            {
+                Logger?.LogInformation($"Received welcome message '{b.Message}'");
+                welcomed = true;
+            };
+
+            OnMessage += onMsg;
 
             Logger?.LogInformation("Started broadcasting SessionName");
             // Infinite read buffer loop
-            while (!cancellationToken.IsCancellationRequested && maxNbrOfMessages > 0)
+            while (!welcomed)
             {
                 try
                 {
@@ -108,9 +125,10 @@ namespace SyncDevice.Windows.Bluetooth
                     Writer?.WriteString(message);
 
                     await Writer?.StoreAsync();
+                    Logger?.LogInformation($"Broadcasted welcome message '{message}'");
 
                     await Task.Delay(1000);
-                    maxNbrOfMessages--;
+                    
                 }
                 // Catch exception HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED).
                 catch (Exception ex) when ((uint)ex.HResult == 0x800703E3)
@@ -124,20 +142,14 @@ namespace SyncDevice.Windows.Bluetooth
                     break;
                 }
             }
+            OnMessage -= onMsg; 
             Logger?.LogInformation("Stoped broadcasting SessionName");
             Pause();
         }
 
         public async Task<string> ReadWelcomeOnChannelAsync()
         {
-            if (ChatService != null)
-            {
-                Socket = new StreamSocket();
-                await Socket.ConnectAsync(ChatService.ConnectionHostName, ChatService.ConnectionServiceName);
-            }
-
-            //Writer = new DataWriter(Socket.OutputStream);
-            var reader = new DataReader(Socket.InputStream);
+            var reader = await EnsureReaderWriterCreated();
 
             string message;
 
@@ -164,14 +176,7 @@ namespace SyncDevice.Windows.Bluetooth
 
         public async Task ListenOnChannel()
         {
-            if (ChatService != null)
-            {
-                Socket = new StreamSocket();
-                await Socket.ConnectAsync(ChatService.ConnectionHostName, ChatService.ConnectionServiceName);
-            }
-
-            Writer = new DataWriter(Socket.OutputStream);
-            var reader = new DataReader(Socket.InputStream);
+            var reader = await EnsureReaderWriterCreated();
 
             if (await WaitForHostWelcomeMessage(reader))
             {

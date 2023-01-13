@@ -120,8 +120,6 @@ namespace SyncDevice.Windows.Bluetooth
             rfcommProvider.SdpRawAttributes.Add(SdpServiceNameAttributeId, sdpWriter.DetachBuffer());
         }
 
-        private ConcurrentDictionary<string, BluetoothWindowsChannel> PendingConnections = new ConcurrentDictionary<string, BluetoothWindowsChannel>();
-
         /// <summary>
         /// Invoked when the socket listener accepts an incoming Bluetooth connection.
         /// </summary>
@@ -148,40 +146,45 @@ namespace SyncDevice.Windows.Bluetooth
                 return;
             }
 
-            if (PendingConnections.TryGetValue(socket.Information.RemoteHostName.ToString(), out var channel))
+           // if (PendingConnections.TryGetValue(socket.Information.RemoteHostName.ToString(), out var channel))
             {
-                if (!Channels.TryAdd(channel.DeviceId, channel))
-                {
-                    Logger?.LogError("Can't add channel to dictionary?");
-                }
-                else
-                {
-                    Logger?.LogInformation("Channel added to dictionary");
-                    RaiseOnDeviceConnected(channel);
-                }
+
             }
-            else
+            //else
             {
                 // Note - this is the supported way to get a Bluetooth device from a given socket
                 var remoteDevice = await BluetoothDevice.FromHostNameAsync(socket.Information.RemoteHostName);
 
-                channel = new BluetoothWindowsChannel(this, remoteDevice.DeviceId, socket)
+                var channel = new BluetoothWindowsChannel(this, remoteDevice.DeviceId, socket)
                 {
                     Logger = Logger,
                     SessionName = SessionName,
                     IsHost = true,
                 };
 
-                PendingConnections.TryAdd(socket.Information.RemoteHostName.ToString(), channel);
-
                 var msg = await channel.ReadWelcomeOnChannelAsync();
-                if (msg!= null)
+                if (msg != null)
                 {
                     channel.SessionName = msg;
                     channel.Status = SyncDeviceStatus.Created;
 
-                    await channel.SendWelcomeOnChannelAsync(CancellationToken.None, 1);
+                    await channel.SendMessageAsync(msg);
+
+                    if (!Channels.TryAdd(channel.DeviceId, channel))
+                    {
+                        Logger?.LogError("Can't add channel to dictionary?");
+                    }
+                    else
+                    {
+                        Logger?.LogInformation("Channel added to dictionary");
+                        RaiseOnDeviceConnected(channel);
+                    }
                 }
+                else
+                {
+
+                }
+
             }
         }
 

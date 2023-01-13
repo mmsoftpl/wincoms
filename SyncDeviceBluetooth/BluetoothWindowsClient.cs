@@ -286,22 +286,10 @@ namespace SyncDevice.Windows.Bluetooth
                     { 
                         Logger = Logger, 
                         SessionName = SessionName,
-                        IsHost = true
+                        IsHost = false
                     };
 
-                    CancellationTokenSource cancellationTokenSource= new CancellationTokenSource();
-
-                    Task t = channel.SendWelcomeOnChannelAsync(cancellationTokenSource.Token,60);
-                    t.Start();
-
-                    var reader = new DataReader(channel.Socket.InputStream);
-                    var message = await channel.WaitForMessageAsync(reader);
-                    cancellationTokenSource.Cancel();
-
-                    t.Wait();
-
-                    channel.Status = SyncDeviceStatus.Created;
-                    channel.IsHost = false;
+                    await channel.WelcomeOnChannel();
 
                     if (!Channels.TryAdd(deviceInfoDisp.Id, channel))
                     {
