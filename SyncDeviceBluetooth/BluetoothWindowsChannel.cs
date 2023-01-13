@@ -110,7 +110,9 @@ namespace SyncDevice.Windows.Bluetooth
                 try
                 {                    
                     string message = await WaitForMessageAsync(reader);
-                    RaiseOnMessage(message);
+                    if (message != null)
+                        RaiseOnMessage(message);
+                    else break;
                 }
                 // Catch exception HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED).
                 catch (Exception ex) when ((uint)ex.HResult == 0x800703E3)

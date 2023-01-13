@@ -138,7 +138,11 @@ namespace WindowsFormsApp1
             Invoke((MethodInvoker)(() =>
             {
                 messagesReceivedTextBox.Text = messagesRecived.ToString();
-                lastMessageReceivedTextBox.Text = message;
+
+                if (message.Length > 100)
+                    lastMessageReceivedTextBox.Text = message.Length + " bytes";
+                else
+                    lastMessageReceivedTextBox.Text = message;
             }));
         }
 
