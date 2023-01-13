@@ -44,7 +44,7 @@ namespace SyncDevice.Windows.Bluetooth
             return Task.CompletedTask;
         }
 
-        private static async Task<string> WaitForMessageAsync(DataReader reader)
+        private async Task<string> WaitForMessageAsync(DataReader reader)
         {
             // Based on the protocol we've defined, the first uint is the size of the message
             uint readLength = await reader.LoadAsync(sizeof(uint));
@@ -52,6 +52,7 @@ namespace SyncDevice.Windows.Bluetooth
             // Check if the size of the data is expected (otherwise the remote has already terminated the connection)
             if (readLength < sizeof(uint))
             {
+                await StopAsync("Remote has terminated the connection");
                 return null;
             }
             uint currentLength = reader.ReadUInt32();
@@ -62,6 +63,7 @@ namespace SyncDevice.Windows.Bluetooth
             // Check if the size of the data is expected (otherwise the remote has already terminated the connection)
             if (readLength < currentLength)
             {
+                await StopAsync("Remote has terminated the connection");
                 return null;
             }
             return reader.ReadString(currentLength);
@@ -71,7 +73,7 @@ namespace SyncDevice.Windows.Bluetooth
         {
             if (IsHost)
             {
-                await SendMessageAsync("HELLO WORLD");
+                await SendWelcomeMessageAsync(SessionName);
                 // do nothing, as this is host
                 return true;
             }
@@ -187,6 +189,38 @@ namespace SyncDevice.Windows.Bluetooth
             return WriteMessageAsync(Writer, message);
         }
 
+        public Task SendWelcomeMessageAsync(string msg)
+        {
+            if (Writer == null)
+                Writer = new DataWriter(Socket.OutputStream);
+            return WriteMessageAsync(Writer, msg);
+        }
+
+        public async static Task<string> ReadWelcomeMessageAsync(StreamSocket socket)
+        {
+            var reader = new DataReader(socket.InputStream);
+            // Based on the protocol we've defined, the first uint is the size of the message
+            uint readLength = await reader.LoadAsync(sizeof(uint));
+
+            // Check if the size of the data is expected (otherwise the remote has already terminated the connection)
+            if (readLength < sizeof(uint))
+            {
+                //
+                return null;
+            }
+            uint currentLength = reader.ReadUInt32();
+
+            // Load the rest of the message since you already know the length of the data expected.  
+            readLength = await reader.LoadAsync(currentLength);
+
+            // Check if the size of the data is expected (otherwise the remote has already terminated the connection)
+            if (readLength < currentLength)
+            {
+                //
+                return null;
+            }
+            return reader.ReadString(currentLength);
+        }
 
     }
 }

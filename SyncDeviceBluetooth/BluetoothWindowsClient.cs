@@ -295,6 +295,7 @@ namespace SyncDevice.Windows.Bluetooth
                     }
                     else
                     {
+                        await channel.SendWelcomeMessageAsync(SessionName);
                         Logger?.LogInformation("Channel added");
                         return channel;
                     }

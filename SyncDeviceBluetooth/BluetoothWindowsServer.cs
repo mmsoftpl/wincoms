@@ -135,6 +135,8 @@ namespace SyncDevice.Windows.Bluetooth
             try
             {
                 socket = args.Socket;
+
+                string welcomeMessage = await BluetoothWindowsChannel.ReadWelcomeMessageAsync(socket);
             }
             catch (Exception e)
             {

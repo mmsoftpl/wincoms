@@ -14,9 +14,7 @@ namespace SyncDevice
         Stopped,
         Created,
         Started,        
-        Aborted,
-        Connecting,
-        Connected
+        Aborted
     }
 
     public delegate void OnMessageEventHandler(object sender, MessageEventArgs e);
