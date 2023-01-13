@@ -48,7 +48,7 @@ namespace SyncDevice.Windows.Bluetooth
             return Task.CompletedTask;
         }
 
-        private async Task<string> WaitForMessageAsync(DataReader reader)
+        internal async Task<string> WaitForMessageAsync(DataReader reader)
         {
             // Based on the protocol we've defined, the first uint is the size of the message
             uint readLength = await reader.LoadAsync(sizeof(uint));
@@ -136,7 +136,7 @@ namespace SyncDevice.Windows.Bluetooth
                 await Socket.ConnectAsync(ChatService.ConnectionHostName, ChatService.ConnectionServiceName);
             }
 
-            Writer = new DataWriter(Socket.OutputStream);
+            //Writer = new DataWriter(Socket.OutputStream);
             var reader = new DataReader(Socket.InputStream);
 
             string message;
@@ -157,7 +157,7 @@ namespace SyncDevice.Windows.Bluetooth
                 Logger?.LogError("Read error", e);
                 return null;
             }
-            Logger?.LogInformation("Started reading SessionName");
+            Logger?.LogInformation("Stopped reading SessionName");
             Pause();
             return message;
         }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
@@ -290,16 +291,14 @@ namespace SyncDevice.Windows.Bluetooth
 
                     CancellationTokenSource cancellationTokenSource= new CancellationTokenSource();
 
-                    OnMessageEventHandler onWelcomeMessage = (o, e) =>
-                    {
-                        cancellationTokenSource.Cancel();
-                    };
+                    Task t = channel.SendWelcomeOnChannelAsync(cancellationTokenSource.Token,60);
+                    t.Start();
 
-                    channel.OnMessage += onWelcomeMessage;
+                    var reader = new DataReader(channel.Socket.InputStream);
+                    var message = await channel.WaitForMessageAsync(reader);
+                    cancellationTokenSource.Cancel();
 
-                    await channel.SendWelcomeOnChannelAsync(cancellationTokenSource.Token,22);
-
-                    channel.OnMessage -= onWelcomeMessage;
+                    t.Wait();
 
                     channel.Status = SyncDeviceStatus.Created;
                     channel.IsHost = false;
