@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;
@@ -287,14 +288,21 @@ namespace SyncDevice.Windows.Bluetooth
                         IsHost = true
                     };
 
-                    await channel.SendWelcomeOnChannelAsync();
+                    CancellationTokenSource cancellationTokenSource= new CancellationTokenSource();
 
-                    channel = new BluetoothWindowsChannel(this, deviceInfoDisp.Id, rfcommDeviceService)
+                    OnMessageEventHandler onWelcomeMessage = (o, e) =>
                     {
-                        Logger = Logger,
-                        SessionName = s?.Item2,
-                        IsHost = false
+                        cancellationTokenSource.Cancel();
                     };
+
+                    channel.OnMessage += onWelcomeMessage;
+
+                    await channel.SendWelcomeOnChannelAsync(cancellationTokenSource.Token,22);
+
+                    channel.OnMessage -= onWelcomeMessage;
+
+                    channel.Status = SyncDeviceStatus.Created;
+                    channel.IsHost = false;
 
                     if (!Channels.TryAdd(deviceInfoDisp.Id, channel))
                     {

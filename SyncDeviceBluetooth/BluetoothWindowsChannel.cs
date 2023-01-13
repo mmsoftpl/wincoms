@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.Rfcomm;
 using Windows.Networking.Sockets;
@@ -86,7 +87,7 @@ namespace SyncDevice.Windows.Bluetooth
             }            
         }
 
-        public async Task SendWelcomeOnChannelAsync()
+        public async Task SendWelcomeOnChannelAsync(CancellationToken cancellationToken, int maxNbrOfMessages)
         {
             if (ChatService != null)
             {
@@ -95,21 +96,21 @@ namespace SyncDevice.Windows.Bluetooth
             }
 
             Writer = new DataWriter(Socket.OutputStream);
-            var reader = new DataReader(Socket.InputStream);
 
             Logger?.LogInformation("Started broadcasting SessionName");
             // Infinite read buffer loop
-            while (true)
+            while (!cancellationToken.IsCancellationRequested && maxNbrOfMessages > 0)
             {
                 try
                 {
-                    await Task.Delay(1000);
-
                     string message = SessionName;
                     Writer?.WriteUInt32((uint)message.Length);
                     Writer?.WriteString(message);
 
                     await Writer?.StoreAsync();
+
+                    await Task.Delay(1000);
+                    maxNbrOfMessages--;
                 }
                 // Catch exception HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED).
                 catch (Exception ex) when ((uint)ex.HResult == 0x800703E3)
@@ -123,8 +124,8 @@ namespace SyncDevice.Windows.Bluetooth
                     break;
                 }
             }
+            Logger?.LogInformation("Stoped broadcasting SessionName");
             Pause();
-
         }
 
         public async Task<string> ReadWelcomeOnChannelAsync()
@@ -156,6 +157,7 @@ namespace SyncDevice.Windows.Bluetooth
                 Logger?.LogError("Read error", e);
                 return null;
             }
+            Logger?.LogInformation("Started reading SessionName");
             Pause();
             return message;
         }

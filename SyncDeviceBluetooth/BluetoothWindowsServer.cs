@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;
@@ -178,6 +179,8 @@ namespace SyncDevice.Windows.Bluetooth
                 {
                     channel.SessionName = msg;
                     channel.Status = SyncDeviceStatus.Created;
+
+                    await channel.SendWelcomeOnChannelAsync(CancellationToken.None, 1);
                 }
             }
         }
