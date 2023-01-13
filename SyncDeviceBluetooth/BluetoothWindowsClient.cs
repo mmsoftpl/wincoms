@@ -283,11 +283,11 @@ namespace SyncDevice.Windows.Bluetooth
                     var channel = new BluetoothWindowsChannel(this, deviceInfoDisp.Id, rfcommDeviceService) 
                     { 
                         Logger = Logger, 
-                        SessionName = s?.Item2,
+                        SessionName = SessionName,
                         IsHost = true
                     };
 
-                    await channel.ReadWelcomeOnChannelAsync();
+                    await channel.SendWelcomeOnChannelAsync();
 
                     channel = new BluetoothWindowsChannel(this, deviceInfoDisp.Id, rfcommDeviceService)
                     {

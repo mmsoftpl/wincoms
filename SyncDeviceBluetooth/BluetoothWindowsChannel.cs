@@ -85,7 +85,7 @@ namespace SyncDevice.Windows.Bluetooth
             }            
         }
 
-        public async Task SendWelcomeOnChannel()
+        public async Task SendWelcomeOnChannelAsync()
         {
             if (ChatService != null)
             {
@@ -103,7 +103,12 @@ namespace SyncDevice.Windows.Bluetooth
                 try
                 {
                     await Task.Delay(1000);
-                    await SendMessageAsync(SessionName);
+
+                    string message = SessionName;
+                    Writer?.WriteUInt32((uint)message.Length);
+                    Writer?.WriteString(message);
+
+                    await Writer?.StoreAsync();
                 }
                 // Catch exception HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED).
                 catch (Exception ex) when ((uint)ex.HResult == 0x800703E3)
