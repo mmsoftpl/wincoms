@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Net.Sockets;
+using System.Runtime.Remoting.Channels;
 using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.Rfcomm;
@@ -82,6 +83,75 @@ namespace SyncDevice.Windows.Bluetooth
                 string welcomeMessage = await WaitForMessageAsync(reader);
                 return !string.IsNullOrEmpty(welcomeMessage);
             }            
+        }
+
+        public async Task SendWelcomeOnChannel()
+        {
+            if (ChatService != null)
+            {
+                Socket = new StreamSocket();
+                await Socket.ConnectAsync(ChatService.ConnectionHostName, ChatService.ConnectionServiceName);
+            }
+
+            Writer = new DataWriter(Socket.OutputStream);
+            var reader = new DataReader(Socket.InputStream);
+
+            Logger?.LogInformation("Started broadcasting SessionName");
+            // Infinite read buffer loop
+            while (true)
+            {
+                try
+                {
+                    await Task.Delay(1000);
+                    await SendMessageAsync(SessionName);
+                }
+                // Catch exception HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED).
+                catch (Exception ex) when ((uint)ex.HResult == 0x800703E3)
+                {
+                    //        Logger?.LogInformation("Client Disconnected Successfully");
+                    break;
+                }
+                catch (Exception e)
+                {
+                    //  Logger?.LogError("Read error", e);
+                    break;
+                }
+            }
+            await StopAsync("Stopped broadcasting SessionName");
+
+        }
+
+        public async Task<string> ReadWelcomeOnChannelAsync()
+        {
+            if (ChatService != null)
+            {
+                Socket = new StreamSocket();
+                await Socket.ConnectAsync(ChatService.ConnectionHostName, ChatService.ConnectionServiceName);
+            }
+
+            Writer = new DataWriter(Socket.OutputStream);
+            var reader = new DataReader(Socket.InputStream);
+
+            string message;
+
+            Logger?.LogInformation("Started reading SessionName");
+            try
+            {
+                message = await WaitForMessageAsync(reader);
+            }
+            // Catch exception HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED).
+            catch (Exception ex) when ((uint)ex.HResult == 0x800703E3)
+            {
+                Logger?.LogInformation("Client Disconnected Successfully");
+                return null;
+            }
+            catch (Exception e)
+            {
+                Logger?.LogError("Read error", e);
+                return null;
+            }
+            await StopAsync("Stopped reading SessionName");
+            return message;
         }
 
         public async Task ListenOnChannel()
@@ -189,44 +259,44 @@ namespace SyncDevice.Windows.Bluetooth
             return WriteMessageAsync(Writer, message, Logger);
         }
 
-        public static async Task SendWelcomeMessageAsync(string msg, RfcommDeviceService rfcommDeviceService)
-        {
-            var Socket = new StreamSocket();
-            await Socket.ConnectAsync(rfcommDeviceService.ConnectionHostName, rfcommDeviceService.ConnectionServiceName);
-            var Writer = new DataWriter(Socket.OutputStream);
-            await WriteMessageAsync(Writer, msg, null);
-            Writer?.DetachStream();            
-            Socket.Dispose();
-        }
+        //public static async Task SendWelcomeMessageAsync(string msg, RfcommDeviceService rfcommDeviceService)
+        //{
+        //    var Socket = new StreamSocket();
+        //    await Socket.ConnectAsync(rfcommDeviceService.ConnectionHostName, rfcommDeviceService.ConnectionServiceName);
+        //    var Writer = new DataWriter(Socket.OutputStream);
+        //    await WriteMessageAsync(Writer, msg, null);
+        //    Writer?.DetachStream();            
+        //    Socket.Dispose();
+        //}
 
-        public async static Task<string> ReadWelcomeMessageAsync(StreamSocket socket)
-        {
-            var reader = new DataReader(socket.InputStream);
-            // Based on the protocol we've defined, the first uint is the size of the message
-            uint readLength = await reader.LoadAsync(sizeof(uint));
+        //public async static Task<string> ReadWelcomeMessageAsync(StreamSocket socket)
+        //{
+        //    var reader = new DataReader(socket.InputStream);
+        //    // Based on the protocol we've defined, the first uint is the size of the message
+        //    uint readLength = await reader.LoadAsync(sizeof(uint));
 
-            // Check if the size of the data is expected (otherwise the remote has already terminated the connection)
-            if (readLength < sizeof(uint))
-            {
-                //
-                return null;
-            }
-            uint currentLength = reader.ReadUInt32();
+        //    // Check if the size of the data is expected (otherwise the remote has already terminated the connection)
+        //    if (readLength < sizeof(uint))
+        //    {
+        //        //
+        //        return null;
+        //    }
+        //    uint currentLength = reader.ReadUInt32();
 
-            // Load the rest of the message since you already know the length of the data expected.  
-            readLength = await reader.LoadAsync(currentLength);
+        //    // Load the rest of the message since you already know the length of the data expected.  
+        //    readLength = await reader.LoadAsync(currentLength);
 
-            // Check if the size of the data is expected (otherwise the remote has already terminated the connection)
-            if (readLength < currentLength)
-            {
-                //
-                return null;
-            }
+        //    // Check if the size of the data is expected (otherwise the remote has already terminated the connection)
+        //    if (readLength < currentLength)
+        //    {
+        //        //
+        //        return null;
+        //    }
 
-            var r = reader.ReadString(currentLength);
-            reader.DetachStream();
-            return r;
-        }
+        //    var r = reader.ReadString(currentLength);
+        //    reader.DetachStream();
+        //    return r;
+        //}
 
     }
 }

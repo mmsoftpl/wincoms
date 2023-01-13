@@ -119,7 +119,7 @@ namespace SyncDevice.Windows.Bluetooth
             rfcommProvider.SdpRawAttributes.Add(SdpServiceNameAttributeId, sdpWriter.DetachBuffer());
         }
 
-        private ConcurrentDictionary<HostName, BluetoothWindowsChannel> PendingConnections = new ConcurrentDictionary<HostName, BluetoothWindowsChannel>();
+        private ConcurrentDictionary<string, BluetoothWindowsChannel> PendingConnections = new ConcurrentDictionary<string, BluetoothWindowsChannel>();
 
         /// <summary>
         /// Invoked when the socket listener accepts an incoming Bluetooth connection.
@@ -147,10 +147,8 @@ namespace SyncDevice.Windows.Bluetooth
                 return;
             }
 
-            if (PendingConnections.TryGetValue(socket.Information.RemoteHostName, out var channel))
+            if (PendingConnections.TryGetValue(socket.Information.RemoteHostName.ToString(), out var channel))
             {
-                var msg = await BluetoothWindowsChannel.ReadWelcomeMessageAsync(socket);
-
                 if (!Channels.TryAdd(channel.DeviceId, channel))
                 {
                     Logger?.LogError("Can't add channel to dictionary?");
@@ -173,7 +171,13 @@ namespace SyncDevice.Windows.Bluetooth
                     IsHost = true,
                 };
 
-                PendingConnections.TryAdd(socket.Information.RemoteHostName, channel);
+                PendingConnections.TryAdd(socket.Information.RemoteHostName.ToString(), channel);
+
+                var msg = await channel.ReadWelcomeOnChannelAsync();
+                if (msg!= null)
+                {
+                    channel.SessionName = msg;
+                }
             }
         }
 

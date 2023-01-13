@@ -284,6 +284,15 @@ namespace SyncDevice.Windows.Bluetooth
                     { 
                         Logger = Logger, 
                         SessionName = s?.Item2,
+                        IsHost = true
+                    };
+
+                    await channel.ReadWelcomeOnChannelAsync();
+
+                    channel = new BluetoothWindowsChannel(this, deviceInfoDisp.Id, rfcommDeviceService)
+                    {
+                        Logger = Logger,
+                        SessionName = s?.Item2,
                         IsHost = false
                     };
 
@@ -295,8 +304,6 @@ namespace SyncDevice.Windows.Bluetooth
                     }
                     else
                     {
-                        await Task.Delay(1000);
-                        await BluetoothWindowsChannel.SendWelcomeMessageAsync(SessionName, rfcommDeviceService);
                         Logger?.LogInformation("Channel added");
                         return channel;
                     }
