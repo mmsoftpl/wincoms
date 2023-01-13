@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Net.Sockets;
 using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.Rfcomm;
@@ -73,7 +74,6 @@ namespace SyncDevice.Windows.Bluetooth
         {
             if (IsHost)
             {
-                await SendWelcomeMessageAsync(SessionName);
                 // do nothing, as this is host
                 return true;
             }
@@ -186,14 +186,17 @@ namespace SyncDevice.Windows.Bluetooth
 
         public override Task SendMessageAsync(string message)
         {
-            return WriteMessageAsync(Writer, message);
+            return WriteMessageAsync(Writer, message, Logger);
         }
 
-        public Task SendWelcomeMessageAsync(string msg)
+        public static async Task SendWelcomeMessageAsync(string msg, RfcommDeviceService rfcommDeviceService)
         {
-            if (Writer == null)
-                Writer = new DataWriter(Socket.OutputStream);
-            return WriteMessageAsync(Writer, msg);
+            var Socket = new StreamSocket();
+            await Socket.ConnectAsync(rfcommDeviceService.ConnectionHostName, rfcommDeviceService.ConnectionServiceName);
+            var Writer = new DataWriter(Socket.OutputStream);
+            await WriteMessageAsync(Writer, msg, null);
+            Writer?.DetachStream();            
+            Socket.Dispose();
         }
 
         public async static Task<string> ReadWelcomeMessageAsync(StreamSocket socket)
@@ -219,7 +222,10 @@ namespace SyncDevice.Windows.Bluetooth
                 //
                 return null;
             }
-            return reader.ReadString(currentLength);
+
+            var r = reader.ReadString(currentLength);
+            reader.DetachStream();
+            return r;
         }
 
     }

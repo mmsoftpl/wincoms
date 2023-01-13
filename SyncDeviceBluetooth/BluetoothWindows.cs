@@ -64,23 +64,23 @@ namespace SyncDevice.Windows.Bluetooth
             }
         }
 
-        internal async Task WriteMessageAsync(DataWriter chatWriter, string message)
+        static internal async Task WriteMessageAsync(DataWriter dataWriter, string message, ILogger logger)
         {
             try
             {
                 if (!string.IsNullOrEmpty(message))
                 {
-                    chatWriter?.WriteUInt32((uint)message.Length);
-                    chatWriter?.WriteString(message);
+                    dataWriter?.WriteUInt32((uint)message.Length);
+                    dataWriter?.WriteString(message);
 
-                    await chatWriter?.StoreAsync();
+                    await dataWriter?.StoreAsync();
 
                 }
             }
             catch (Exception ex) when ((uint)ex.HResult == 0x80072745)
             {
                 // The remote device has disconnected the connection
-                Logger?.LogInformation("Remote side disconnect: " + ex.HResult.ToString() + " - " + ex.Message);
+                logger?.LogInformation("Remote side disconnect: " + ex.HResult.ToString() + " - " + ex.Message);
             }
         }
 

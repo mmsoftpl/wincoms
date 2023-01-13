@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;
 using Windows.Devices.Enumeration;
+using Windows.Networking;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 
@@ -117,6 +119,8 @@ namespace SyncDevice.Windows.Bluetooth
             rfcommProvider.SdpRawAttributes.Add(SdpServiceNameAttributeId, sdpWriter.DetachBuffer());
         }
 
+        private ConcurrentDictionary<HostName, BluetoothWindowsChannel> PendingConnections = new ConcurrentDictionary<HostName, BluetoothWindowsChannel>();
+
         /// <summary>
         /// Invoked when the socket listener accepts an incoming Bluetooth connection.
         /// </summary>
@@ -135,8 +139,6 @@ namespace SyncDevice.Windows.Bluetooth
             try
             {
                 socket = args.Socket;
-
-                string welcomeMessage = await BluetoothWindowsChannel.ReadWelcomeMessageAsync(socket);
             }
             catch (Exception e)
             {
@@ -145,25 +147,33 @@ namespace SyncDevice.Windows.Bluetooth
                 return;
             }
 
-            // Note - this is the supported way to get a Bluetooth device from a given socket
-            var remoteDevice = await BluetoothDevice.FromHostNameAsync(socket.Information.RemoteHostName);
-
-            
-            var channel = new BluetoothWindowsChannel(this, remoteDevice.DeviceId, socket) 
-            { 
-                Logger = Logger, 
-                SessionName = SessionName,
-                IsHost = true,
-            };
-
-            if (!Channels.TryAdd(remoteDevice.DeviceId, channel))
+            if (PendingConnections.TryGetValue(socket.Information.RemoteHostName, out var channel))
             {
-                Logger?.LogError("Can't add channel to dictionary?");
+                var msg = await BluetoothWindowsChannel.ReadWelcomeMessageAsync(socket);
+
+                if (!Channels.TryAdd(channel.DeviceId, channel))
+                {
+                    Logger?.LogError("Can't add channel to dictionary?");
+                }
+                else
+                {
+                    Logger?.LogInformation("Channel added to dictionary");
+                    RaiseOnDeviceConnected(channel);
+                }
             }
             else
             {
-                Logger?.LogInformation("Channel added to dictionary");
-                RaiseOnDeviceConnected(channel);
+                // Note - this is the supported way to get a Bluetooth device from a given socket
+                var remoteDevice = await BluetoothDevice.FromHostNameAsync(socket.Information.RemoteHostName);
+
+                channel = new BluetoothWindowsChannel(this, remoteDevice.DeviceId, socket)
+                {
+                    Logger = Logger,
+                    SessionName = SessionName,
+                    IsHost = true,
+                };
+
+                PendingConnections.TryAdd(socket.Information.RemoteHostName, channel);
             }
         }
 

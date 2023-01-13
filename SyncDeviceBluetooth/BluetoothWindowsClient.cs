@@ -295,7 +295,8 @@ namespace SyncDevice.Windows.Bluetooth
                     }
                     else
                     {
-                        await channel.SendWelcomeMessageAsync(SessionName);
+                        await Task.Delay(1000);
+                        await BluetoothWindowsChannel.SendWelcomeMessageAsync(SessionName, rfcommDeviceService);
                         Logger?.LogInformation("Channel added");
                         return channel;
                     }
