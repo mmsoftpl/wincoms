@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace SyncDevice
@@ -36,6 +35,8 @@ namespace SyncDevice
 
         SyncDeviceStatus Status { get; }
 
+        bool IsHost { get; }
+
         string SessionName { get; }
 
         IList<ISyncDevice> Connections { get; }
@@ -45,6 +46,7 @@ namespace SyncDevice
 
         event OnMessageEventHandler OnMessage;
         event OnStatusEventHandler OnStatus;
+        event OnConnectionStarted OnConnectionStarted;
         event OnDeviceConnected OnDeviceConnected;
         event OnDeviceDisconnected OnDeviceDisconnected;
 

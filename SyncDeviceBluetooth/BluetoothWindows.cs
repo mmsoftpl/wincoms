@@ -1,11 +1,10 @@
 ﻿using Microsoft.Extensions.Logging;
-using System.Collections.Concurrent;
 using System;
-using System.Threading.Tasks;
-using Windows.Storage.Streams;
-using Windows.Graphics.Printing;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Windows.Storage.Streams;
 
 namespace SyncDevice.Windows.Bluetooth
 {
@@ -21,6 +20,8 @@ namespace SyncDevice.Windows.Bluetooth
                 OnStatus?.Invoke(this, status);                
             }
         }
+
+        public abstract bool IsHost { get; set; }
 
         public string SessionName { get; internal set; }
 

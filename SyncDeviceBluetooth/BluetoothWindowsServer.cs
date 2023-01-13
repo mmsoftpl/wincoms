@@ -16,6 +16,7 @@ namespace SyncDevice.Windows.Bluetooth
 
         public override string Id { get => rfcommProvider?.ToString(); }
 
+        public override bool IsHost { get => true; set { } }
         public override Task StartAsync(string sessionName, string reason)
         {
             if (Status == SyncDeviceStatus.Stopped)
@@ -146,7 +147,12 @@ namespace SyncDevice.Windows.Bluetooth
             var remoteDevice = await BluetoothDevice.FromHostNameAsync(socket.Information.RemoteHostName);
 
             
-            var channel = new BluetoothWindowsChannel(this, remoteDevice.DeviceId, socket) { Logger = Logger, SessionName = SessionName.Replace("PilotA","PilotB") };
+            var channel = new BluetoothWindowsChannel(this, remoteDevice.DeviceId, socket) 
+            { 
+                Logger = Logger, 
+                SessionName = SessionName,
+                IsHost = true,
+            };
 
             if (!Channels.TryAdd(remoteDevice.DeviceId, channel))
             {

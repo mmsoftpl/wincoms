@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.Rfcomm;
 using Windows.Networking.Sockets;
@@ -9,6 +10,8 @@ namespace SyncDevice.Windows.Bluetooth
 {
     public class BluetoothWindowsChannel : BluetoothWindows
     {
+        public override bool IsHost { get; set; }
+
         public override Task StartAsync(string sessionName, string reason)
         {
             SessionName = sessionName;
@@ -41,6 +44,44 @@ namespace SyncDevice.Windows.Bluetooth
             return Task.CompletedTask;
         }
 
+        private static async Task<string> WaitForMessageAsync(DataReader reader)
+        {
+            // Based on the protocol we've defined, the first uint is the size of the message
+            uint readLength = await reader.LoadAsync(sizeof(uint));
+
+            // Check if the size of the data is expected (otherwise the remote has already terminated the connection)
+            if (readLength < sizeof(uint))
+            {
+                return null;
+            }
+            uint currentLength = reader.ReadUInt32();
+
+            // Load the rest of the message since you already know the length of the data expected.  
+            readLength = await reader.LoadAsync(currentLength);
+
+            // Check if the size of the data is expected (otherwise the remote has already terminated the connection)
+            if (readLength < currentLength)
+            {
+                return null;
+            }
+            return reader.ReadString(currentLength);
+        }
+
+        public async Task<bool> WaitForHostWelcomeMessage(DataReader reader)
+        {
+            if (IsHost)
+            {
+                await SendMessageAsync("HELLO WORLD");
+                // do nothing, as this is host
+                return true;
+            }
+            else
+            {
+                string welcomeMessage = await WaitForMessageAsync(reader);
+                return !string.IsNullOrEmpty(welcomeMessage);
+            }            
+        }
+
         public async Task ListenOnChannel()
         {
             if (ChatService != null)
@@ -50,37 +91,25 @@ namespace SyncDevice.Windows.Bluetooth
             }
 
             Writer = new DataWriter(Socket.OutputStream);
-
             var reader = new DataReader(Socket.InputStream);
 
-            Logger?.LogInformation("Connected to Client: " + DeviceId);
+            if (await WaitForHostWelcomeMessage(reader))
+            {
+                Logger?.LogInformation("Connection accepted, " + DeviceId);
+                RaiseOnConnectionStarted(DeviceId);
+            }
+            else
+            {
+                await StopAsync("Connection not accepted, " + DeviceId);
+                return;
+            }
 
-            RaiseOnConnectionStarted(DeviceId);
-
-            // Infinite read buffer loop
+                // Infinite read buffer loop
             while (Status == SyncDeviceStatus.Started)
             {
                 try
-                {
-                    // Based on the protocol we've defined, the first uint is the size of the message
-                    uint readLength = await reader.LoadAsync(sizeof(uint));
-
-                    // Check if the size of the data is expected (otherwise the remote has already terminated the connection)
-                    if (readLength < sizeof(uint))
-                    {
-                        break;
-                    }
-                    uint currentLength = reader.ReadUInt32();
-
-                    // Load the rest of the message since you already know the length of the data expected.  
-                    readLength = await reader.LoadAsync(currentLength);
-
-                    // Check if the size of the data is expected (otherwise the remote has already terminated the connection)
-                    if (readLength < currentLength)
-                    {
-                        break;
-                    }
-                    string message = reader.ReadString(currentLength);
+                {                    
+                    string message = await WaitForMessageAsync(reader);
                     RaiseOnMessage(message);
                 }
                 // Catch exception HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED).

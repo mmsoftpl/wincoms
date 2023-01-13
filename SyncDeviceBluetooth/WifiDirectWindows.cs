@@ -21,6 +21,8 @@ namespace SyncDevice.Windows.WifiDirect
             }
         }
 
+        public bool IsHost => false;
+
         public string SessionName { get; set; }
         public ILogger Logger { get; set; }
 
@@ -30,6 +32,7 @@ namespace SyncDevice.Windows.WifiDirect
 
         public event OnMessageEventHandler OnMessage;
         public event OnStatusEventHandler OnStatus;
+        public event OnConnectionStarted OnConnectionStarted;
         public event OnDeviceConnected OnDeviceConnected;
         public event OnDeviceDisconnected OnDeviceDisconnected;
 
