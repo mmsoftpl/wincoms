@@ -177,6 +177,7 @@ namespace SyncDevice.Windows.Bluetooth
                 if (msg!= null)
                 {
                     channel.SessionName = msg;
+                    channel.Status = SyncDeviceStatus.Created;
                 }
             }
         }

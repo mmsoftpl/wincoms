@@ -29,7 +29,7 @@ namespace SyncDevice.Windows.Bluetooth
         {
             Status = SyncDeviceStatus.Stopped;
             Writer?.DetachStream();
-
+            Writer = null;
 
             if (ChatService != null)
             {
