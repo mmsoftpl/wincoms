@@ -1,8 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Net.Sockets;
-using System.Runtime.Remoting.Channels;
-using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.Rfcomm;
 using Windows.Networking.Sockets;
@@ -25,7 +22,7 @@ namespace SyncDevice.Windows.Bluetooth
             return Task.CompletedTask;
         }
 
-        public override Task StopAsync(string reason)
+        public void Pause()
         {
             Status = SyncDeviceStatus.Stopped;
             Writer?.DetachStream();
@@ -36,7 +33,11 @@ namespace SyncDevice.Windows.Bluetooth
                 ChatService.Dispose();
                 ChatService = null;
             }
+        }
 
+        public override Task StopAsync(string reason)
+        {
+            Pause();
             if (Socket != null)
             {
                 Socket.Dispose();
@@ -122,7 +123,7 @@ namespace SyncDevice.Windows.Bluetooth
                     break;
                 }
             }
-            await StopAsync("Stopped broadcasting SessionName");
+            Pause();
 
         }
 
@@ -155,7 +156,7 @@ namespace SyncDevice.Windows.Bluetooth
                 Logger?.LogError("Read error", e);
                 return null;
             }
-            await StopAsync("Stopped reading SessionName");
+            Pause();
             return message;
         }
 
