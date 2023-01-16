@@ -34,25 +34,63 @@
             // 
             // headerLabel
             // 
+            this.headerLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.headerLabel.Size = new System.Drawing.Size(976, 74);
             this.headerLabel.Text = "Bluetooth server";
+            // 
+            // panel4
+            // 
+            this.panel4.Location = new System.Drawing.Point(0, 150);
+            this.panel4.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.panel4.Size = new System.Drawing.Size(976, 133);
             // 
             // panel5
             // 
-            this.panel5.Size = new System.Drawing.Size(714, 66);
+            this.panel5.Location = new System.Drawing.Point(0, 383);
+            this.panel5.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.panel5.Padding = new System.Windows.Forms.Padding(13, 49, 0, 0);
+            this.panel5.Size = new System.Drawing.Size(976, 81);
             // 
             // cbSendMessages
             // 
-            this.cbSendMessages.Size = new System.Drawing.Size(180, 26);
+            this.cbSendMessages.Location = new System.Drawing.Point(13, 49);
+            this.cbSendMessages.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.cbSendMessages.Size = new System.Drawing.Size(180, 32);
+            // 
+            // numericUpDown
+            // 
+            this.numericUpDown.Location = new System.Drawing.Point(193, 49);
+            this.numericUpDown.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            // 
+            // sessionIdTextBox
+            // 
+            this.sessionIdTextBox.Location = new System.Drawing.Point(791, 39);
+            this.sessionIdTextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.sessionIdTextBox.Size = new System.Drawing.Size(177, 20);
+            // 
+            // sessionIdLabel
+            // 
+            this.sessionIdLabel.Location = new System.Drawing.Point(867, 9);
+            this.sessionIdLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            // 
+            // userLabel
+            // 
+            this.userLabel.Location = new System.Drawing.Point(11, 9);
             // 
             // userTextBox
             // 
+            this.userTextBox.Location = new System.Drawing.Point(13, 39);
+            this.userTextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.userTextBox.Size = new System.Drawing.Size(177, 20);
             this.userTextBox.Text = "PilotA";
             // 
             // BluetoothServerPanel
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "BluetoothServerPanel";
+            this.Size = new System.Drawing.Size(976, 585);
             this.panel5.ResumeLayout(false);
             this.panel5.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown)).EndInit();

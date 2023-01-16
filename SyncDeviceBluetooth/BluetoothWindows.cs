@@ -95,6 +95,8 @@ namespace SyncDevice.Windows.Bluetooth
 
         public abstract Task StartAsync(string sessionName, string reason);
 
+        public virtual Task RestartAsync(string reason) { throw new NotImplementedException(); }
+
         public abstract Task StopAsync(string reason);
 
         // The Chat Server's custom service Uuid: 34B1CF4D-1069-4AD6-89B6-E161D79BE4D8
@@ -110,7 +112,7 @@ namespace SyncDevice.Windows.Bluetooth
         //    -  the SDP Attribute Type value in the most significant 5 bits.
         protected const byte SdpServiceNameAttributeType = (4 << 3) | 5;
 
-        public const string BluetoothServiceName = "EFM Service";
+        public const string BluetoothServiceName = "EFM Device";
 
         public bool IsEFMserviceName(string serviceName) => serviceName?.ToUpper().Contains(BluetoothServiceName.ToUpper()) == true;
 

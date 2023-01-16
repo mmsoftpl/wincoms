@@ -30,7 +30,7 @@ namespace SyncDevice
     public delegate void OnDeviceDisconnected(object sender, ISyncDevice syncDevice);
 
     public interface ISyncDevice
-    {        
+    {
         Task SendMessageAsync(string message);
 
         SyncDeviceStatus Status { get; }
@@ -41,7 +41,7 @@ namespace SyncDevice
 
         IList<ISyncDevice> Connections { get; }
 
-        string Id { get; }        
+        string Id { get; }
         ILogger Logger { get; }
 
         event OnMessageEventHandler OnMessage;
@@ -53,6 +53,8 @@ namespace SyncDevice
         Task StartAsync(string sessionName, string reason);
 
         Task StopAsync(string reason);
+
+        Task RestartAsync(string reason);
     }
 
 }

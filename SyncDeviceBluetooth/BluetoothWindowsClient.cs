@@ -34,9 +34,10 @@ namespace SyncDevice.Windows.Bluetooth
             return RestartAsync(reason);
         }
 
-        public Task RestartAsync(string reason)
+        public override Task RestartAsync(string reason)
         {
             Logger?.LogInformation(reason);
+            ClearChannels();
             Status = SyncDeviceStatus.Created;
             FindDevices();
             return Task.CompletedTask;

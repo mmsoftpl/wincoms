@@ -39,7 +39,7 @@ namespace WindowsFormsApp1
 
         public MainPage MainPage { get; set; }
 
-        protected string SessionId => $"{userTextBox?.Text}-{sessionIdTextBox?.Text}";
+        protected string SessionId => $"{userTextBox?.Text}";//-{sessionIdTextBox?.Text}";
 
         private SyncDeviceStatus status = SyncDeviceStatus.Stopped;
         public SyncDeviceStatus Status
@@ -471,9 +471,10 @@ namespace WindowsFormsApp1
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.connectionsListBox.FormattingEnabled = true;
+            this.connectionsListBox.ItemHeight = 16;
             this.connectionsListBox.Location = new System.Drawing.Point(86, 6);
             this.connectionsListBox.Name = "connectionsListBox";
-            this.connectionsListBox.Size = new System.Drawing.Size(631, 82);
+            this.connectionsListBox.Size = new System.Drawing.Size(631, 68);
             this.connectionsListBox.TabIndex = 0;
             this.connectionsListBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.connectionsListBox_MouseClick);
             // 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -29,6 +30,8 @@ namespace SyncDevice.Windows.WifiDirect
         public IList<ISyncDevice> Connections { get => null; }
 
         public string Id { get => "???"; }
+
+        public virtual Task RestartAsync(string reason) { throw new NotImplementedException(); }
 
         public event OnMessageEventHandler OnMessage;
         public event OnStatusEventHandler OnStatus;
