@@ -51,8 +51,6 @@ namespace SyncDevice.Windows.Bluetooth
 
         internal virtual void RaiseOnDeviceDisconnected(ISyncDevice device)
         {
-            Status = SyncDeviceStatus.Stopped;
-
             OnDeviceDisconnected?.Invoke(this, device);
 
             if (device is BluetoothWindowsChannel channel)

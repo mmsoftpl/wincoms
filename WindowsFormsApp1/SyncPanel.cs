@@ -36,6 +36,7 @@ namespace WindowsFormsApp1
         private Button buttonDisconnect;
         protected Label userLabel;
         protected TextBox userTextBox;
+        private CheckBox cbPingBack;
 
         public MainPage MainPage { get; set; }
 
@@ -143,6 +144,20 @@ namespace WindowsFormsApp1
                     lastMessageReceivedTextBox.Text = message.Length + " bytes";
                 else
                     lastMessageReceivedTextBox.Text = message;
+
+                if (cbPingBack.Checked)
+                {
+                    cbPingBack.Checked = false;
+
+                    try
+                    {
+                        _ = SyncDevice.SendMessageAsync(message);
+                    }
+                    catch(Exception ex)
+                    { 
+//                        System.Diagnostics.Debug.WriteLine(""ex.ToString());
+                    }
+                }
             }));
         }
 
@@ -255,6 +270,7 @@ namespace WindowsFormsApp1
             this.sessionIdLabel = new System.Windows.Forms.Label();
             this.userLabel = new System.Windows.Forms.Label();
             this.userTextBox = new System.Windows.Forms.TextBox();
+            this.cbPingBack = new System.Windows.Forms.CheckBox();
             this.lastMessagePanel.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -480,6 +496,7 @@ namespace WindowsFormsApp1
             // 
             // panel5
             // 
+            this.panel5.Controls.Add(this.cbPingBack);
             this.panel5.Controls.Add(this.label1);
             this.panel5.Controls.Add(this.numericUpDown);
             this.panel5.Controls.Add(this.cbSendMessages);
@@ -589,6 +606,17 @@ namespace WindowsFormsApp1
             this.userTextBox.Size = new System.Drawing.Size(134, 20);
             this.userTextBox.TabIndex = 23;
             this.userTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
+            // cbPingBack
+            // 
+            this.cbPingBack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.cbPingBack.AutoSize = true;
+            this.cbPingBack.Location = new System.Drawing.Point(602, 49);
+            this.cbPingBack.Name = "cbPingBack";
+            this.cbPingBack.Size = new System.Drawing.Size(115, 20);
+            this.cbPingBack.TabIndex = 3;
+            this.cbPingBack.Text = "Ping msg back";
+            this.cbPingBack.UseVisualStyleBackColor = true;
             // 
             // SyncPanel
             // 

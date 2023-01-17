@@ -13,11 +13,11 @@ namespace WindowsFormsApp1
             InitializeComponent();
 
             client = new BluetoothWindowsClient() { Logger = SDKTemplate.MainPage.mainPage };
-            client.OnStatus += Server_OnStatus;
-            client.OnMessage += Server_OnMessage;
-            client.OnDeviceConnected += Server_OnDeviceConnected;
+            client.OnStatus += Client_OnStatus;
+            client.OnMessage += Client_OnMessage;
+            client.OnDeviceConnected += Client_OnDeviceConnected;
             client.OnConnectionStarted += Client_OnConnectionStarted;
-            client.OnDeviceDisconnected += Server_OnDeviceDisconnected;
+            client.OnDeviceDisconnected += Client_OnDeviceDisconnected;
         }
 
         private void Client_OnConnectionStarted(object sender, string deviceId)
@@ -25,23 +25,23 @@ namespace WindowsFormsApp1
             _ = KeepWriting();
         }
 
-        private void Server_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
+        private void Client_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
         {
             UpdateControls();
         }
 
-        private void Server_OnDeviceConnected(object sender, ISyncDevice syncDevice)
+        private void Client_OnDeviceConnected(object sender, ISyncDevice syncDevice)
         {
             UpdateControls();
             //_ = syncDevice.StartAsync(syncDevice.SessionName, "client auto starting device");
         }
 
-        private void Server_OnMessage(object sender, MessageEventArgs e)
+        private void Client_OnMessage(object sender, MessageEventArgs e)
         {
             RecordReciveMessage(e.Message);
         }
 
-        private void Server_OnStatus(object sender, SyncDeviceStatus status)
+        private void Client_OnStatus(object sender, SyncDeviceStatus status)
         {
             Status = status;
             UpdateControls();

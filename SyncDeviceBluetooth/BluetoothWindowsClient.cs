@@ -49,6 +49,12 @@ namespace SyncDevice.Windows.Bluetooth
             return Task.CompletedTask;
         }
 
+        internal override void RaiseOnDeviceDisconnected(ISyncDevice device)
+        {
+            Status = SyncDeviceStatus.Stopped;
+            base.RaiseOnDeviceDisconnected(device); 
+        }
+
         public ConcurrentDictionary<string, DeviceInformation> ResultCollection
         {
             get;
