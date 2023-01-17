@@ -36,7 +36,7 @@ namespace WindowsFormsApp1
         private Button buttonDisconnect;
         protected Label userLabel;
         protected TextBox userTextBox;
-        private CheckBox cbPingBack;
+        private Button pingBackButton;
 
         public MainPage MainPage { get; set; }
 
@@ -145,19 +145,8 @@ namespace WindowsFormsApp1
                 else
                     lastMessageReceivedTextBox.Text = message;
 
-                if (cbPingBack.Checked)
-                {
-                    cbPingBack.Checked = false;
+                lastMessage = message;
 
-                    try
-                    {
-                        _ = SyncDevice.SendMessageAsync(message);
-                    }
-                    catch(Exception ex)
-                    { 
-//                        System.Diagnostics.Debug.WriteLine(""ex.ToString());
-                    }
-                }
             }));
         }
 
@@ -270,7 +259,7 @@ namespace WindowsFormsApp1
             this.sessionIdLabel = new System.Windows.Forms.Label();
             this.userLabel = new System.Windows.Forms.Label();
             this.userTextBox = new System.Windows.Forms.TextBox();
-            this.cbPingBack = new System.Windows.Forms.CheckBox();
+            this.pingBackButton = new System.Windows.Forms.Button();
             this.lastMessagePanel.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -496,7 +485,7 @@ namespace WindowsFormsApp1
             // 
             // panel5
             // 
-            this.panel5.Controls.Add(this.cbPingBack);
+            this.panel5.Controls.Add(this.pingBackButton);
             this.panel5.Controls.Add(this.label1);
             this.panel5.Controls.Add(this.numericUpDown);
             this.panel5.Controls.Add(this.cbSendMessages);
@@ -607,16 +596,15 @@ namespace WindowsFormsApp1
             this.userTextBox.TabIndex = 23;
             this.userTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // cbPingBack
+            // pingBackButton
             // 
-            this.cbPingBack.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbPingBack.AutoSize = true;
-            this.cbPingBack.Location = new System.Drawing.Point(602, 49);
-            this.cbPingBack.Name = "cbPingBack";
-            this.cbPingBack.Size = new System.Drawing.Size(115, 20);
-            this.cbPingBack.TabIndex = 3;
-            this.cbPingBack.Text = "Ping msg back";
-            this.cbPingBack.UseVisualStyleBackColor = true;
+            this.pingBackButton.Location = new System.Drawing.Point(579, 47);
+            this.pingBackButton.Name = "pingBackButton";
+            this.pingBackButton.Size = new System.Drawing.Size(148, 23);
+            this.pingBackButton.TabIndex = 3;
+            this.pingBackButton.Text = "Ping back the last message";
+            this.pingBackButton.UseVisualStyleBackColor = true;
+            this.pingBackButton.Click += new System.EventHandler(this.pingBackButton_Click);
             // 
             // SyncPanel
             // 
@@ -716,6 +704,22 @@ namespace WindowsFormsApp1
             if (selectedDevice != null)
             {
                 _ = selectedDevice.StopAsync("Manual disconnect");
+            }
+        }
+
+        public string lastMessage { get; set; }
+        private void pingBackButton_Click(object sender, EventArgs e)
+        {
+            if (lastMessage != null)
+            {
+                try
+                {
+                    _ = SyncDevice.SendMessageAsync(lastMessage);
+                }
+                catch (Exception ex)
+                {
+                    //                        System.Diagnostics.Debug.WriteLine(""ex.ToString());
+                }
             }
         }
     }
