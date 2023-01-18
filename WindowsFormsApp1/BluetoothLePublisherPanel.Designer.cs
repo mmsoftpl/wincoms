@@ -44,6 +44,10 @@
             // 
             this.panel5.Location = new System.Drawing.Point(0, 320);
             // 
+            // userTextBox
+            // 
+            this.userTextBox.Text = "PilotA";
+            // 
             // BluetoothLePublisherPanel
             // 
             this.Name = "BluetoothLePublisherPanel";

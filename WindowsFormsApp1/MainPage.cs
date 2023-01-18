@@ -28,9 +28,9 @@ namespace SDKTemplate
         private System.ComponentModel.IContainer components;
         private Button clearLogButton;
         private Label label2;
-        private Label label3;
-        private Button buttonBluetoothLePublisher;
         private Button buttonBluetoothLEWatcher;
+        private Button buttonBluetoothLePublisher;
+        private Label label3;
 
         public static MainPage mainPage { get; private set; }
 
@@ -77,15 +77,18 @@ namespace SDKTemplate
             this.copyToClipboardButton = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.clearLogButton = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
-            this.buttonBluetoothLePublisher = new System.Windows.Forms.Button();
             this.buttonBluetoothLEWatcher = new System.Windows.Forms.Button();
+            this.buttonBluetoothLePublisher = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
             this.leftPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // leftPanel
             // 
             this.leftPanel.AutoSize = true;
+            this.leftPanel.Controls.Add(this.buttonBluetoothLEWatcher);
+            this.leftPanel.Controls.Add(this.buttonBluetoothLePublisher);
+            this.leftPanel.Controls.Add(this.label3);
             this.leftPanel.Controls.Add(this.btnWifiDirectConnector);
             this.leftPanel.Controls.Add(this.bntWifiDirectAdevrtiser);
             this.leftPanel.Controls.Add(this.label2);
@@ -95,7 +98,7 @@ namespace SDKTemplate
             this.leftPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.leftPanel.Location = new System.Drawing.Point(0, 0);
             this.leftPanel.Name = "leftPanel";
-            this.leftPanel.Size = new System.Drawing.Size(871, 160);
+            this.leftPanel.Size = new System.Drawing.Size(871, 240);
             this.leftPanel.TabIndex = 0;
             // 
             // btnWifiDirectConnector
@@ -229,16 +232,18 @@ namespace SDKTemplate
             this.clearLogButton.UseVisualStyleBackColor = true;
             this.clearLogButton.Click += new System.EventHandler(this.clearLogButton_Click);
             // 
-            // label3
+            // buttonBluetoothLEWatcher
             // 
-            this.label3.AutoSize = true;
-            this.label3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(0, 160);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(137, 26);
-            this.label3.TabIndex = 10;
-            this.label3.Text = "Bluetooth LE";
+            this.buttonBluetoothLEWatcher.AutoSize = true;
+            this.buttonBluetoothLEWatcher.Dock = System.Windows.Forms.DockStyle.Top;
+            this.buttonBluetoothLEWatcher.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonBluetoothLEWatcher.Location = new System.Drawing.Point(0, 213);
+            this.buttonBluetoothLEWatcher.Name = "buttonBluetoothLEWatcher";
+            this.buttonBluetoothLEWatcher.Size = new System.Drawing.Size(871, 27);
+            this.buttonBluetoothLEWatcher.TabIndex = 17;
+            this.buttonBluetoothLEWatcher.Text = "Bluetooth LE Watcher";
+            this.buttonBluetoothLEWatcher.UseVisualStyleBackColor = true;
+            this.buttonBluetoothLEWatcher.Click += new System.EventHandler(this.button1_Click_1);
             // 
             // buttonBluetoothLePublisher
             // 
@@ -248,30 +253,25 @@ namespace SDKTemplate
             this.buttonBluetoothLePublisher.Location = new System.Drawing.Point(0, 186);
             this.buttonBluetoothLePublisher.Name = "buttonBluetoothLePublisher";
             this.buttonBluetoothLePublisher.Size = new System.Drawing.Size(871, 27);
-            this.buttonBluetoothLePublisher.TabIndex = 11;
+            this.buttonBluetoothLePublisher.TabIndex = 16;
             this.buttonBluetoothLePublisher.Text = "Bluetooth LE Publisher";
             this.buttonBluetoothLePublisher.UseVisualStyleBackColor = true;
             this.buttonBluetoothLePublisher.Click += new System.EventHandler(this.btnBluetoothLePublisher_Click);
             // 
-            // buttonBluetoothLEWatcher
+            // label3
             // 
-            this.buttonBluetoothLEWatcher.AutoSize = true;
-            this.buttonBluetoothLEWatcher.Dock = System.Windows.Forms.DockStyle.Top;
-            this.buttonBluetoothLEWatcher.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonBluetoothLEWatcher.Location = new System.Drawing.Point(0, 213);
-            this.buttonBluetoothLEWatcher.Name = "buttonBluetoothLEWatcher";
-            this.buttonBluetoothLEWatcher.Size = new System.Drawing.Size(871, 27);
-            this.buttonBluetoothLEWatcher.TabIndex = 12;
-            this.buttonBluetoothLEWatcher.Text = "Bluetooth LE Watcher";
-            this.buttonBluetoothLEWatcher.UseVisualStyleBackColor = true;
-            this.buttonBluetoothLEWatcher.Click += new System.EventHandler(this.button1_Click_1);
+            this.label3.AutoSize = true;
+            this.label3.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(0, 160);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(137, 26);
+            this.label3.TabIndex = 15;
+            this.label3.Text = "Bluetooth LE";
             // 
             // MainPage
             // 
             this.ClientSize = new System.Drawing.Size(871, 591);
-            this.Controls.Add(this.buttonBluetoothLEWatcher);
-            this.Controls.Add(this.buttonBluetoothLePublisher);
-            this.Controls.Add(this.label3);
             this.Controls.Add(this.clearLogButton);
             this.Controls.Add(this.copyToClipboardButton);
             this.Controls.Add(this.splitter);

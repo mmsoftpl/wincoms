@@ -32,6 +32,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
+            // userTextBox
+            // 
+            this.userTextBox.Text = "PilotB";
+            // 
             // BluetoothLeWatcherPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);

@@ -23,11 +23,11 @@ namespace SyncDevice.Windows.Bluetooth
 
         public abstract bool IsHost { get; set; }
 
-        const string DefaultServiceName = "Bluetooth service example";
-        const string DefaultSessionName = "Temp session";
+        const string DefaultServiceName = "Bluetooth service";
+        const string DefaultSessionName = "XYZ";
 
-        public string ServiceName { get; internal set; }
-        public string SessionName { get; internal set; }
+        public string ServiceName { get; internal set; } = DefaultServiceName;
+        public string SessionName { get; internal set; } = DefaultSessionName;
 
         public ILogger Logger { get; set; }
 
