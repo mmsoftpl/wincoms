@@ -161,7 +161,7 @@ namespace SyncDevice.Windows.Bluetooth
                     if (ConnectStrategy == ConnectStrategy.ScanDevices)
                     {
                         Status = SyncDeviceStatus.Stopped;
-                        Disconnect($"Could not discover {SdpServiceName(this)}");
+                        Disconnect($"Could not discover {SdpServiceName}");
                     }
                     else
                     {
@@ -240,7 +240,7 @@ namespace SyncDevice.Windows.Bluetooth
             // Make sure user has selected a device first
             if (deviceInfoDisp != null)
             {
-                Logger?.LogInformation($"Testing remote device {deviceInfoDisp.Name} for presence of {SdpServiceName(this)}...");
+                Logger?.LogInformation($"Testing remote device {deviceInfoDisp.Name} for presence of {SdpServiceName}...");
             }
             else
                 return null;

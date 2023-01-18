@@ -79,6 +79,18 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BluetoothLePublisherPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="BluetoothLePublisherPanel.Designer.cs">
+      <DependentUpon>BluetoothLePublisherPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="BluetoothLeWatcherPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="BluetoothLeWatcherPanel.Designer.cs">
+      <DependentUpon>BluetoothLeWatcherPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="WiFiDirectClientPanel .cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -111,6 +123,12 @@
     <Compile Include="SyncPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <EmbeddedResource Include="BluetoothLePublisherPanel.resx">
+      <DependentUpon>BluetoothLePublisherPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BluetoothLeWatcherPanel.resx">
+      <DependentUpon>BluetoothLeWatcherPanel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="WiFiDirectClientPanel .resx">
       <DependentUpon>WiFiDirectClientPanel .cs</DependentUpon>
     </EmbeddedResource>

@@ -3,26 +3,26 @@ using SyncDevice.Windows.Bluetooth;
 
 namespace WindowsFormsApp1
 {
-    public partial class BluetoothServerPanel : SyncPanel
+    public partial class BluetoothLeWatcherPanel : SyncPanel
     {
-        readonly BluetoothWindowsServer server = null;
+        readonly BluetoothLeWatcher watcher = null;
 
-        public override ISyncDevice SyncDevice => server;
+        public override ISyncDevice SyncDevice => watcher;
 
-        protected override string StartText => "Start hosting";
+        protected override string StartText => "Start watching";
 
-        protected override string StopText => "Stop hosting";
+        protected override string StopText => "Stop watching";
 
-        public BluetoothServerPanel()
+        public BluetoothLeWatcherPanel()
         {
             InitializeComponent();
 
-            server = new BluetoothWindowsServer() { Logger = SDKTemplate.MainPage.mainPage };
-            server.OnStatus += Server_OnStatus;
-            server.OnMessage += Server_OnMessage;
-            server.OnConnectionStarted += Server_OnConnectionStarted;
-            server.OnDeviceConnected += Server_OnDeviceConnected;
-            server.OnDeviceDisconnected += Server_OnDeviceDisconnected;
+            watcher = new BluetoothLeWatcher() { Logger = SDKTemplate.MainPage.mainPage };
+            watcher.OnStatus += Server_OnStatus;
+            watcher.OnMessage += Server_OnMessage;
+            watcher.OnConnectionStarted += Server_OnConnectionStarted;
+            watcher.OnDeviceConnected += Server_OnDeviceConnected;
+            watcher.OnDeviceDisconnected += Server_OnDeviceDisconnected;
         }
 
         private void Server_OnConnectionStarted(object sender, string deviceId)
@@ -48,7 +48,7 @@ namespace WindowsFormsApp1
 
         private void Server_OnStatus(object sender, SyncDeviceStatus status)
         {
-            Status = status; 
+            Status = status;
             UpdateControls();
         }
     }

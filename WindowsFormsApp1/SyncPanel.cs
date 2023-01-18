@@ -252,6 +252,7 @@ namespace WindowsFormsApp1
             this.buttonConnect = new System.Windows.Forms.Button();
             this.connectionsListBox = new System.Windows.Forms.ListBox();
             this.panel5 = new System.Windows.Forms.Panel();
+            this.pingBackButton = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.numericUpDown = new System.Windows.Forms.NumericUpDown();
             this.cbSendMessages = new System.Windows.Forms.CheckBox();
@@ -259,7 +260,6 @@ namespace WindowsFormsApp1
             this.sessionIdLabel = new System.Windows.Forms.Label();
             this.userLabel = new System.Windows.Forms.Label();
             this.userTextBox = new System.Windows.Forms.TextBox();
-            this.pingBackButton = new System.Windows.Forms.Button();
             this.lastMessagePanel.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -476,10 +476,9 @@ namespace WindowsFormsApp1
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.connectionsListBox.FormattingEnabled = true;
-            this.connectionsListBox.ItemHeight = 16;
             this.connectionsListBox.Location = new System.Drawing.Point(86, 6);
             this.connectionsListBox.Name = "connectionsListBox";
-            this.connectionsListBox.Size = new System.Drawing.Size(631, 68);
+            this.connectionsListBox.Size = new System.Drawing.Size(631, 56);
             this.connectionsListBox.TabIndex = 0;
             this.connectionsListBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.connectionsListBox_MouseClick);
             // 
@@ -495,6 +494,18 @@ namespace WindowsFormsApp1
             this.panel5.Padding = new System.Windows.Forms.Padding(10, 40, 0, 0);
             this.panel5.Size = new System.Drawing.Size(732, 77);
             this.panel5.TabIndex = 18;
+            // 
+            // pingBackButton
+            // 
+            this.pingBackButton.AutoSize = true;
+            this.pingBackButton.Dock = System.Windows.Forms.DockStyle.Right;
+            this.pingBackButton.Location = new System.Drawing.Point(584, 40);
+            this.pingBackButton.Name = "pingBackButton";
+            this.pingBackButton.Size = new System.Drawing.Size(148, 37);
+            this.pingBackButton.TabIndex = 3;
+            this.pingBackButton.Text = "Ping back the last message";
+            this.pingBackButton.UseVisualStyleBackColor = true;
+            this.pingBackButton.Click += new System.EventHandler(this.pingBackButton_Click);
             // 
             // label1
             // 
@@ -595,16 +606,6 @@ namespace WindowsFormsApp1
             this.userTextBox.Size = new System.Drawing.Size(134, 20);
             this.userTextBox.TabIndex = 23;
             this.userTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            // 
-            // pingBackButton
-            // 
-            this.pingBackButton.Location = new System.Drawing.Point(579, 47);
-            this.pingBackButton.Name = "pingBackButton";
-            this.pingBackButton.Size = new System.Drawing.Size(148, 23);
-            this.pingBackButton.TabIndex = 3;
-            this.pingBackButton.Text = "Ping back the last message";
-            this.pingBackButton.UseVisualStyleBackColor = true;
-            this.pingBackButton.Click += new System.EventHandler(this.pingBackButton_Click);
             // 
             // SyncPanel
             // 

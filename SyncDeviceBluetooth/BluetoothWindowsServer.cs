@@ -88,7 +88,7 @@ namespace SyncDevice.Windows.Bluetooth
                 Logger?.LogInformation($"This device name is: '{deviceInfo.Name}' and id is: '{deviceInfo.Id}'");
             }
 
-            Logger?.LogInformation($"Advertising service name: {SdpServiceName(this)} on {machineName}");
+            Logger?.LogInformation($"Advertising service name: {SdpServiceName} on {machineName}");
 
             Status = SyncDeviceStatus.Started;
         }
@@ -104,14 +104,12 @@ namespace SyncDevice.Windows.Bluetooth
             // Write the Service Name Attribute.
             sdpWriter.WriteByte(SdpServiceNameAttributeType);
 
-            string sdpServiceName = SdpServiceName(this);
-
             // The length of the UTF-8 encoded Service Name SDP Attribute.
-            sdpWriter.WriteByte((byte)sdpServiceName.Length);
+            sdpWriter.WriteByte((byte)SdpServiceName.Length);
 
             // The UTF-8 encoded Service Name value.
             sdpWriter.UnicodeEncoding = UnicodeEncoding.Utf8;
-            sdpWriter.WriteString(sdpServiceName);
+            sdpWriter.WriteString(SdpServiceName);
 
             // Set the SDP Attribute on the RFCOMM Service Provider.
             rfcommProvider.SdpRawAttributes.Add(SdpServiceNameAttributeId, sdpWriter.DetachBuffer());

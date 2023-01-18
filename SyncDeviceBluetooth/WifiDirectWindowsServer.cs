@@ -17,7 +17,7 @@ namespace SyncDevice.Windows.WifiDirect
         {
             SessionName = sessionName;
             StartAdvertisement("efm", true, true, "", null, WiFiDirectServiceStatus.Available, 2,
-                BluetoothWindows.SdpServiceName(this), null, null);
+                "AAAAAAAAAA", null, null);
 
             return Task.CompletedTask;
         }

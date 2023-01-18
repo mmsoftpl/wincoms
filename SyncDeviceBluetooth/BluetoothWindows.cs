@@ -23,6 +23,10 @@ namespace SyncDevice.Windows.Bluetooth
 
         public abstract bool IsHost { get; set; }
 
+        const string DefaultServiceName = "Bluetooth service example";
+        const string DefaultSessionName = "Temp session";
+
+        public string ServiceName { get; internal set; }
         public string SessionName { get; internal set; }
 
         public ILogger Logger { get; set; }
@@ -110,12 +114,10 @@ namespace SyncDevice.Windows.Bluetooth
         //    -  the SDP Attribute Type value in the most significant 5 bits.
         protected const byte SdpServiceNameAttributeType = (4 << 3) | 5;
 
-        public const string BluetoothServiceName = "EFM Device";
-
-        public bool IsEFMserviceName(string serviceName) => serviceName?.ToUpper().Contains(BluetoothServiceName.ToUpper()) == true;
+        public bool IsEFMserviceName(string serviceName) => serviceName?.ToUpper().Contains(ServiceName.ToUpper()) == true;
 
         // The value of the Service Name SDP attribute
-        public static string SdpServiceName(ISyncDevice syncDevice) => $"{BluetoothServiceName} {syncDevice?.SessionName}";
+        public string SdpServiceName => $"{ServiceName ?? DefaultServiceName} {SessionName ?? DefaultSessionName}";
 
         protected ConcurrentDictionary<string, BluetoothWindowsChannel> Channels = new ConcurrentDictionary<string, BluetoothWindowsChannel>();
 
