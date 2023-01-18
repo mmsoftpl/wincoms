@@ -153,21 +153,24 @@ namespace SyncDevice.Windows.Bluetooth
                 if (IsEFMserviceName(s))
                 {
                     RaiseOnDeviceConnected(this);
+
+                    // Serialize UI update to the main UI thread
+                    Logger?.LogInformation(string.Format("[{0}]: type={1}, rssi={2}, name={3}, manufacturerData=[{4}]",
+                            timestamp.ToString("hh\\:mm\\:ss\\.fff"),
+                            advertisementType.ToString(),
+                            rssi.ToString(),
+                            localName,
+                            manufacturerDataString));
+
+                    // Print the company ID + the raw data in hex format
+                    manufacturerDataString = string.Format("0x{0}: {1}",
+                        manufacturerData.CompanyId.ToString("X"),
+                        BitConverter.ToString(data));
+
                 }
 
-                // Print the company ID + the raw data in hex format
-                manufacturerDataString = string.Format("0x{0}: {1}",
-                    manufacturerData.CompanyId.ToString("X"),
-                    BitConverter.ToString(data));
             }
-
-            // Serialize UI update to the main UI thread
-            Logger?.LogInformation(string.Format("[{0}]: type={1}, rssi={2}, name={3}, manufacturerData=[{4}]",
-                    timestamp.ToString("hh\\:mm\\:ss\\.fff"),
-                    advertisementType.ToString(),
-                    rssi.ToString(),
-                    localName,
-                    manufacturerDataString));        
+  
         }
 
         /// <summary>

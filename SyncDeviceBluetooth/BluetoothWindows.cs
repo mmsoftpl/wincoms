@@ -117,7 +117,16 @@ namespace SyncDevice.Windows.Bluetooth
         public bool IsEFMserviceName(string serviceName) => serviceName?.ToUpper().Contains(ServiceName.ToUpper()) == true;
 
         // The value of the Service Name SDP attribute
-        public string SdpServiceName => $"{ServiceName ?? DefaultServiceName} {SessionName ?? DefaultSessionName}";
+        public string SdpServiceName
+        {
+            get
+            {
+                var sn = $"{ServiceName ?? DefaultServiceName} {SessionName ?? DefaultSessionName}";
+                if (sn.Length > 23)
+                    sn = sn.Substring(0, 23);
+                return sn;
+            }
+        }
 
         protected ConcurrentDictionary<string, BluetoothWindowsChannel> Channels = new ConcurrentDictionary<string, BluetoothWindowsChannel>();
 

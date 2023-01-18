@@ -41,7 +41,12 @@ namespace SyncDevice.Windows.Bluetooth
             UInt16 uuidData = 0x1234;
             writer.WriteUInt16(uuidData);
 
-            byte[] bytes = Encoding.ASCII.GetBytes(SdpServiceName.Remove(24));
+            if (SdpServiceName.Length> 23)
+            {
+                Logger?.LogError($"Service name too long '{SdpServiceName}', max 23 characters ");
+            }
+
+            byte[] bytes = Encoding.ASCII.GetBytes(SdpServiceName);
             writer.WriteBytes(bytes);
 
             // Make sure that the buffer length can fit within an advertisement payload. Otherwise you will get an exception.
