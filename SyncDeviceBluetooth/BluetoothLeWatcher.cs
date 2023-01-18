@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,8 @@ namespace SyncDevice.Windows.Bluetooth
         public override bool IsHost { get => false; set { } }
 
         public override string Id => WatcherSingleton?.Value.ToString();
+
+        public readonly ConcurrentDictionary<ulong, string> Signatures = new ConcurrentDictionary<ulong, string>();
 
         // The Bluetooth LE advertisement publisher class is used to control and customize Bluetooth LE advertising.
         private Lazy<BluetoothLEAdvertisementWatcher> WatcherSingleton = null;
@@ -120,6 +123,14 @@ namespace SyncDevice.Windows.Bluetooth
                                 .Select(b => b.ToString("X2"))).Substring(6);
         }
 
+        public string GetSignature(string macAddress)
+        {
+            foreach(var signature in Signatures.Values)
+                if (signature.Contains(macAddress))
+                    return signature;
+            return null;
+        }
+
         /// <summary>
         /// Invoked as an event handler when an advertisement is received.
         /// </summary>
@@ -160,22 +171,28 @@ namespace SyncDevice.Windows.Bluetooth
 
                 if (IsEFMserviceName(s))
                 {
-                    RaiseOnDeviceConnected(this);
+                    //eventArgs.BluetoothAddress
+                    //var splits = s.Split('|');
 
-                    var ssss = MAC802DOT3(eventArgs.BluetoothAddress);
+                    Signatures.AddOrUpdate(eventArgs.BluetoothAddress, s, (a, b) =>
+                    {
+                        if (b!=s)
+                            Logger?.LogInformation($"LE Signature of {eventArgs.BluetoothAddress} updated with value '{s}'");
+                        return s;
+                    });
 
                     // Serialize UI update to the main UI thread
-                    Logger?.LogInformation(string.Format("[{0}]: type={1}, rssi={2}, name={3}, manufacturerData=[{4}]",
-                            timestamp.ToString("hh\\:mm\\:ss\\.fff"),
-                            advertisementType.ToString(),
-                            rssi.ToString(),
-                            localName,
-                            manufacturerDataString));
+                    //Logger?.LogInformation(string.Format("[{0}]: type={1}, rssi={2}, name={3}, manufacturerData=[{4}]",
+                    //        timestamp.ToString("hh\\:mm\\:ss\\.fff"),
+                    //        advertisementType.ToString(),
+                    //        rssi.ToString(),
+                    //        localName,
+                    //        manufacturerDataString));
 
-                    // Print the company ID + the raw data in hex format
-                    manufacturerDataString = string.Format("0x{0}: {1}",
-                        manufacturerData.CompanyId.ToString("X"),
-                        BitConverter.ToString(data));
+                    //// Print the company ID + the raw data in hex format
+                    //manufacturerDataString = string.Format("0x{0}: {1}",
+                    //    manufacturerData.CompanyId.ToString("X"),
+                    //    BitConverter.ToString(data));
 
                 }
 

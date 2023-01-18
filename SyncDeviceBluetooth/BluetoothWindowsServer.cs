@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;
@@ -13,19 +14,40 @@ namespace SyncDevice.Windows.Bluetooth
     {
         private RfcommServiceProvider rfcommProvider;
         private StreamSocketListener socketListener;
+        private BluetoothLeWatcher bluetoothLeWatcher;
 
         public override string Id { get => rfcommProvider?.ToString(); }
 
         public override bool IsHost { get => true; set { } }
-        public override Task StartAsync(string sessionName, string reason)
+
+        public Task ScanForSignatures(string sessionName)
+        {
+            bluetoothLeWatcher = new BluetoothLeWatcher() { Logger = Logger };
+            return bluetoothLeWatcher.StartAsync(sessionName, "Publishing LE signature");
+        }
+
+        public Task StopScanningForSignatures(string reason)
+        {
+            try
+            {
+                return bluetoothLeWatcher?.StopAsync(reason);
+            }
+            finally 
+            {
+                bluetoothLeWatcher = null; 
+            }
+        }
+
+        public override async Task StartAsync(string sessionName, string reason)
         {
             if (Status == SyncDeviceStatus.Stopped)
             {
+                await ScanForSignatures(sessionName);
+
                 SessionName = sessionName;
                 Logger?.LogInformation(reason);
-                return InitializeRfcommServer();
+                await InitializeRfcommServer();
             }
-            return Task.CompletedTask;
         }
 
         public override Task StopAsync(string reason)
@@ -144,12 +166,19 @@ namespace SyncDevice.Windows.Bluetooth
             // Note - this is the supported way to get a Bluetooth device from a given socket
             var remoteDevice = await BluetoothDevice.FromHostNameAsync(socket.Information.RemoteHostName);
 
-            var clientSignature = socket.Information.RemoteHostName.DisplayName;
+            var clientSignature = socket.Information.RemoteHostName?.DisplayName?.Replace(":", "")?.TrimStart('(')?.TrimEnd(')');
 
-            var channel = new BluetoothWindowsChannel(this, clientSignature, socket) 
+            var watcherSignature = bluetoothLeWatcher.GetSignature(clientSignature);
+
+            if (watcherSignature != null)
+            {
+                clientSignature = watcherSignature;
+            }
+
+            var channel = new BluetoothWindowsChannel(this, socket.Information.RemoteHostName.ToString(), socket) 
             { 
                 Logger = Logger, 
-                SessionName = SessionName,
+                SessionName = clientSignature,
                 IsHost = true,
             };
 
@@ -166,6 +195,8 @@ namespace SyncDevice.Windows.Bluetooth
 
         protected void Disconnect(string disconnectReason)
         {
+            _ = StopScanningForSignatures(disconnectReason);
+
             if (rfcommProvider != null)
             {
                 rfcommProvider.StopAdvertising();
