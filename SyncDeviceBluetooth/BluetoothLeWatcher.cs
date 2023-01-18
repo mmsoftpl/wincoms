@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
@@ -112,6 +113,13 @@ namespace SyncDevice.Windows.Bluetooth
             return Task.CompletedTask;
         }
 
+        public static string MAC802DOT3(ulong macAddress)
+        {
+            return string.Join(":",
+                                BitConverter.GetBytes(macAddress).Reverse()
+                                .Select(b => b.ToString("X2"))).Substring(6);
+        }
+
         /// <summary>
         /// Invoked as an event handler when an advertisement is received.
         /// </summary>
@@ -153,6 +161,8 @@ namespace SyncDevice.Windows.Bluetooth
                 if (IsEFMserviceName(s))
                 {
                     RaiseOnDeviceConnected(this);
+
+                    var ssss = MAC802DOT3(eventArgs.BluetoothAddress);
 
                     // Serialize UI update to the main UI thread
                     Logger?.LogInformation(string.Format("[{0}]: type={1}, rssi={2}, name={3}, manufacturerData=[{4}]",

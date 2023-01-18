@@ -1,6 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;
@@ -20,6 +23,7 @@ namespace SyncDevice.Windows.Bluetooth
     {
         private DeviceWatcher deviceWatcher = null;
         private BluetoothDevice BluetoothDevice = null;
+        private BluetoothLePublisher bluetoothLePublisher = null;
 
         public override bool IsHost { get => false; set { } }
 
@@ -27,11 +31,38 @@ namespace SyncDevice.Windows.Bluetooth
 
         public ConnectStrategy ConnectStrategy = ConnectStrategy.ScanServices;
 
-        public override Task StartAsync(string sessionName, string reason)
+
+        public static IEnumerable<NetworkInterface> BluetoothAdapters()
         {
+            NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
+            if (adapters?.Length > 0)
+            {
+                foreach (NetworkInterface adapter in adapters)
+                {
+                    if (adapter.Name.Contains("Bluetooth") && adapter.Name.Contains("Bluetooth"))
+                    {
+                        yield return adapter;//.GetPhysicalAddress().ToString();
+                    }
+                }
+            }
+        }
+
+        public Task PublishClientSignature(string sessionName)
+        {
+            var clientMacAddress = string.Join(",", BluetoothAdapters().Select(a => a.GetPhysicalAddress().ToString().Replace(":", "")));
+            var clientSignature = clientMacAddress + "|" + sessionName;
+
+            bluetoothLePublisher = new BluetoothLePublisher() { Logger = Logger, ServiceName = ServiceName, SessionName = clientSignature };
+            return bluetoothLePublisher.StartAsync(clientSignature, "Publishing LE signature");
+        }
+
+        public override async Task StartAsync(string sessionName, string reason)
+        {
+            await PublishClientSignature(sessionName);
+
             SessionName = sessionName;
             ConnectStrategy = ConnectStrategy.ScanServices;
-            return RestartAsync(reason);
+            await RestartAsync(reason);
         }
 
         public override Task RestartAsync(string reason)
@@ -175,6 +206,7 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 ResultCollection.Clear();
             });
+
 
             deviceWatcher.Start();
         }
@@ -325,6 +357,9 @@ namespace SyncDevice.Windows.Bluetooth
 
         public void Disconnect(string disconnectReason)
         {
+            bluetoothLePublisher?.StopAsync(disconnectReason);
+            bluetoothLePublisher = null;
+
             ClearChannels();
 
             StopWatcher();

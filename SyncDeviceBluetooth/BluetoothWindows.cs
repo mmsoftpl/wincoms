@@ -23,7 +23,7 @@ namespace SyncDevice.Windows.Bluetooth
 
         public abstract bool IsHost { get; set; }
 
-        const string DefaultServiceName = "Bluetooth service";
+        const string DefaultServiceName = "EFM";
         const string DefaultSessionName = "XYZ";
 
         public string ServiceName { get; internal set; } = DefaultServiceName;
@@ -121,7 +121,7 @@ namespace SyncDevice.Windows.Bluetooth
         {
             get
             {
-                var sn = $"{ServiceName ?? DefaultServiceName} {SessionName ?? DefaultSessionName}";
+                var sn = $"{ServiceName ?? DefaultServiceName}|{SessionName ?? DefaultSessionName}";
                 if (sn.Length > 23)
                     sn = sn.Substring(0, 23);
                 return sn;
