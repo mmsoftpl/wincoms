@@ -80,6 +80,13 @@ namespace WindowsFormsApp1
         protected virtual string StartText { get; } = "Start";
         protected virtual string StopText { get; } = "Stop";
 
+        private string ConnectionId(ISyncDevice syncDevice)
+        {
+            if (syncDevice != null)
+                return syncDevice.SessionName + " - " + syncDevice.DeviceId;
+            return null;
+        }
+
         public virtual void OnUpdateControls()
         {
             switch (Status)
@@ -117,9 +124,9 @@ namespace WindowsFormsApp1
 
                     foreach (var connection in SyncDevice.Connections)
                     {
-                        connectionsListBox.Items.Add(connection.SessionName);
+                        connectionsListBox.Items.Add(ConnectionId(connection));
                     }
-                    connectionsListBox.SelectedItem = selectedDevice?.SessionName;
+                    connectionsListBox.SelectedItem = ConnectionId(selectedDevice);
 
                     buttonConnect.Enabled = selectedDevice?.Status == SyncDeviceStatus.Created;
                     buttonDisconnect.Enabled = selectedDevice?.Status == SyncDeviceStatus.Started;
@@ -129,7 +136,22 @@ namespace WindowsFormsApp1
                     connectionsListBox.EndUpdate();
                 }
             }
-        }    
+        }
+
+        private ISyncDevice GetSelectedDevice()
+        {
+            var v = connectionsListBox.SelectedItem;
+            if (v != null && SyncDevice != null)
+            {
+                foreach (var c in SyncDevice.Connections)
+                {
+                    if (ConnectionId(c) == v.ToString())
+                        return c;
+                }
+
+            }
+            return null;
+        }
 
         public void UpdateControls() {
 
@@ -700,22 +722,6 @@ namespace WindowsFormsApp1
         {
 
         }
-
-        private ISyncDevice GetSelectedDevice()
-        {
-                var v = connectionsListBox.SelectedItem;
-                if (v != null && SyncDevice != null)
-                {
-                    foreach (var c in SyncDevice.Connections)
-                    {
-                        if (c.SessionName == v.ToString())
-                            return c;
-                    }
-
-                }
-                return null;
-        }
-
 
         private void buttonConnect_Click(object sender, EventArgs e)
         {

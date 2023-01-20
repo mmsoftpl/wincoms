@@ -314,7 +314,7 @@ namespace SyncDevice.Windows.Bluetooth
 
                 if (rfcommDeviceService != null)
                 {
-                    var channel = new BluetoothWindowsChannel(this, deviceInfoDisp.Id, rfcommDeviceService) 
+                    var channel = new BluetoothWindowsChannel(this, rfcommDeviceService.ConnectionHostName.DisplayName, rfcommDeviceService) 
                     { 
                         Logger = Logger, 
                         SessionName = GetSessionName(s?.Item2)

@@ -22,6 +22,7 @@ namespace SyncDevice.Windows.Bluetooth
         }
 
         public abstract bool IsHost { get; }
+        public string DeviceId { get; internal set; }
 
         const string DefaultServiceName = "EFM";
         const string DefaultSessionName = "XYZ";

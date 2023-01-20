@@ -133,7 +133,6 @@ namespace SyncDevice.Windows.Bluetooth
 
         public DataWriter Writer { get; set; }
         public StreamSocket Socket { get; set; }
-        public string DeviceId { get; set; }
         public RfcommDeviceService ChatService { get; set; }
 
         public BluetoothWindows Creator { get; set; }
@@ -166,6 +165,7 @@ namespace SyncDevice.Windows.Bluetooth
 
         public BluetoothWindowsChannel(BluetoothWindows creator, string deviceId, StreamSocket streamSocket)
         {
+            isHost = creator.IsHost;
             Creator = creator;
             Socket = streamSocket;
             DeviceId = deviceId;

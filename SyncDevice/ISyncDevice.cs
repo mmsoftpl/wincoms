@@ -41,6 +41,8 @@ namespace SyncDevice
 
         string SessionName { get; }
 
+        string DeviceId { get; }
+
         IList<ISyncDevice> Connections { get; }
 
         ILogger Logger { get; }
