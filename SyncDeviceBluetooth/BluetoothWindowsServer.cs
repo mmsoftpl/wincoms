@@ -20,13 +20,20 @@ namespace SyncDevice.Windows.Bluetooth
         public Task ScanForSignatures(string sessionName)
         {
             bluetoothLeWatcher = new BluetoothLeWatcher() { Logger = Logger };
+            bluetoothLeWatcher.OnError += BluetoothLeWatcher_OnError;
             return bluetoothLeWatcher.StartAsync(sessionName, "Publishing LE signature");
+        }
+
+        private void BluetoothLeWatcher_OnError(object sender, string error)
+        {
+            RaiseOnError(error);
         }
 
         public Task StopScanningForSignatures(string reason)
         {
             try
             {
+                bluetoothLeWatcher.OnError -= BluetoothLeWatcher_OnError;
                 return bluetoothLeWatcher?.StopAsync(reason);
             }
             finally 
@@ -59,15 +66,14 @@ namespace SyncDevice.Windows.Bluetooth
         /// </summary>
         private async Task InitializeRfcommServer()
         {
-            try
+
+            if (!BluetoothAction(()=>
+                {
+                    var t = RfcommServiceProvider.CreateAsync(RfcommServiceId.FromUuid(RfcommChatServiceUuid)).AsTask();
+                    t.Wait();
+                    rfcommProvider = t.Result;
+                }))
             {
-                rfcommProvider = await RfcommServiceProvider.CreateAsync(RfcommServiceId.FromUuid(RfcommChatServiceUuid));                
-            }
-            // Catch exception HRESULT_FROM_WIN32(ERROR_DEVICE_NOT_AVAILABLE).
-            catch (Exception ex) when ((uint)ex.HResult == 0x800710DF)
-            {
-                // The Bluetooth radio may be off.
-                Logger?.LogError("Make sure your Bluetooth Radio is on: " + ex.Message);
                 Status = SyncDeviceStatus.Stopped;
                 return;
             }

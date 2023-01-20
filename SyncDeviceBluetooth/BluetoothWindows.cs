@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Remoting.Channels;
 using System.Threading.Tasks;
+using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Storage.Streams;
 
 namespace SyncDevice.Windows.Bluetooth
@@ -168,6 +169,27 @@ namespace SyncDevice.Windows.Bluetooth
             }
 
             Channels.Clear();
+        }
+
+        protected bool BluetoothAction(Action action)
+        {
+            try
+            {
+                action.Invoke();
+                return true;
+            }
+            catch (Exception ex) when ((uint)ex.HResult == 0x800710DF)
+            {
+                // The Bluetooth radio may be off.
+                RaiseOnError($"Make sure your Bluetooth Radio is on; {ex.Message}");
+                Status = SyncDeviceStatus.Stopped;
+            }
+            catch (Exception ex)
+            {
+                RaiseOnError($"Error occured, {ex?.InnerException?.Message ?? ex?.Message}");
+                 
+            }
+            return false;
         }
     }
 }

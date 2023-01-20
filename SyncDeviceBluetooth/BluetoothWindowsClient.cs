@@ -181,9 +181,9 @@ namespace SyncDevice.Windows.Bluetooth
 
                 if (Channels.Count == 0)
                 {
-                    if (bluetoothLePublisher.LastError == BluetoothError.RadioNotAvailable)
+                    if (bluetoothLePublisher?.LastError == BluetoothError.RadioNotAvailable)
                     {
-                        RaiseOnError($"\"Make sure your Bluetooth Radio is on: '{bluetoothLePublisher.LastError}'");
+                        RaiseOnError($"Make sure your Bluetooth Radio is on; '{bluetoothLePublisher.LastError}'");
                         Disconnect(null);
                     }
                     else
