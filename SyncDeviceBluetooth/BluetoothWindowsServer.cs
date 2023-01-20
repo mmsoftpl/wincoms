@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;
@@ -15,10 +16,7 @@ namespace SyncDevice.Windows.Bluetooth
         private RfcommServiceProvider rfcommProvider;
         private StreamSocketListener socketListener;
         private BluetoothLeWatcher bluetoothLeWatcher;
-
-        public override string Id { get => rfcommProvider?.ToString(); }
-
-        public override bool IsHost { get => true; set { } }
+        public override bool IsHost { get => true; }
 
         public Task ScanForSignatures(string sessionName)
         {
@@ -85,7 +83,7 @@ namespace SyncDevice.Windows.Bluetooth
                 SocketProtectionLevel.BluetoothEncryptionAllowNullAuthentication);
 
             // Set the SDP attributes and start Bluetooth advertising
-            InitializeServiceSdpAttributes(rfcommProvider);
+            InitializeServiceSdpAttributes(rfcommProvider.SdpRawAttributes);
 
             try
             {
@@ -119,7 +117,7 @@ namespace SyncDevice.Windows.Bluetooth
         /// Creates the SDP record that will be revealed to the Client device when pairing occurs.  
         /// </summary>
         /// <param name="rfcommProvider">The RfcommServiceProvider that is being used to initialize the server</param>
-        private void InitializeServiceSdpAttributes(RfcommServiceProvider rfcommProvider)
+        private void InitializeServiceSdpAttributes(IDictionary<uint, IBuffer> SdpRawAttributes)
         {
             var sdpWriter = new DataWriter();
 
@@ -134,7 +132,7 @@ namespace SyncDevice.Windows.Bluetooth
             sdpWriter.WriteString(SdpServiceName);
 
             // Set the SDP Attribute on the RFCOMM Service Provider.
-            rfcommProvider.SdpRawAttributes.Add(SdpServiceNameAttributeId, sdpWriter.DetachBuffer());
+            SdpRawAttributes.Add(SdpServiceNameAttributeId, sdpWriter.DetachBuffer());
         }
 
         /// <summary>
@@ -166,23 +164,26 @@ namespace SyncDevice.Windows.Bluetooth
             // Note - this is the supported way to get a Bluetooth device from a given socket
             var remoteDevice = await BluetoothDevice.FromHostNameAsync(socket.Information.RemoteHostName);
 
-            var clientSignature = socket.Information.RemoteHostName?.DisplayName?.Replace(":", "")?.TrimStart('(')?.TrimEnd(')');
+            var clientSignature = remoteDevice.HostName?.DisplayName?.Replace(":", "")?.TrimStart('(')?.TrimEnd(')');
 
             var watcherSignature = bluetoothLeWatcher.GetSignature(clientSignature);
 
             if (watcherSignature != null)
             {
-                clientSignature = watcherSignature;
+                clientSignature = GetSessionName(watcherSignature);
+            }
+            else
+            {
+                Logger?.LogInformation($"Unregonized signature {clientSignature}");
             }
 
             var channel = new BluetoothWindowsChannel(this, socket.Information.RemoteHostName.ToString(), socket) 
             { 
                 Logger = Logger, 
-                SessionName = clientSignature,
-                IsHost = true,
+                SessionName = clientSignature
             };
 
-            if (!Channels.TryAdd(remoteDevice.DeviceId, channel))
+            if (!Channels.TryAdd(channel.DeviceId, channel))
             {
                 Logger?.LogError("Can't add channel to dictionary?");
             }

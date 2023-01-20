@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Runtime.Remoting.Messaging;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.Rfcomm;
 using Windows.Networking.Sockets;
@@ -10,7 +9,8 @@ namespace SyncDevice.Windows.Bluetooth
 {
     public class BluetoothWindowsChannel : BluetoothWindows
     {
-        public override bool IsHost { get; set; }
+        private readonly bool isHost;
+        public override bool IsHost { get => isHost; }
 
         public override Task StartAsync(string sessionName, string reason)
         {
@@ -67,12 +67,11 @@ namespace SyncDevice.Windows.Bluetooth
             return reader.ReadString(currentLength);
         }
 
-        public async Task<bool> WaitForHostWelcomeMessage(DataReader reader)
+        public async Task<bool> WaitForHandshakeMessage(DataReader reader)
         {
             if (IsHost)
             {
-                await SendMessageAsync("HELLO WORLD");
-                // do nothing, as this is host
+                await SendMessageAsync(SessionName);
                 return true;
             }
             else
@@ -93,7 +92,7 @@ namespace SyncDevice.Windows.Bluetooth
             Writer = new DataWriter(Socket.OutputStream);
             var reader = new DataReader(Socket.InputStream);
 
-            if (await WaitForHostWelcomeMessage(reader))
+            if (await WaitForHandshakeMessage(reader))
             {
                 Logger?.LogInformation("Connection accepted, " + DeviceId);
                 RaiseOnConnectionStarted(this);
@@ -135,9 +134,6 @@ namespace SyncDevice.Windows.Bluetooth
         public DataWriter Writer { get; set; }
         public StreamSocket Socket { get; set; }
         public string DeviceId { get; set; }
-
-        public override string Id { get => SessionName + " ["+ DeviceId + "]"; }
-
         public RfcommDeviceService ChatService { get; set; }
 
         public BluetoothWindows Creator { get; set; }
@@ -178,6 +174,7 @@ namespace SyncDevice.Windows.Bluetooth
 
         public BluetoothWindowsChannel(BluetoothWindows creator, string deviceId, RfcommDeviceService chatService)
         {
+            isHost = creator.IsHost;
             Creator = creator;
             ChatService = chatService;
             DeviceId = deviceId;

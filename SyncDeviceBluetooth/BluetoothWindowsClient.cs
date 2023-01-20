@@ -24,14 +24,9 @@ namespace SyncDevice.Windows.Bluetooth
         private DeviceWatcher deviceWatcher = null;
         private BluetoothDevice BluetoothDevice = null;
         private BluetoothLePublisher bluetoothLePublisher = null;
-
-        public override bool IsHost { get => false; set { } }
-
-        public override string Id { get => BluetoothDevice?.DeviceInformation?.Id; }
+        public override bool IsHost { get => false; }
 
         public ConnectStrategy ConnectStrategy = ConnectStrategy.ScanServices;
-
-
         public static IEnumerable<NetworkInterface> BluetoothAdapters()
         {
             NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
@@ -41,7 +36,7 @@ namespace SyncDevice.Windows.Bluetooth
                 {
                     if (adapter.Name.Contains("Bluetooth") && adapter.Name.Contains("Bluetooth"))
                     {
-                        yield return adapter;//.GetPhysicalAddress().ToString();
+                        yield return adapter;
                     }
                 }
             }
@@ -133,7 +128,7 @@ namespace SyncDevice.Windows.Bluetooth
                     }
                 }
 
-                if (IsEFMserviceName(serviceName))
+                if (HasServiceName(serviceName))
                 {
                     ResultCollection.TryAdd(deviceInfo.Id, deviceInfo);
                     Logger?.LogInformation($"[Device added] {deviceInfo.Id}, {deviceInfo.Name}");
@@ -192,6 +187,7 @@ namespace SyncDevice.Windows.Bluetooth
                     {
                         Status = SyncDeviceStatus.Stopped;
                         Disconnect($"Could not discover {SdpServiceName}");
+                        RaiseOnError("No hosting sessions in range?");
                     }
                     else
                     {
@@ -321,8 +317,7 @@ namespace SyncDevice.Windows.Bluetooth
                     var channel = new BluetoothWindowsChannel(this, deviceInfoDisp.Id, rfcommDeviceService) 
                     { 
                         Logger = Logger, 
-                        SessionName = s?.Item2,
-                        IsHost = false
+                        SessionName = GetSessionName(s?.Item2)
                     };
 
                     if (!Channels.TryAdd(deviceInfoDisp.Id, channel))

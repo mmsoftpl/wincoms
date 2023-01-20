@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Storage.Streams;
 
@@ -12,9 +10,7 @@ namespace SyncDevice.Windows.Bluetooth
 {
     public class BluetoothLeWatcher : BluetoothWindows
     {
-        public override bool IsHost { get => false; set { } }
-
-        public override string Id => WatcherSingleton?.Value.ToString();
+        public override bool IsHost { get => false; }
 
         public readonly ConcurrentDictionary<ulong, string> Signatures = new ConcurrentDictionary<ulong, string>();
 
@@ -44,10 +40,11 @@ namespace SyncDevice.Windows.Bluetooth
 
             // First, let create a manufacturer data section we wanted to match for. These are the same as the one 
             // created in Scenario 2 and 4.
-            var manufacturerData = new BluetoothLEManufacturerData();
-
-            // Then, set the company ID for the manufacturer data. Here we picked an unused value: 0xFFFE
-            manufacturerData.CompanyId = 0xFFFE;
+            var manufacturerData = new BluetoothLEManufacturerData
+            {
+                // Then, set the company ID for the manufacturer data. Here we picked an unused value: 0xFFFE
+                CompanyId = 0xFFFE
+            };
 
             // Finally set the data payload within the manufacturer-specific section
             // Here, use a 16-bit UUID: 0x1234 -> {0x34, 0x12} (little-endian)
@@ -116,13 +113,6 @@ namespace SyncDevice.Windows.Bluetooth
             return Task.CompletedTask;
         }
 
-        public static string MAC802DOT3(ulong macAddress)
-        {
-            return string.Join(":",
-                                BitConverter.GetBytes(macAddress).Reverse()
-                                .Select(b => b.ToString("X2"))).Substring(6);
-        }
-
         public string GetSignature(string macAddress)
         {
             foreach(var signature in Signatures.Values)
@@ -169,7 +159,7 @@ namespace SyncDevice.Windows.Bluetooth
 
                 string s = Encoding.ASCII.GetString(data,2, data.Length-2);
 
-                if (IsEFMserviceName(s))
+                if (HasServiceName(s))
                 {
                     Signatures.AddOrUpdate(eventArgs.BluetoothAddress, s, (a, b) =>
                     {
@@ -203,21 +193,5 @@ namespace SyncDevice.Windows.Bluetooth
             Logger?.LogInformation(string.Format("Watcher stopped or aborted: {0}", eventArgs.Error.ToString()));
         }
 
-        /// <summary>
-        /// Invoked as an event handler when the status of the publisher changes.
-        /// </summary>
-        /// <param name="publisher">Instance of publisher that triggered the event.</param>
-        /// <param name="eventArgs">Event data containing information about the publisher status change event.</param>
-        private void OnPublisherStatusChanged(
-            BluetoothLEAdvertisementPublisher publisher,
-            BluetoothLEAdvertisementPublisherStatusChangedEventArgs eventArgs)
-        {
-            // This event handler can be used to monitor the status of the publisher.
-            // We can catch errors if the publisher is aborted by the system
-            BluetoothLEAdvertisementPublisherStatus status = eventArgs.Status;
-            BluetoothError error = eventArgs.Error;
-
-            Logger?.LogInformation(string.Format("Published Status: {0}, Error: {1}", status.ToString(), error.ToString()));
-        }
     }
 }

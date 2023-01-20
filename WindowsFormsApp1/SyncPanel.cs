@@ -117,9 +117,9 @@ namespace WindowsFormsApp1
 
                     foreach (var connection in SyncDevice.Connections)
                     {
-                        connectionsListBox.Items.Add(connection.Id);
+                        connectionsListBox.Items.Add(connection.SessionName);
                     }
-                    connectionsListBox.SelectedItem = selectedDevice?.Id;
+                    connectionsListBox.SelectedItem = selectedDevice?.SessionName;
 
                     buttonConnect.Enabled = selectedDevice?.Status == SyncDeviceStatus.Created;
                     buttonDisconnect.Enabled = selectedDevice?.Status == SyncDeviceStatus.Started;
@@ -708,7 +708,7 @@ namespace WindowsFormsApp1
                 {
                     foreach (var c in SyncDevice.Connections)
                     {
-                        if (c.Id == v.ToString())
+                        if (c.SessionName == v.ToString())
                             return c;
                     }
 

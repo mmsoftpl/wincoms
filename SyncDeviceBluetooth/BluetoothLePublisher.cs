@@ -10,9 +10,7 @@ namespace SyncDevice.Windows.Bluetooth
 {
     public class BluetoothLePublisher : BluetoothWindows
     {
-        public override bool IsHost { get => true; set { } }
-
-        public override string Id => PublisherSingleton?.Value?.Advertisement?.ToString();
+        public override bool IsHost { get => true; }
 
         // The Bluetooth LE advertisement publisher class is used to control and customize Bluetooth LE advertising.
         private Lazy<BluetoothLEAdvertisementPublisher> PublisherSingleton = null;

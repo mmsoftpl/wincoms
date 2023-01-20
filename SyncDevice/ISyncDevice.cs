@@ -43,7 +43,6 @@ namespace SyncDevice
 
         IList<ISyncDevice> Connections { get; }
 
-        string Id { get; }
         ILogger Logger { get; }
 
         event OnMessageEventHandler OnMessage;
