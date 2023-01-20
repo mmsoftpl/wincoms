@@ -42,7 +42,7 @@ namespace SyncDevice.Windows.Bluetooth
             }
         }
 
-        public Task PublishClientSignature(string sessionName)
+        private Task StartLePublisherAsync(string sessionName)
         {
             var clientMacAddress = string.Join(",", BluetoothAdapters().Select(a => a.GetPhysicalAddress().ToString().Replace(":", "")));
             var clientSignature = clientMacAddress + "|" + sessionName;
@@ -53,7 +53,7 @@ namespace SyncDevice.Windows.Bluetooth
 
         public override async Task StartAsync(string sessionName, string reason)
         {
-            await PublishClientSignature(sessionName);
+            await StartLePublisherAsync(sessionName);
 
             SessionName = sessionName;
             ConnectStrategy = ConnectStrategy.ScanServices;
@@ -79,6 +79,13 @@ namespace SyncDevice.Windows.Bluetooth
         {
             Status = SyncDeviceStatus.Stopped;
             base.RaiseOnDeviceDisconnected(device); 
+        }
+
+        internal override void RaiseOnConnectionStarted(ISyncDevice device)
+        {
+            StopLePublisher();
+            StopWatcher();
+            base.RaiseOnConnectionStarted(device);
         }
 
         public ConcurrentDictionary<string, DeviceInformation> ResultCollection
@@ -157,11 +164,9 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 Logger?.LogInformation($"[Enumeration completed] {ResultCollection.Count} devices found");
 
-                BluetoothWindowsChannel channel = null;
-
                 foreach (var deviceInfo in ResultCollection.Values)
                 {
-                    channel = Task.Run(() => Connect(deviceInfo)).Result;
+                    var channel = Task.Run(() => Connect(deviceInfo)).Result;
 
                     if (channel != null)
                     {
@@ -171,11 +176,10 @@ namespace SyncDevice.Windows.Bluetooth
                         Status = channel.Status;
 
                         RaiseOnDeviceConnected(channel);
-                        break;
                     }
                 }
 
-                if (channel == null)
+                if (Channels.Count == 0)
                 {
                     if (bluetoothLePublisher.LastError == BluetoothError.RadioNotAvailable)
                     {
@@ -184,17 +188,19 @@ namespace SyncDevice.Windows.Bluetooth
                     }
                     else
                     if (ConnectStrategy == ConnectStrategy.ScanDevices)
-                    {
-                        Status = SyncDeviceStatus.Stopped;
-                        Disconnect($"Could not discover {SdpServiceName}");
-                        RaiseOnError("No hosting sessions in range?");
-                    }
-                    else
+                        {
+                            Status = SyncDeviceStatus.Stopped;
+                            Disconnect($"Could not discover {SdpServiceName}");
+                            RaiseOnError("No hosting sessions in range?");
+                        }
+                        else
+                    if (ConnectStrategy == ConnectStrategy.ScanDevices)
                     {
                         ConnectStrategy = ConnectStrategy.ScanDevices;
                         RestartAsync("Restart in scan mode");
                     }
                 }
+                
             });
 
             deviceWatcher.Stopped += new TypedEventHandler<DeviceWatcher, object>((watcher, obj) =>
@@ -320,17 +326,7 @@ namespace SyncDevice.Windows.Bluetooth
                         SessionName = GetSessionName(s?.Item2)
                     };
 
-                    if (!Channels.TryAdd(deviceInfoDisp.Id, channel))
-                    {
-                        BluetoothDevice = null;
-                        Logger?.LogError("Channel not added");
-                        return null;
-                    }
-                    else
-                    {
-                        Logger?.LogInformation("Channel added");
-                        return channel;
-                    }
+                    RegisterChannel(channel);
                 }
             }
             return null;
@@ -340,6 +336,7 @@ namespace SyncDevice.Windows.Bluetooth
         {
             if (null != deviceWatcher)
             {
+                Logger?.LogTrace("Stopping DeviceWatcher watcher"); 
                 if ((DeviceWatcherStatus.Started == deviceWatcher.Status ||
                      DeviceWatcherStatus.EnumerationCompleted == deviceWatcher.Status))
                 {
@@ -349,14 +346,23 @@ namespace SyncDevice.Windows.Bluetooth
             }
         }
 
+        private void StopLePublisher()
+        {
+            if (bluetoothLePublisher != null)
+            {
+                Logger?.LogTrace("Stopping Bluetooth LE Publisher watcher");
+                bluetoothLePublisher?.StopAsync(null);
+                bluetoothLePublisher = null;
+            }
+        }
+
         public void Disconnect(string disconnectReason)
         {
-            bluetoothLePublisher?.StopAsync(disconnectReason);
-            bluetoothLePublisher = null;
+            StopWatcher();
+            
+            StopLePublisher();
 
             ClearChannels();
-
-            StopWatcher();
 
             BluetoothDevice?.Dispose();
             BluetoothDevice = null;

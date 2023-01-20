@@ -156,14 +156,16 @@ namespace SyncDevice.Windows.Bluetooth
             catch (Exception e)
             {
                 Logger?.LogError(e.Message);
-                Disconnect("exception?");
+                Disconnect("OnConnectionReceived exception");
                 return;
             }
 
             // Note - this is the supported way to get a Bluetooth device from a given socket
             var remoteDevice = await BluetoothDevice.FromHostNameAsync(socket.Information.RemoteHostName);
 
-            var clientSignature = remoteDevice.HostName?.DisplayName?.Replace(":", "")?.TrimStart('(')?.TrimEnd(')');
+            var remoteDeviceId = remoteDevice.HostName?.DisplayName?.TrimStart('(')?.TrimEnd(')');
+
+            var clientSignature = remoteDeviceId?.Replace(":", "");
 
             var watcherSignature = bluetoothLeWatcher.GetSignature(clientSignature);
 
@@ -176,21 +178,13 @@ namespace SyncDevice.Windows.Bluetooth
                 Logger?.LogInformation($"Unregonized signature {clientSignature}");
             }
 
-            var channel = new BluetoothWindowsChannel(this, socket.Information.RemoteHostName.ToString(), socket) 
+            var channel = new BluetoothWindowsChannel(this, remoteDeviceId, socket) 
             { 
                 Logger = Logger, 
                 SessionName = clientSignature
             };
 
-            if (!Channels.TryAdd(channel.DeviceId, channel))
-            {
-                Logger?.LogError("Can't add channel to dictionary?");
-            }
-            else
-            {
-                Logger?.LogInformation("Channel added to dictionary");
-                RaiseOnDeviceConnected(channel);
-            }
+            RegisterChannel(channel);
         }
 
         protected void Disconnect(string disconnectReason)

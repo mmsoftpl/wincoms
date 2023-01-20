@@ -84,7 +84,7 @@ namespace SyncDevice.Windows.Bluetooth
                 Publisher.Stop();
                 Publisher.StatusChanged -= OnPublisherStatusChanged;
 
-                Logger?.LogInformation("Publisher stopped.");
+                Logger?.LogInformation($"BluetoothLEAdvertisementPublisher stopped, {reason}");
                 Status = SyncDeviceStatus.Stopped;
             }
             return Task.CompletedTask;

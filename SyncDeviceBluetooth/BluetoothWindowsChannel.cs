@@ -76,8 +76,14 @@ namespace SyncDevice.Windows.Bluetooth
             }
             else
             {
-                string welcomeMessage = await WaitForMessageAsync(reader);
-                return !string.IsNullOrEmpty(welcomeMessage);
+                string handshakeMessage = await WaitForMessageAsync(reader);
+                if (handshakeMessage == Creator.SessionName)
+                    return true;
+                else
+                {
+                    Logger?.LogInformation($"Handshake message not correct. Expected {Creator.SessionName} but recived {handshakeMessage}");
+                    return false;
+                }
             }            
         }
 

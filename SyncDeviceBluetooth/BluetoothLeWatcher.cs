@@ -90,7 +90,7 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 WatcherSingleton = new Lazy<BluetoothLEAdvertisementWatcher>(GetWatcher);
                 WatcherSingleton.Value.Start();
-                Logger?.LogInformation("Watcher started.");
+                Logger?.LogInformation($"BluetoothLeWatcher started, {reason}");
                 Status = SyncDeviceStatus.Started;
             }
             return Task.CompletedTask;
@@ -107,7 +107,7 @@ namespace SyncDevice.Windows.Bluetooth
                 watcher.Received -= OnAdvertisementReceived;
                 watcher.Stopped -= OnAdvertisementWatcherStopped;
 
-                Logger?.LogInformation("Watcher stopped.");
+                Logger?.LogInformation("BluetoothLeWatcher stopped.");
                 Status = SyncDeviceStatus.Stopped;
             }
             return Task.CompletedTask;

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Remoting.Channels;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
 
@@ -145,6 +146,19 @@ namespace SyncDevice.Windows.Bluetooth
         protected ConcurrentDictionary<string, BluetoothWindowsChannel> Channels = new ConcurrentDictionary<string, BluetoothWindowsChannel>();
 
         public IList<ISyncDevice> Connections { get => Channels?.Values?.Cast<ISyncDevice>().ToList(); }
+
+        protected void RegisterChannel(BluetoothWindowsChannel channel)
+        {
+            if (!Channels.TryAdd(channel.DeviceId, channel))
+            {
+                Logger?.LogInformation($"Channel {channel?.DeviceId} already registered?");
+            }
+            else
+            {
+                Logger?.LogInformation($"Channel {channel?.DeviceId} registered");
+                RaiseOnDeviceConnected(channel);
+            }
+        }
 
         protected void ClearChannels()
         {
