@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using SyncDevice.Windows.Bluetooth;
 using System;
 using System.Collections.Generic;
 using System.Globalization;

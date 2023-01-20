@@ -167,7 +167,7 @@ namespace WindowsFormsApp1
                 else
                     lastMessageReceivedTextBox.Text = message;
 
-                lastMessage = message;
+                LastReceivedMessage = message;
 
             }));
         }
@@ -742,20 +742,11 @@ namespace WindowsFormsApp1
             }
         }
 
-        public string lastMessage { get; set; }
+        public string LastReceivedMessage { get; private set; }
         private void pingBackButton_Click(object sender, EventArgs e)
         {
-            if (lastMessage != null)
-            {
-                try
-                {
-                    _ = SyncDevice.SendMessageAsync(lastMessage);
-                }
-                catch (Exception ex)
-                {
-                    //                        System.Diagnostics.Debug.WriteLine(""ex.ToString());
-                }
-            }
+            if (LastReceivedMessage != null)
+                _ = SyncDevice?.SendMessageAsync(LastReceivedMessage);
         }
     }
 }

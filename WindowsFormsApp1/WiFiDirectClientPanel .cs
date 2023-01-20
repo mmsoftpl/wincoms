@@ -1,5 +1,5 @@
 ﻿using SyncDevice;
-using SyncDevice.Windows.Bluetooth;
+using SyncDevice.Windows.WifiDirect;
 
 namespace WindowsFormsApp1
 {
@@ -24,7 +24,7 @@ namespace WindowsFormsApp1
 
         private void Server_OnDeviceConnected(object sender, ISyncDevice device)
         {
-            KeepWriting();
+            _ = KeepWriting();
         }
 
         private void Server_OnMessage(object sender, MessageEventArgs e)

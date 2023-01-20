@@ -31,8 +31,6 @@ namespace SyncDevice.Windows.WifiDirect
 
         public string Id { get => "???"; }
 
-        public virtual Task RestartAsync(string reason) { throw new NotImplementedException(); }
-
         public event OnMessageEventHandler OnMessage;
         public event OnStatusEventHandler OnStatus;
         public event OnConnectionStarted OnConnectionStarted;
@@ -42,11 +40,13 @@ namespace SyncDevice.Windows.WifiDirect
 
         public void RaiseOnMessage(string message) => OnMessage?.Invoke(this, new MessageEventArgs() { Message = message });
         public void RaiseOnError(string error) => OnError?.Invoke(this, error);
+        public void RaiseOnConnectionStarted(ISyncDevice device) => OnConnectionStarted?.Invoke(this, device);
         public void RaiseOnDeviceConnected(ISyncDevice device) => OnDeviceConnected?.Invoke(this, device);
         public void RaiseOnDeviceDisconnected(ISyncDevice device) => OnDeviceDisconnected?.Invoke(this, device);
 
         public abstract Task StartAsync(string sessionName, string reason);
 
+        public virtual Task RestartAsync(string reason) { throw new NotImplementedException(); }
         public abstract Task StopAsync(string reason);
 
         public virtual async Task SendMessageAsync(string message)

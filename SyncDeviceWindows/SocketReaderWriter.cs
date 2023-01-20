@@ -22,20 +22,24 @@ namespace SyncDevice.Windows
     ///    
     public class SocketReaderWriter : IDisposable
     {
-        DataReader _dataReader;
-        DataWriter _dataWriter;
-        StreamSocket _streamSocket;
-        ILogger _logger;
+        readonly DataReader _dataReader;
+        readonly DataWriter _dataWriter;
+        readonly StreamSocket _streamSocket;
+        readonly ILogger _logger;
 
         public SocketReaderWriter(StreamSocket socket, ILogger logger)
         {
-            _dataReader = new DataReader(socket.InputStream);
-            _dataReader.UnicodeEncoding = UnicodeEncoding.Utf8;
-            _dataReader.ByteOrder = ByteOrder.LittleEndian;
+            _dataReader = new DataReader(socket.InputStream)
+            {
+                UnicodeEncoding = UnicodeEncoding.Utf8,
+                ByteOrder = ByteOrder.LittleEndian
+            };
 
-            _dataWriter = new DataWriter(socket.OutputStream);
-            _dataWriter.UnicodeEncoding = UnicodeEncoding.Utf8;
-            _dataWriter.ByteOrder = ByteOrder.LittleEndian;
+            _dataWriter = new DataWriter(socket.OutputStream)
+            {
+                UnicodeEncoding = UnicodeEncoding.Utf8,
+                ByteOrder = ByteOrder.LittleEndian
+            };
 
             _streamSocket = socket;
             _logger = logger;

@@ -25,7 +25,7 @@ namespace SyncDevice
 
     public delegate void OnDeviceConnected(object sender, ISyncDevice syncDevice);
 
-    public delegate void OnConnectionStarted(object sender, string deviceId);
+    public delegate void OnConnectionStarted(object sender, ISyncDevice syncDevice);
 
     public delegate void OnDeviceDisconnected(object sender, ISyncDevice syncDevice);
 

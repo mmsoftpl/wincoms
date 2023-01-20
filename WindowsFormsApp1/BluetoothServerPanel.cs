@@ -23,7 +23,7 @@ namespace WindowsFormsApp1
             SyncDevice = server;
         }
 
-        private void Server_OnConnectionStarted(object sender, string deviceId)
+        private void Server_OnConnectionStarted(object sender, ISyncDevice device)
         {
             _ = KeepWriting();
         }

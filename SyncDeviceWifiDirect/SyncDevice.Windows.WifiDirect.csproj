@@ -9,4 +9,9 @@
     <PackageReference Include="Microsoft.Windows.SDK.Contracts" Version="10.0.22621.755" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\SyncDeviceWindows\SyncDevice.Windows.csproj" />
+    <ProjectReference Include="..\SyncDevice\SyncDevice.csproj" />
+  </ItemGroup>
+
 </Project>

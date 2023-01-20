@@ -32,7 +32,7 @@ namespace WindowsFormsApp1
             SyncDevice = publisher;
         }
 
-        private void Server_OnConnectionStarted(object sender, string deviceId)
+        private void Server_OnConnectionStarted(object sender, ISyncDevice deviceId)
         {
             _ = KeepWriting();
         }

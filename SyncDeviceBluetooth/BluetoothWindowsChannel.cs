@@ -96,7 +96,7 @@ namespace SyncDevice.Windows.Bluetooth
             if (await WaitForHostWelcomeMessage(reader))
             {
                 Logger?.LogInformation("Connection accepted, " + DeviceId);
-                RaiseOnConnectionStarted(DeviceId);
+                RaiseOnConnectionStarted(this);
             }
             else
             {
@@ -161,11 +161,11 @@ namespace SyncDevice.Windows.Bluetooth
             Creator?.RaiseOnDeviceDisconnected(device);            
         }
 
-        internal override void RaiseOnConnectionStarted(string deviceId)
+        internal override void RaiseOnConnectionStarted(ISyncDevice device)
         {
             Status = SyncDeviceStatus.Started;
-            base.RaiseOnConnectionStarted(deviceId);
-            Creator?.RaiseOnConnectionStarted(deviceId);
+            base.RaiseOnConnectionStarted(device);
+            Creator?.RaiseOnConnectionStarted(device);
         }
 
         public BluetoothWindowsChannel(BluetoothWindows creator, string deviceId, StreamSocket streamSocket)

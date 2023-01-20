@@ -45,10 +45,10 @@ namespace SyncDevice.Windows.Bluetooth
             OnError?.Invoke(this, error);
         }
 
-        internal virtual void RaiseOnConnectionStarted(string deviceId)
+        internal virtual void RaiseOnConnectionStarted(ISyncDevice device)
         {
             Status = SyncDeviceStatus.Started;
-            OnConnectionStarted?.Invoke(this, deviceId);
+            OnConnectionStarted?.Invoke(this, device);
         }
 
         internal virtual void RaiseOnDeviceConnected(ISyncDevice device)

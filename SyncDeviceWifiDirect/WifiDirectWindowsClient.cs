@@ -7,7 +7,7 @@ using Windows.Devices.Enumeration;
 using Windows.Devices.WiFiDirect.Services;
 using Windows.Storage.Streams;
 
-namespace SyncDevice.Windows.Bluetooth
+namespace SyncDevice.Windows.WifiDirect
 {
     public class WifiDirectWindowsClient : WifiDirectWindows
     {

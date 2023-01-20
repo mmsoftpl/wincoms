@@ -14,13 +14,12 @@ namespace SyncDevice.Windows
     // real application would handle higher level logic over the connected socket(s)
     public class SocketWrapper : IDisposable
     {
-        private StreamSocket streamSocket = null;
-        private DatagramSocket datagramSocket = null;
-        // Used to update main state
-        private ILogger logger = null;
+        private readonly StreamSocket streamSocket = null;
+        private readonly DatagramSocket datagramSocket = null;
+        private readonly ILogger logger = null;
 
-        private DataReader reader = null;
-        private DataWriter writer;
+        private readonly DataReader reader = null;
+        private readonly DataWriter writer;
 
         public SocketWrapper(
             ILogger logger,
@@ -266,10 +265,7 @@ namespace SyncDevice.Windows
 
             if (disposing)
             {
-                if (streamSocket != null)
-                {
-                    streamSocket.Dispose();
-                }
+                streamSocket?.Dispose();
 
                 if (datagramSocket != null)
                 {
@@ -277,15 +273,9 @@ namespace SyncDevice.Windows
                     datagramSocket.MessageReceived -= OnUDPMessageReceived;
                 }
 
-                if (writer != null)
-                {
-                    writer.Dispose();
-                }
+                writer?.Dispose();
 
-                if (reader != null)
-                {
-                    reader.Dispose();
-                }
+                reader?.Dispose();
             }
 
             disposed = true;

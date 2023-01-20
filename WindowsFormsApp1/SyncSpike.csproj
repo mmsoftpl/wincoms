@@ -74,9 +74,6 @@
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="Windows">
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Windows Kits\10\UnionMetadata\10.0.22000.0\Windows.winmd</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BluetoothLePublisherPanel.cs">
@@ -203,6 +200,10 @@
     <ProjectReference Include="..\SyncDeviceBluetooth\SyncDevice.Windows.Bluetooth.csproj">
       <Project>{CB09DC44-1FC0-4F88-A424-A6A3E212C77E}</Project>
       <Name>SyncDevice.Windows.Bluetooth</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SyncDeviceWifiDirect\SyncDevice.Windows.WifiDirect.csproj">
+      <Project>{57050912-2031-426c-9d7b-be07d97ca573}</Project>
+      <Name>SyncDevice.Windows.WifiDirect</Name>
     </ProjectReference>
     <ProjectReference Include="..\SyncDeviceWindows\SyncDevice.Windows.csproj">
       <Project>{3B22F0C3-B892-45F5-ADB1-12DD0D4C61FE}</Project>

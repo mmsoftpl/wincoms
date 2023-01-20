@@ -118,8 +118,8 @@ namespace SyncDevice.Windows.Bluetooth
                                                                 DeviceInformationKind.AssociationEndpointService);
             }
 
-                // Hook up handlers for the watcher events before starting the watcher
-            deviceWatcher.Added += new TypedEventHandler<DeviceWatcher, DeviceInformation>(async (watcher, deviceInfo) =>
+            // Hook up handlers for the watcher events before starting the watcher
+            deviceWatcher.Added += new TypedEventHandler<DeviceWatcher, DeviceInformation>((watcher, deviceInfo) =>
             {
                 var serviceName = deviceInfo.Name;
 
@@ -135,15 +135,8 @@ namespace SyncDevice.Windows.Bluetooth
 
                 if (IsEFMserviceName(serviceName))
                 {
-                   // if (serviceName.Contains(SessionName))
-                    {
-                        ResultCollection.TryAdd(deviceInfo.Id, deviceInfo);
-                        Logger?.LogInformation($"[Device added] {deviceInfo.Id}, {deviceInfo.Name}");
-                    }
-                    //else
-                    //{
-                    //    Logger?.LogInformation($"[Device NOT added] {deviceInfo.Id}, {deviceInfo.Name}");
-                    //}
+                    ResultCollection.TryAdd(deviceInfo.Id, deviceInfo);
+                    Logger?.LogInformation($"[Device added] {deviceInfo.Id}, {deviceInfo.Name}");
                 }
             });
 
@@ -191,7 +184,7 @@ namespace SyncDevice.Windows.Bluetooth
                 {
                     if (bluetoothLePublisher.LastError == BluetoothError.RadioNotAvailable)
                     {
-                        RaiseOnError($"\"Make sure your Bluetooth Radio is on: '{bluetoothLePublisher.LastError.ToString()}'");
+                        RaiseOnError($"\"Make sure your Bluetooth Radio is on: '{bluetoothLePublisher.LastError}'");
                         Disconnect(null);
                     }
                     else
@@ -267,8 +260,6 @@ namespace SyncDevice.Windows.Bluetooth
                 if (!serviceName.Contains(SessionName))
                 {
                     Logger?.LogWarning($"This is not proper service. Wrong session {SessionName} ?!?!?!?");
-
-                    //return null;
                 }
             }
 
