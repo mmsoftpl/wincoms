@@ -258,11 +258,6 @@ namespace SyncDevice.Windows.Bluetooth
                 // The Service Name attribute requires UTF-8 encoding.
                 attributeReader.UnicodeEncoding = UnicodeEncoding.Utf8;
                 serviceName = attributeReader.ReadString(serviceNameLength);
-
-                if (!serviceName.Contains(SessionName))
-                {
-                    Logger?.LogWarning($"This is not proper service. Wrong session {SessionName} ?!?!?!?");
-                }
             }
 
             return new Tuple<RfcommDeviceService, string>(rfcommDeviceService, serviceName);
