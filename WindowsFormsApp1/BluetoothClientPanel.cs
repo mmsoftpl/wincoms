@@ -5,19 +5,18 @@ namespace WindowsFormsApp1
 {
     public partial class BluetoothClientPanel : SyncPanel
     {
-        readonly BluetoothWindowsClient client = null;
-        public override ISyncDevice SyncDevice => client;
-
         public BluetoothClientPanel()
         {
             InitializeComponent();
 
-            client = new BluetoothWindowsClient() { Logger = SDKTemplate.MainPage.mainPage };
+            var client = new BluetoothWindowsClient() { Logger = SDKTemplate.MainPage.mainPage };
             client.OnStatus += Client_OnStatus;
             client.OnMessage += Client_OnMessage;
             client.OnDeviceConnected += Client_OnDeviceConnected;
             client.OnConnectionStarted += Client_OnConnectionStarted;
             client.OnDeviceDisconnected += Client_OnDeviceDisconnected;
+
+            SyncDevice = client;
         }
 
         private void Client_OnConnectionStarted(object sender, string deviceId)
@@ -52,18 +51,18 @@ namespace WindowsFormsApp1
             base.OnUpdateControls();
 
             if (rescanButton != null)
-                rescanButton.Enabled = (client?.Status == SyncDeviceStatus.Started) ||
-                    (client?.Status == SyncDeviceStatus.Created);
+                rescanButton.Enabled = (SyncDevice?.Status == SyncDeviceStatus.Started) ||
+                    (SyncDevice?.Status == SyncDeviceStatus.Created);
 
 
         }
 
         private void rescanButton_Click(object sender, System.EventArgs e)
         {
-            client.StopAsync("Rescan");
+            SyncDevice.StopAsync("Rescan");
             Reset();
-            client.ConnectStrategy = ConnectStrategy.ScanDevices;
-            client.RestartAsync("Rescan");
+            (SyncDevice as BluetoothWindowsClient).ConnectStrategy = ConnectStrategy.ScanDevices;
+            SyncDevice.RestartAsync("Rescan");
         }
     }
 }

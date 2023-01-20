@@ -5,19 +5,17 @@ namespace WindowsFormsApp1
 {
     public partial class WiFiDirectClientPanel : SyncPanel
     {
-        readonly WifiDirectWindowsClient client = null;
-
-        public override ISyncDevice SyncDevice => client;
-
         public WiFiDirectClientPanel()
         {
             InitializeComponent();
 
-            client = new WifiDirectWindowsClient() { Logger = SDKTemplate.MainPage.mainPage };
+            var client = new WifiDirectWindowsClient() { Logger = SDKTemplate.MainPage.mainPage };
             client.OnStatus += Server_OnStatus;
             client.OnMessage += Server_OnMessage;
             client.OnDeviceConnected += Server_OnDeviceConnected;
             client.OnDeviceDisconnected += Server_OnDeviceDisconnected;
+
+            SyncDevice = client;
         }
 
         private void Server_OnDeviceDisconnected(object sender, ISyncDevice device)

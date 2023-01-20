@@ -14,10 +14,6 @@ namespace WindowsFormsApp1
 {
     public partial class BluetoothLePublisherPanel : SyncPanel
     {
-        readonly BluetoothLePublisher publisher = null;
-
-        public override ISyncDevice SyncDevice => publisher;
-
         protected override string StartText => "Start publishing";
 
         protected override string StopText => "Stop publishing";
@@ -26,12 +22,14 @@ namespace WindowsFormsApp1
         {
             InitializeComponent();
 
-            publisher = new BluetoothLePublisher() { Logger = SDKTemplate.MainPage.mainPage };
+            var publisher = new BluetoothLePublisher() { Logger = SDKTemplate.MainPage.mainPage };
             publisher.OnStatus += Server_OnStatus;
             publisher.OnMessage += Server_OnMessage;
             publisher.OnConnectionStarted += Server_OnConnectionStarted;
             publisher.OnDeviceConnected += Server_OnDeviceConnected;
             publisher.OnDeviceDisconnected += Server_OnDeviceDisconnected;
+
+            SyncDevice = publisher;
         }
 
         private void Server_OnConnectionStarted(object sender, string deviceId)

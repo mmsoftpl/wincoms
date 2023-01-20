@@ -37,6 +37,7 @@ namespace WindowsFormsApp1
         protected Label userLabel;
         protected TextBox userTextBox;
         private Button pingBackButton;
+        private Label lastErrorLabel;
 
         public MainPage MainPage { get; set; }
 
@@ -53,7 +54,28 @@ namespace WindowsFormsApp1
             }
         }
 
-        public virtual ISyncDevice SyncDevice { get; private set; }
+        private ISyncDevice syncDevice;
+        public ISyncDevice SyncDevice
+        {
+            get => syncDevice;
+            set
+            {
+                if (syncDevice!=null)
+                    syncDevice.OnError -= SyncDevice_OnError;
+
+                syncDevice = value;
+                if (syncDevice!=null)
+                    syncDevice.OnError += SyncDevice_OnError;
+            }
+        }
+
+        private void SyncDevice_OnError(object sender, string error)
+        {
+            Invoke((MethodInvoker)(() =>
+            {
+                lastErrorLabel.Text = error;
+            }));
+        }
 
         protected virtual string StartText { get; } = "Start";
         protected virtual string StopText { get; } = "Stop";
@@ -260,6 +282,7 @@ namespace WindowsFormsApp1
             this.sessionIdLabel = new System.Windows.Forms.Label();
             this.userLabel = new System.Windows.Forms.Label();
             this.userTextBox = new System.Windows.Forms.TextBox();
+            this.lastErrorLabel = new System.Windows.Forms.Label();
             this.lastMessagePanel.SuspendLayout();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -272,7 +295,7 @@ namespace WindowsFormsApp1
             // progressBar
             // 
             this.progressBar.Dock = System.Windows.Forms.DockStyle.Top;
-            this.progressBar.Location = new System.Drawing.Point(0, 99);
+            this.progressBar.Location = new System.Drawing.Point(0, 122);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(732, 23);
             this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Marquee;
@@ -284,7 +307,7 @@ namespace WindowsFormsApp1
             // 
             this.button.Dock = System.Windows.Forms.DockStyle.Top;
             this.button.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Underline, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button.Location = new System.Drawing.Point(0, 60);
+            this.button.Location = new System.Drawing.Point(0, 83);
             this.button.Name = "button";
             this.button.Size = new System.Drawing.Size(732, 39);
             this.button.TabIndex = 9;
@@ -296,7 +319,7 @@ namespace WindowsFormsApp1
             // 
             this.headerLabel.Dock = System.Windows.Forms.DockStyle.Top;
             this.headerLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.headerLabel.Location = new System.Drawing.Point(0, 0);
+            this.headerLabel.Location = new System.Drawing.Point(0, 23);
             this.headerLabel.Name = "headerLabel";
             this.headerLabel.Size = new System.Drawing.Size(732, 60);
             this.headerLabel.TabIndex = 8;
@@ -308,7 +331,7 @@ namespace WindowsFormsApp1
             this.lastMessagePanel.Controls.Add(this.lastMessageSentTextBox);
             this.lastMessagePanel.Controls.Add(this.lastMessageLabel);
             this.lastMessagePanel.Dock = System.Windows.Forms.DockStyle.Top;
-            this.lastMessagePanel.Location = new System.Drawing.Point(0, 430);
+            this.lastMessagePanel.Location = new System.Drawing.Point(0, 453);
             this.lastMessagePanel.Name = "lastMessagePanel";
             this.lastMessagePanel.Padding = new System.Windows.Forms.Padding(5);
             this.lastMessagePanel.Size = new System.Drawing.Size(732, 41);
@@ -342,7 +365,7 @@ namespace WindowsFormsApp1
             this.panel1.Controls.Add(this.lastMessageReceivedTextBox);
             this.panel1.Controls.Add(this.label2);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel1.Location = new System.Drawing.Point(0, 271);
+            this.panel1.Location = new System.Drawing.Point(0, 294);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(5);
             this.panel1.Size = new System.Drawing.Size(732, 41);
@@ -376,7 +399,7 @@ namespace WindowsFormsApp1
             this.panel2.Controls.Add(this.messagesSentTextBox);
             this.panel2.Controls.Add(this.label4);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel2.Location = new System.Drawing.Point(0, 389);
+            this.panel2.Location = new System.Drawing.Point(0, 412);
             this.panel2.Name = "panel2";
             this.panel2.Padding = new System.Windows.Forms.Padding(5);
             this.panel2.Size = new System.Drawing.Size(732, 41);
@@ -410,7 +433,7 @@ namespace WindowsFormsApp1
             this.panel3.Controls.Add(this.messagesReceivedTextBox);
             this.panel3.Controls.Add(this.label6);
             this.panel3.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel3.Location = new System.Drawing.Point(0, 230);
+            this.panel3.Location = new System.Drawing.Point(0, 253);
             this.panel3.Name = "panel3";
             this.panel3.Padding = new System.Windows.Forms.Padding(5);
             this.panel3.Size = new System.Drawing.Size(732, 41);
@@ -445,7 +468,7 @@ namespace WindowsFormsApp1
             this.panel4.Controls.Add(this.buttonConnect);
             this.panel4.Controls.Add(this.connectionsListBox);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel4.Location = new System.Drawing.Point(0, 122);
+            this.panel4.Location = new System.Drawing.Point(0, 145);
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(732, 108);
             this.panel4.TabIndex = 17;
@@ -489,7 +512,7 @@ namespace WindowsFormsApp1
             this.panel5.Controls.Add(this.numericUpDown);
             this.panel5.Controls.Add(this.cbSendMessages);
             this.panel5.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel5.Location = new System.Drawing.Point(0, 312);
+            this.panel5.Location = new System.Drawing.Point(0, 335);
             this.panel5.Name = "panel5";
             this.panel5.Padding = new System.Windows.Forms.Padding(10, 40, 0, 0);
             this.panel5.Size = new System.Drawing.Size(732, 77);
@@ -607,6 +630,16 @@ namespace WindowsFormsApp1
             this.userTextBox.TabIndex = 23;
             this.userTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
+            // lastErrorLabel
+            // 
+            this.lastErrorLabel.Dock = System.Windows.Forms.DockStyle.Top;
+            this.lastErrorLabel.ForeColor = System.Drawing.Color.Red;
+            this.lastErrorLabel.Location = new System.Drawing.Point(0, 0);
+            this.lastErrorLabel.Name = "lastErrorLabel";
+            this.lastErrorLabel.Size = new System.Drawing.Size(732, 23);
+            this.lastErrorLabel.TabIndex = 26;
+            this.lastErrorLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // SyncPanel
             // 
             this.Controls.Add(this.userLabel);
@@ -622,6 +655,7 @@ namespace WindowsFormsApp1
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.button);
             this.Controls.Add(this.headerLabel);
+            this.Controls.Add(this.lastErrorLabel);
             this.Name = "SyncPanel";
             this.Size = new System.Drawing.Size(732, 475);
             this.lastMessagePanel.ResumeLayout(false);

@@ -98,6 +98,8 @@ namespace SyncDevice.Windows.Bluetooth
             return Task.CompletedTask;
         }
 
+        public BluetoothError LastError { get; private set; } = BluetoothError.Success;
+
         /// <summary>
         /// Invoked as an event handler when the status of the publisher changes.
         /// </summary>
@@ -110,9 +112,9 @@ namespace SyncDevice.Windows.Bluetooth
             // This event handler can be used to monitor the status of the publisher.
             // We can catch errors if the publisher is aborted by the system
             BluetoothLEAdvertisementPublisherStatus status = eventArgs.Status;
-            BluetoothError error = eventArgs.Error;
+            LastError = eventArgs.Error;
 
-            Logger?.LogInformation(string.Format("Published Status: {0}, Error: {1}", status.ToString(), error.ToString()));
+            Logger?.LogInformation(string.Format("Published Status: {0}, Error: {1}", status.ToString(), LastError.ToString()));
         }
     }
 }

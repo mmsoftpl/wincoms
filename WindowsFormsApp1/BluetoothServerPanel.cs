@@ -5,10 +5,6 @@ namespace WindowsFormsApp1
 {
     public partial class BluetoothServerPanel : SyncPanel
     {
-        readonly BluetoothWindowsServer server = null;
-
-        public override ISyncDevice SyncDevice => server;
-
         protected override string StartText => "Start hosting";
 
         protected override string StopText => "Stop hosting";
@@ -17,12 +13,14 @@ namespace WindowsFormsApp1
         {
             InitializeComponent();
 
-            server = new BluetoothWindowsServer() { Logger = SDKTemplate.MainPage.mainPage };
+            var server = new BluetoothWindowsServer() { Logger = SDKTemplate.MainPage.mainPage };
             server.OnStatus += Server_OnStatus;
             server.OnMessage += Server_OnMessage;
             server.OnConnectionStarted += Server_OnConnectionStarted;
             server.OnDeviceConnected += Server_OnDeviceConnected;
             server.OnDeviceDisconnected += Server_OnDeviceDisconnected;
+
+            SyncDevice = server;
         }
 
         private void Server_OnConnectionStarted(object sender, string deviceId)

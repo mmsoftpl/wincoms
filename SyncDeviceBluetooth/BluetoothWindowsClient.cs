@@ -189,6 +189,12 @@ namespace SyncDevice.Windows.Bluetooth
 
                 if (channel == null)
                 {
+                    if (bluetoothLePublisher.LastError == BluetoothError.RadioNotAvailable)
+                    {
+                        RaiseOnError($"\"Make sure your Bluetooth Radio is on: '{bluetoothLePublisher.LastError.ToString()}'");
+                        Disconnect(null);
+                    }
+                    else
                     if (ConnectStrategy == ConnectStrategy.ScanDevices)
                     {
                         Status = SyncDeviceStatus.Stopped;
@@ -208,7 +214,9 @@ namespace SyncDevice.Windows.Bluetooth
             });
 
 
+            
             deviceWatcher.Start();
+            
         }
 
         private async Task<Tuple<RfcommDeviceService,string>> GetRfcommDeviceService(BluetoothDevice bluetoothDevice)

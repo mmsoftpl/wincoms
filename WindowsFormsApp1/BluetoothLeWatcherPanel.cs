@@ -5,10 +5,6 @@ namespace WindowsFormsApp1
 {
     public partial class BluetoothLeWatcherPanel : SyncPanel
     {
-        readonly BluetoothLeWatcher watcher = null;
-
-        public override ISyncDevice SyncDevice => watcher;
-
         protected override string StartText => "Start watching";
 
         protected override string StopText => "Stop watching";
@@ -17,12 +13,14 @@ namespace WindowsFormsApp1
         {
             InitializeComponent();
 
-            watcher = new BluetoothLeWatcher() { Logger = SDKTemplate.MainPage.mainPage };
+            var watcher = new BluetoothLeWatcher() { Logger = SDKTemplate.MainPage.mainPage };
             watcher.OnStatus += Server_OnStatus;
             watcher.OnMessage += Server_OnMessage;
             watcher.OnConnectionStarted += Server_OnConnectionStarted;
             watcher.OnDeviceConnected += Server_OnDeviceConnected;
             watcher.OnDeviceDisconnected += Server_OnDeviceDisconnected;
+
+            SyncDevice = watcher;
         }
 
         private void Server_OnConnectionStarted(object sender, string deviceId)

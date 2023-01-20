@@ -29,6 +29,8 @@ namespace SyncDevice
 
     public delegate void OnDeviceDisconnected(object sender, ISyncDevice syncDevice);
 
+    public delegate void OnDeviceError(object sender, string error);
+
     public interface ISyncDevice
     {
         Task SendMessageAsync(string message);
@@ -49,6 +51,7 @@ namespace SyncDevice
         event OnConnectionStarted OnConnectionStarted;
         event OnDeviceConnected OnDeviceConnected;
         event OnDeviceDisconnected OnDeviceDisconnected;
+        event OnDeviceError OnError;
 
         Task StartAsync(string sessionName, string reason);
 
