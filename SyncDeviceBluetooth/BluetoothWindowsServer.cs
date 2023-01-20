@@ -66,56 +66,49 @@ namespace SyncDevice.Windows.Bluetooth
         /// </summary>
         private async Task InitializeRfcommServer()
         {
+            rfcommProvider = await BluetoothStartAction(()=>RfcommServiceProvider.CreateAsync(RfcommServiceId.FromUuid(RfcommChatServiceUuid)).AsTask());
 
-            if (!BluetoothAction(()=>
+            if (rfcommProvider != null)
+            {
+                // Create a listener for this service and start listening
+                socketListener = new StreamSocketListener();
+                socketListener.ConnectionReceived += OnConnectionReceived;
+
+                var rfcomm = rfcommProvider.ServiceId.AsString();
+
+                await socketListener.BindServiceNameAsync(rfcommProvider.ServiceId.AsString(),
+                    SocketProtectionLevel.BluetoothEncryptionAllowNullAuthentication);
+
+                // Set the SDP attributes and start Bluetooth advertising
+                InitializeServiceSdpAttributes(rfcommProvider.SdpRawAttributes);
+
+                try
                 {
-                    var t = RfcommServiceProvider.CreateAsync(RfcommServiceId.FromUuid(RfcommChatServiceUuid)).AsTask();
-                    t.Wait();
-                    rfcommProvider = t.Result;
-                }))
-            {
-                Status = SyncDeviceStatus.Stopped;
-                return;
+                    rfcommProvider.StartAdvertising(socketListener, true);
+                }
+                catch (Exception e)
+                {
+                    // If you aren't able to get a reference to an RfcommServiceProvider, tell the user why.  Usually throws an exception if user changed their privacy settings to prevent Sync w/ Devices.  
+                    Logger?.LogError(e.Message);
+                    return;
+                }
+
+                var machineName = System.Environment.MachineName;
+                //var f = BluetoothDiagnostics.BluetoothComPort.FindAll();
+
+                var serviceInfoCollection = await DeviceInformation.FindAllAsync(RfcommDeviceService.GetDeviceSelector(RfcommServiceId.SerialPort), new string[] { "System.Devices.AepService.AepId" });
+
+                foreach (var serviceInfo in serviceInfoCollection)
+                {
+                    var deviceInfo = await DeviceInformation.CreateFromIdAsync((string)serviceInfo.Properties["System.Devices.AepService.AepId"]);
+
+                    Logger?.LogInformation($"This device name is: '{deviceInfo.Name}' and id is: '{deviceInfo.Id}'");
+                }
+
+                Logger?.LogInformation($"Advertising service name: {SdpServiceName} on {machineName}");
+
+                Status = SyncDeviceStatus.Started;
             }
-
-            // Create a listener for this service and start listening
-            socketListener = new StreamSocketListener();
-            socketListener.ConnectionReceived += OnConnectionReceived;
-
-            var rfcomm = rfcommProvider.ServiceId.AsString();
-
-            await socketListener.BindServiceNameAsync(rfcommProvider.ServiceId.AsString(),
-                SocketProtectionLevel.BluetoothEncryptionAllowNullAuthentication);
-
-            // Set the SDP attributes and start Bluetooth advertising
-            InitializeServiceSdpAttributes(rfcommProvider.SdpRawAttributes);
-
-            try
-            {
-                rfcommProvider.StartAdvertising(socketListener, true);
-            }
-            catch (Exception e)
-            {
-                // If you aren't able to get a reference to an RfcommServiceProvider, tell the user why.  Usually throws an exception if user changed their privacy settings to prevent Sync w/ Devices.  
-                Logger?.LogError(e.Message);
-                return;
-            }
-
-            var machineName = System.Environment.MachineName;
-            //var f = BluetoothDiagnostics.BluetoothComPort.FindAll();
-
-            var serviceInfoCollection = await DeviceInformation.FindAllAsync(RfcommDeviceService.GetDeviceSelector(RfcommServiceId.SerialPort), new string[] { "System.Devices.AepService.AepId" });
-
-            foreach (var serviceInfo in serviceInfoCollection)
-            {
-                var deviceInfo = await DeviceInformation.CreateFromIdAsync((string)serviceInfo.Properties["System.Devices.AepService.AepId"]);
-
-                Logger?.LogInformation($"This device name is: '{deviceInfo.Name}' and id is: '{deviceInfo.Id}'");
-            }
-
-            Logger?.LogInformation($"Advertising service name: {SdpServiceName} on {machineName}");
-
-            Status = SyncDeviceStatus.Started;
         }
 
         /// <summary>

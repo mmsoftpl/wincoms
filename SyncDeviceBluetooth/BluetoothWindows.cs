@@ -171,12 +171,12 @@ namespace SyncDevice.Windows.Bluetooth
             Channels.Clear();
         }
 
-        protected bool BluetoothAction(Action action)
+        protected async Task<T> BluetoothStartAction<T>(Func<Task<T>> action)
         {
             try
             {
-                action.Invoke();
-                return true;
+                var r = await action.Invoke();
+                return r;
             }
             catch (Exception ex) when ((uint)ex.HResult == 0x800710DF)
             {
@@ -186,10 +186,9 @@ namespace SyncDevice.Windows.Bluetooth
             }
             catch (Exception ex)
             {
-                RaiseOnError($"Error occured, {ex?.InnerException?.Message ?? ex?.Message}");
-                 
+                RaiseOnError($"Error occured, {ex?.InnerException?.Message ?? ex?.Message}");                 
             }
-            return false;
+            return default;
         }
     }
 }

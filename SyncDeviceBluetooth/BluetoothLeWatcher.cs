@@ -84,23 +84,20 @@ namespace SyncDevice.Windows.Bluetooth
             return watcher;
         }
 
-        public override Task StartAsync(string sessionName, string reason)
+        public override async Task StartAsync(string sessionName, string reason)
         {
             if (WatcherSingleton == null)
             {
                 WatcherSingleton = new Lazy<BluetoothLEAdvertisementWatcher>(GetWatcher);
 
-                if (BluetoothAction(() => WatcherSingleton.Value.Start()))
+                await BluetoothStartAction(() =>
                 {
+                    WatcherSingleton.Value.Start();
                     Logger?.LogInformation($"BluetoothLeWatcher started, {reason}");
                     Status = SyncDeviceStatus.Started;
-                }
-                else
-                { 
-                    Status = SyncDeviceStatus.Stopped;
-                }
+                    return Task.Run(() => true);
+                });
             }
-            return Task.CompletedTask;
         }
 
         public override Task StopAsync(string reason)
