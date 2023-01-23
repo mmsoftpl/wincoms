@@ -194,7 +194,7 @@ namespace SyncDevice.Windows.Bluetooth
                             RaiseOnError("No hosting sessions in range?");
                         }
                         else
-                    if (ConnectStrategy == ConnectStrategy.ScanDevices)
+                    if (ConnectStrategy == ConnectStrategy.ScanServices)
                     {
                         ConnectStrategy = ConnectStrategy.ScanDevices;
                         RestartAsync("Restart in scan mode");
