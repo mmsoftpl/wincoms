@@ -41,7 +41,11 @@ namespace SyncDevice.Windows.Bluetooth
         public event OnDeviceDisconnected OnDeviceDisconnected;
         public event OnDeviceError OnError;
 
-        internal virtual void RaiseOnMessage(string message) => OnMessage?.Invoke(this, new MessageEventArgs() { Message = message });
+        internal virtual void RaiseOnMessage(string message) => OnMessage?.Invoke(this, new MessageEventArgs() 
+        { 
+            Message = message,
+            SessionName = SessionName,
+        });
         internal virtual void RaiseOnError(string error)
         {
             Logger?.LogError(error);

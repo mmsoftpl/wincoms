@@ -7,6 +7,8 @@ namespace SyncDevice
     public class MessageEventArgs
     {
         public string Message { get; set; }
+
+        public string SessionName { get; set; }
     }
 
     public enum SyncDeviceStatus
