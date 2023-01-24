@@ -3,9 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Channels;
 using System.Threading.Tasks;
-using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Storage.Streams;
 
 namespace SyncDevice.Windows.Bluetooth
