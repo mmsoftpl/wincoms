@@ -64,9 +64,9 @@
             // 
             // sessionIdTextBox
             // 
-            this.sessionIdTextBox.Location = new System.Drawing.Point(791, 39);
-            this.sessionIdTextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.sessionIdTextBox.Size = new System.Drawing.Size(177, 20);
+            this.pinTextBox.Location = new System.Drawing.Point(791, 39);
+            this.pinTextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.pinTextBox.Size = new System.Drawing.Size(177, 20);
             // 
             // sessionIdLabel
             // 

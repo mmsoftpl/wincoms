@@ -29,7 +29,7 @@ namespace WindowsFormsApp1
         protected CheckBox cbSendMessages;
         private Label label1;
         protected NumericUpDown numericUpDown;
-        protected TextBox sessionIdTextBox;
+        protected TextBox pinTextBox;
         protected Label sessionIdLabel;
         private ListBox connectionsListBox;
         private Button buttonConnect;
@@ -41,9 +41,8 @@ namespace WindowsFormsApp1
 
         public MainPage MainPage { get; set; }
 
-        protected string SessionId => $"{userTextBox?.Text}";//-{sessionIdTextBox?.Text}";
-
-        protected string Pin => "1234ABCD";
+        protected string SessionId => $"{userTextBox?.Text}";
+        protected string Pin => pinTextBox.Text;
 
         private SyncDeviceStatus status = SyncDeviceStatus.Stopped;
         public SyncDeviceStatus Status
@@ -112,7 +111,7 @@ namespace WindowsFormsApp1
             }
 
             progressBar.Visible = Status == SyncDeviceStatus.Created;
-            sessionIdTextBox.Enabled = Status == SyncDeviceStatus.Stopped;
+            pinTextBox.Enabled = Status == SyncDeviceStatus.Stopped;
             userTextBox.Enabled = Status == SyncDeviceStatus.Stopped;
 
             var selectedDevice = GetSelectedDevice();
@@ -302,7 +301,7 @@ namespace WindowsFormsApp1
             this.label1 = new System.Windows.Forms.Label();
             this.numericUpDown = new System.Windows.Forms.NumericUpDown();
             this.cbSendMessages = new System.Windows.Forms.CheckBox();
-            this.sessionIdTextBox = new System.Windows.Forms.TextBox();
+            this.pinTextBox = new System.Windows.Forms.TextBox();
             this.sessionIdLabel = new System.Windows.Forms.Label();
             this.userLabel = new System.Windows.Forms.Label();
             this.userTextBox = new System.Windows.Forms.TextBox();
@@ -523,10 +522,9 @@ namespace WindowsFormsApp1
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.connectionsListBox.FormattingEnabled = true;
-            this.connectionsListBox.ItemHeight = 16;
             this.connectionsListBox.Location = new System.Drawing.Point(86, 6);
             this.connectionsListBox.Name = "connectionsListBox";
-            this.connectionsListBox.Size = new System.Drawing.Size(631, 52);
+            this.connectionsListBox.Size = new System.Drawing.Size(631, 43);
             this.connectionsListBox.TabIndex = 0;
             this.connectionsListBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.connectionsListBox_MouseClick);
             // 
@@ -612,28 +610,28 @@ namespace WindowsFormsApp1
             this.cbSendMessages.Text = "Send message every ";
             this.cbSendMessages.UseVisualStyleBackColor = true;
             // 
-            // sessionIdTextBox
+            // pinTextBox
             // 
-            this.sessionIdTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.sessionIdTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.sessionIdTextBox.Location = new System.Drawing.Point(593, 32);
-            this.sessionIdTextBox.Name = "sessionIdTextBox";
-            this.sessionIdTextBox.Size = new System.Drawing.Size(134, 20);
-            this.sessionIdTextBox.TabIndex = 19;
-            this.sessionIdTextBox.Text = "09JAN2023 LO1234z";
-            this.sessionIdTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
-            this.sessionIdTextBox.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
+            this.pinTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.pinTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.pinTextBox.Location = new System.Drawing.Point(593, 32);
+            this.pinTextBox.Name = "pinTextBox";
+            this.pinTextBox.Size = new System.Drawing.Size(134, 20);
+            this.pinTextBox.TabIndex = 19;
+            this.pinTextBox.Text = "ABCD1234";
+            this.pinTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.pinTextBox.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // sessionIdLabel
             // 
             this.sessionIdLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.sessionIdLabel.AutoSize = true;
             this.sessionIdLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.sessionIdLabel.Location = new System.Drawing.Point(650, 7);
+            this.sessionIdLabel.Location = new System.Drawing.Point(633, 7);
             this.sessionIdLabel.Name = "sessionIdLabel";
-            this.sessionIdLabel.Size = new System.Drawing.Size(77, 17);
+            this.sessionIdLabel.Size = new System.Drawing.Size(94, 17);
             this.sessionIdLabel.TabIndex = 20;
-            this.sessionIdLabel.Text = "Session id:";
+            this.sessionIdLabel.Text = "PIN (optional)";
             // 
             // userLabel
             // 
@@ -670,7 +668,7 @@ namespace WindowsFormsApp1
             this.Controls.Add(this.userLabel);
             this.Controls.Add(this.userTextBox);
             this.Controls.Add(this.sessionIdLabel);
-            this.Controls.Add(this.sessionIdTextBox);
+            this.Controls.Add(this.pinTextBox);
             this.Controls.Add(this.lastMessagePanel);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel5);
