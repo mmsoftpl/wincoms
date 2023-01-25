@@ -12,7 +12,7 @@ namespace SyncDevice.Windows.WifiDirect
     {
         private WiFiDirectServiceAdvertiser advertiser { get; set; }
 
-        public override Task StartAsync(string sessionName, string reason)
+        public override Task StartAsync(string sessionName, string pin, string reason)
         {
             SessionName = sessionName;
             StartAdvertisement("efm", true, true, "", null, WiFiDirectServiceStatus.Available, 2,

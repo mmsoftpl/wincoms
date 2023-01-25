@@ -22,6 +22,8 @@ namespace SyncDevice.Windows.Bluetooth
         }
 
         public abstract bool IsHost { get; }
+
+        protected string Pin { get; set; }
         public string DeviceId { get; internal set; }
 
         const string DefaultServiceName = "EFM";
@@ -103,7 +105,7 @@ namespace SyncDevice.Windows.Bluetooth
             }
         }
 
-        public abstract Task StartAsync(string sessionName, string reason);
+        public abstract Task StartAsync(string sessionName, string pin, string reason);
 
         public virtual Task RestartAsync(string reason) { throw new NotImplementedException(); }
 

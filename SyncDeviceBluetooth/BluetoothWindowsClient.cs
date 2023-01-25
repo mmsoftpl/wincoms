@@ -48,11 +48,12 @@ namespace SyncDevice.Windows.Bluetooth
             var clientSignature = clientMacAddress + "|" + sessionName;
 
             bluetoothLePublisher = new BluetoothLePublisher() { Logger = Logger, ServiceName = ServiceName, SessionName = clientSignature };
-            return bluetoothLePublisher.StartAsync(clientSignature, "Publishing LE signature");
+            return bluetoothLePublisher.StartAsync(clientSignature, null, "Publishing LE signature");
         }
 
-        public override async Task StartAsync(string sessionName, string reason)
+        public override async Task StartAsync(string sessionName, string pin, string reason)
         {
+            Pin = pin;
             await StartLePublisherAsync(sessionName);
 
             SessionName = sessionName;

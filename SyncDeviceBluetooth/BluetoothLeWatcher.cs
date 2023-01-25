@@ -84,7 +84,7 @@ namespace SyncDevice.Windows.Bluetooth
             return watcher;
         }
 
-        public override async Task StartAsync(string sessionName, string reason)
+        public override async Task StartAsync(string sessionName, string pin, string reason)
         {
             if (WatcherSingleton == null)
             {

@@ -54,7 +54,7 @@ namespace SyncDevice
         event OnDeviceDisconnected OnDeviceDisconnected;
         event OnDeviceError OnError;
 
-        Task StartAsync(string sessionName, string reason);
+        Task StartAsync(string sessionName, string pin, string reason);
 
         Task StopAsync(string reason);
 

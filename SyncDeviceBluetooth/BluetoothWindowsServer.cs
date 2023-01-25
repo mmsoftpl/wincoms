@@ -21,7 +21,7 @@ namespace SyncDevice.Windows.Bluetooth
         {
             bluetoothLeWatcher = new BluetoothLeWatcher() { Logger = Logger };
             bluetoothLeWatcher.OnError += BluetoothLeWatcher_OnError;
-            return bluetoothLeWatcher.StartAsync(sessionName, "Publishing LE signature");
+            return bluetoothLeWatcher.StartAsync(sessionName, null, "Publishing LE signature");
         }
 
         private void BluetoothLeWatcher_OnError(object sender, string error)
@@ -42,10 +42,11 @@ namespace SyncDevice.Windows.Bluetooth
             }
         }
 
-        public override async Task StartAsync(string sessionName, string reason)
+        public override async Task StartAsync(string sessionName, string pin, string reason)
         {
             if (Status == SyncDeviceStatus.Stopped)
             {
+                Pin = pin;
                 await ScanForSignatures(sessionName);
 
                 SessionName = sessionName;

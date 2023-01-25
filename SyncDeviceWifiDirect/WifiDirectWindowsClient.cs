@@ -36,7 +36,7 @@ namespace SyncDevice.Windows.WifiDirect
             return Task.CompletedTask;
         }
 
-        public override Task StartAsync(string sessionName, string reason)
+        public override Task StartAsync(string sessionName, string pin, string reason)
         {
             SessionName = sessionName;
             DiscoverServicesAsync("efm", null);

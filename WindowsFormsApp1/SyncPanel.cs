@@ -43,6 +43,8 @@ namespace WindowsFormsApp1
 
         protected string SessionId => $"{userTextBox?.Text}";//-{sessionIdTextBox?.Text}";
 
+        protected string Pin => "1234ABCD";
+
         private SyncDeviceStatus status = SyncDeviceStatus.Stopped;
         public SyncDeviceStatus Status
         {
@@ -521,9 +523,10 @@ namespace WindowsFormsApp1
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.connectionsListBox.FormattingEnabled = true;
+            this.connectionsListBox.ItemHeight = 16;
             this.connectionsListBox.Location = new System.Drawing.Point(86, 6);
             this.connectionsListBox.Name = "connectionsListBox";
-            this.connectionsListBox.Size = new System.Drawing.Size(631, 56);
+            this.connectionsListBox.Size = new System.Drawing.Size(631, 52);
             this.connectionsListBox.TabIndex = 0;
             this.connectionsListBox.MouseClick += new System.Windows.Forms.MouseEventHandler(this.connectionsListBox_MouseClick);
             // 
@@ -544,9 +547,9 @@ namespace WindowsFormsApp1
             // 
             this.pingBackButton.AutoSize = true;
             this.pingBackButton.Dock = System.Windows.Forms.DockStyle.Right;
-            this.pingBackButton.Location = new System.Drawing.Point(584, 40);
+            this.pingBackButton.Location = new System.Drawing.Point(550, 40);
             this.pingBackButton.Name = "pingBackButton";
-            this.pingBackButton.Size = new System.Drawing.Size(148, 37);
+            this.pingBackButton.Size = new System.Drawing.Size(182, 37);
             this.pingBackButton.TabIndex = 3;
             this.pingBackButton.Text = "Ping back the last message";
             this.pingBackButton.UseVisualStyleBackColor = true;
@@ -704,7 +707,7 @@ namespace WindowsFormsApp1
             {
                 Reset();
                 Status = SyncDeviceStatus.Created;
-                SyncDevice.StartAsync(SessionId, "Connect requested by app user");
+                SyncDevice.StartAsync(SessionId, Pin, "Connect requested by app user");
             }
             else
             if (Status == SyncDeviceStatus.Started)
@@ -729,7 +732,7 @@ namespace WindowsFormsApp1
 
             if (selectedDevice != null)
             {
-                _ = selectedDevice.StartAsync(selectedDevice?.SessionName, "Manual connect");
+                _ = selectedDevice.StartAsync(selectedDevice?.SessionName, Pin, "Manual connect");
             }
         }
 

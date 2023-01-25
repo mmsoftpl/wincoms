@@ -61,7 +61,7 @@ namespace SyncDevice.Windows.Bluetooth
             return publisher;
         }
 
-        public override Task StartAsync(string sessionName, string reason)
+        public override Task StartAsync(string sessionName, string pin, string reason)
         {
             if (PublisherSingleton == null)
             {

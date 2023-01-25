@@ -12,7 +12,7 @@ namespace SyncDevice.Windows.Bluetooth
         private readonly bool isHost;
         public override bool IsHost { get => isHost; }
 
-        public override Task StartAsync(string sessionName, string reason)
+        public override Task StartAsync(string sessionName, string pin, string reason)
         {
             SessionName = sessionName;
             if (Writer == null)
@@ -71,19 +71,19 @@ namespace SyncDevice.Windows.Bluetooth
         {
             if (IsHost)
             {
-                await SendMessageAsync(SessionName);
+                await SendMessageAsync(Pin);
                 return true;
             }
             else
             {
                 string handshakeMessage = await WaitForMessageAsync(reader);
-               // if (handshakeMessage == Creator.SessionName) // Later, 
+                if (handshakeMessage == Pin) // Later, 
                     return true;
-                /*else
+                else
                 {
-                    Logger?.LogInformation($"Handshake message not correct. Expected {Creator.SessionName} but recived {handshakeMessage}");
+                    Logger?.LogInformation($"Handshake message not correct. Expected {Pin} but recived {handshakeMessage}");
                     return false;
-                }*/
+                }
             }            
         }
 

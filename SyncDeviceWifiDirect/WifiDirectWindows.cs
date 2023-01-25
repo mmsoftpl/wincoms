@@ -45,7 +45,7 @@ namespace SyncDevice.Windows.WifiDirect
         public void RaiseOnDeviceConnected(ISyncDevice device) => OnDeviceConnected?.Invoke(this, device);
         public void RaiseOnDeviceDisconnected(ISyncDevice device) => OnDeviceDisconnected?.Invoke(this, device);
 
-        public abstract Task StartAsync(string sessionName, string reason);
+        public abstract Task StartAsync(string sessionName, string pin, string reason);
 
         public virtual Task RestartAsync(string reason) { throw new NotImplementedException(); }
         public abstract Task StopAsync(string reason);
