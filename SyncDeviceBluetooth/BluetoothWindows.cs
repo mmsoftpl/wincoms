@@ -152,7 +152,7 @@ namespace SyncDevice.Windows.Bluetooth
 
         public IList<ISyncDevice> Connections { get => Channels?.Values?.Cast<ISyncDevice>().ToList(); }
 
-        protected void RegisterChannel(BluetoothWindowsChannel channel)
+        protected void RegisterChannel(BluetoothWindowsChannel channel, string pin)
         {
             if (!Channels.TryAdd(channel.DeviceId, channel))
             {
@@ -162,6 +162,11 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 Logger?.LogInformation($"Channel {channel?.DeviceId} registered");
                 RaiseOnDeviceConnected(channel);
+
+                if (!string.IsNullOrEmpty(pin))
+                {
+                    _ = channel.StartAsync(SessionName, pin, "PIN provided, connecting");
+                }
             }
         }
 

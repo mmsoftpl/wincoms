@@ -136,7 +136,7 @@ namespace SyncDevice.Windows.Bluetooth
                     }
                 }
 
-                if (HasServiceName(serviceName))
+                if (HasServiceName(serviceName) && deviceInfo.Id.Contains("RFCOMM"))
                 {
                     ResultCollection.TryAdd(deviceInfo.Id, deviceInfo);
                     Logger?.LogInformation($"[Device added] {deviceInfo.Id}, {deviceInfo.Name}");
@@ -176,7 +176,7 @@ namespace SyncDevice.Windows.Bluetooth
 
                         Status = channel.Status;
 
-                        RaiseOnDeviceConnected(channel);
+                        RaiseOnDeviceConnected(this);
                     }
                 }
 
@@ -322,7 +322,9 @@ namespace SyncDevice.Windows.Bluetooth
                         SessionName = GetSessionName(s?.Item2)
                     };
 
-                    RegisterChannel(channel);
+                    RegisterChannel(channel, Pin);
+
+                    return channel;
                 }
             }
             return null;

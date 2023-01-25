@@ -14,6 +14,7 @@ namespace SyncDevice.Windows.Bluetooth
 
         public override Task StartAsync(string sessionName, string pin, string reason)
         {
+            Pin = pin;
             SessionName = sessionName;
             if (Writer == null)
             {

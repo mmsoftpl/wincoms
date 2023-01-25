@@ -184,7 +184,7 @@ namespace SyncDevice.Windows.Bluetooth
                 SessionName = clientSignature
             };
 
-            RegisterChannel(channel);
+            RegisterChannel(channel, Pin);
         }
 
         protected void Disconnect(string disconnectReason)
