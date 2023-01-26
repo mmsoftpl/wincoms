@@ -97,15 +97,20 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 bluetoothWindowsClient = new BluetoothWindowsClient() { Logger = Logger };
                 bluetoothWindowsClient.OnMessage += BluetoothWindowsClient_OnMessage;
-                bluetoothWindowsServer.OnDeviceDisconnected += BluetoothWindowsServer_OnDeviceDisconnected1;
+                bluetoothWindowsClient.OnDeviceDisconnected += BluetoothWindowsClient_OnDeviceDisconnected;
                 return bluetoothWindowsClient.StartAsync(SessionName, Pin, $"Connecting to host");
             }
             return Task.CompletedTask;
         }
 
-        private void BluetoothWindowsServer_OnDeviceDisconnected1(object sender, ISyncDevice syncDevice)
+        private void BluetoothWindowsClient_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
         {
-            DisconnectFromHost("Underlying client device disconnected");
+            if (sender==bluetoothWindowsClient)
+            {
+                bluetoothWindowsClient.OnMessage -= BluetoothWindowsClient_OnMessage;
+                bluetoothWindowsClient.OnDeviceDisconnected -= BluetoothWindowsClient_OnDeviceDisconnected;
+                bluetoothWindowsClient = null;
+            }
         }
 
         private void BluetoothWindowsClient_OnMessage(object sender, MessageEventArgs e)
@@ -120,6 +125,7 @@ namespace SyncDevice.Windows.Bluetooth
                 if (bluetoothWindowsClient != null)
                 {
                     bluetoothWindowsClient.OnMessage -= BluetoothWindowsClient_OnMessage;
+                    bluetoothWindowsClient.OnDeviceDisconnected -= BluetoothWindowsClient_OnDeviceDisconnected;
                     return bluetoothWindowsClient?.StopAsync(reason);
                 }
                 return Task.CompletedTask;
@@ -147,7 +153,12 @@ namespace SyncDevice.Windows.Bluetooth
 
         private void BluetoothWindowsServer_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
         {
-            StopHosting("Underlying server device disconnected");
+            if (sender == bluetoothWindowsServer)
+            {
+                bluetoothWindowsServer.OnMessage -= BluetoothWindowsClient_OnMessage;
+                bluetoothWindowsServer.OnDeviceDisconnected -= BluetoothWindowsServer_OnDeviceDisconnected;
+                bluetoothWindowsServer = null;
+            }
         }
 
         private void BluetoothWindowsServer_OnConnectionStarted(object sender, ISyncDevice syncDevice)
@@ -165,6 +176,7 @@ namespace SyncDevice.Windows.Bluetooth
                 if (bluetoothWindowsServer != null)
                 {
                     bluetoothWindowsServer.OnMessage -= BluetoothWindowsClient_OnMessage;
+                    bluetoothWindowsServer.OnDeviceDisconnected -= BluetoothWindowsServer_OnDeviceDisconnected;
                     return bluetoothWindowsServer?.StopAsync(reason);
                 }
                 return Task.CompletedTask;
