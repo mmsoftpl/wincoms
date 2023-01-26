@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,7 +14,28 @@ namespace SyncDevice.Windows.Bluetooth
         private BluetoothWindowsClient bluetoothWindowsClient;
         private BluetoothWindowsServer bluetoothWindowsServer;
 
+        public string Signature
+        {
+            get;
+            private set;
+        }
+
+        private async Task SetSignature(string value)
+        {
+            if (Signature != value)
+            {
+                Signature = value;
+
+                await StopPublishingSignatureAsync("signature changed");
+                await StartHosting();
+                await StartPublishingSignatureAsync();
+            }
+
+        }
+
         public override bool IsHost => bluetoothWindowsServer?.IsHost == true;
+
+        public override IList<ISyncDevice> Connections => bluetoothWindowsServer?.Connections ?? bluetoothWindowsClient?.Connections ?? base.Connections;
 
         #region Bluetooth LE Watcher
         private Task ScanForSignatures()
@@ -57,9 +80,9 @@ namespace SyncDevice.Windows.Bluetooth
 
         #region Bluetooth LE Publisher
 
-        private Task StartPublishingSignatureAsync(string signature)
+        private Task StartPublishingSignatureAsync()
         {
-            var clientSignature = SessionName + "|" + signature;
+            var clientSignature = SessionName + "|" + Signature;
 
             if (bluetoothLePublisher == null)
             {
@@ -163,10 +186,8 @@ namespace SyncDevice.Windows.Bluetooth
 
         private void BluetoothWindowsServer_OnConnectionStarted(object sender, ISyncDevice syncDevice)
         {
-            syncDevice.SendMessageAsync(csMessage);
-            syncDevice.StopAsync("Closing connection to save power"); 
-            StopHosting(null); //if 0 connections?
-
+            if (!string.IsNullOrEmpty(LastMessage))
+                syncDevice.SendMessageAsync(LastMessage);
         }
 
         private Task StopHosting(string reason)
@@ -199,6 +220,22 @@ namespace SyncDevice.Windows.Bluetooth
             }
         }
 
+        private int SignatureId;
+        private string lastMessage;
+        public string LastMessage
+        {
+            get => lastMessage;
+            set
+            {
+                if (lastMessage != value)
+                {
+                    lastMessage = value;
+                    Interlocked.Increment(ref SignatureId);
+                    _ = SetSignature(SignatureId.ToString());
+                }
+            }
+        }
+
         public override async Task StopAsync(string reason)
         {
             Status = SyncDeviceStatus.Stopped;
@@ -208,18 +245,12 @@ namespace SyncDevice.Windows.Bluetooth
             await StopScanningForSignatures(reason);
         }
 
-        static int cs = 0;
-
-        private string csMessage = string.Empty;
-
-        public override async Task SendMessageAsync(string message)
+        public override Task SendMessageAsync(string message)
         {
-            csMessage= message;
-            Interlocked.Increment(ref cs);
-            await StopPublishingSignatureAsync("signature changed");
-            await StartHosting();
-            await StartPublishingSignatureAsync(cs.ToString());
+            LastMessage = message;
 
+            return bluetoothWindowsServer?.SendMessageAsync(message);
         }
+
     }
 }

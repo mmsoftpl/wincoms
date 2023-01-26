@@ -151,7 +151,7 @@ namespace SyncDevice.Windows.Bluetooth
 
         protected ConcurrentDictionary<string, BluetoothWindowsChannel> Channels = new ConcurrentDictionary<string, BluetoothWindowsChannel>();
 
-        public IList<ISyncDevice> Connections { get => Channels?.Values?.Cast<ISyncDevice>().ToList(); }
+        public virtual IList<ISyncDevice> Connections { get => Channels?.Values?.Cast<ISyncDevice>().ToList(); }
 
         protected void RegisterChannel(BluetoothWindowsChannel channel, string pin)
         {

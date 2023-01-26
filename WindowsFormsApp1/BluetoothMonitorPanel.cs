@@ -53,7 +53,6 @@ namespace WindowsFormsApp1
         private void pingBackButton_Click(object sender, System.EventArgs e)
         {
             SyncDevice.SendMessageAsync(System.DateTime.UtcNow.ToString());
-
         }
     }
 }
