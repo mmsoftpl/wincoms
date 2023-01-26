@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
 
@@ -17,7 +18,7 @@ namespace SyncDevice.Windows.Bluetooth
             set
             {
                 status = value;
-                OnStatus?.Invoke(this, status);                
+                OnStatus?.Invoke(this, status);
             }
         }
 
@@ -41,8 +42,8 @@ namespace SyncDevice.Windows.Bluetooth
         public event OnDeviceDisconnected OnDeviceDisconnected;
         public event OnDeviceError OnError;
 
-        internal virtual void RaiseOnMessage(string message) => OnMessage?.Invoke(this, new MessageEventArgs() 
-        { 
+        internal virtual void RaiseOnMessage(string message) => OnMessage?.Invoke(this, new MessageEventArgs()
+        {
             Message = message,
             SessionName = SessionName,
         });
@@ -59,7 +60,7 @@ namespace SyncDevice.Windows.Bluetooth
         }
 
         internal virtual void RaiseOnDeviceConnected(ISyncDevice device)
-        {            
+        {
             OnDeviceConnected?.Invoke(this, device);
         }
 
@@ -131,7 +132,7 @@ namespace SyncDevice.Windows.Bluetooth
             var s = serviceName.Split('|');
             if (s.Length > 0)
             {
-                return s[s.Length-1];
+                return s[s.Length - 1];
             }
             return serviceName;
         }
@@ -195,9 +196,44 @@ namespace SyncDevice.Windows.Bluetooth
             }
             catch (Exception ex)
             {
-                RaiseOnError($"Error occured, {ex?.InnerException?.Message ?? ex?.Message}");                 
+                RaiseOnError($"Error occured, {ex?.InnerException?.Message ?? ex?.Message}");
             }
             return default;
         }
+
+        public static IEnumerable<NetworkInterface> BluetoothAdapters()
+        {
+            NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
+            if (adapters?.Length > 0)
+            {
+                foreach (NetworkInterface adapter in adapters)
+                {
+                    if (adapter.Name.Contains("Bluetooth") && adapter.Name.Contains("Bluetooth"))
+                    {
+                        yield return adapter;
+                    }
+                }
+            }
+        }
+
+        private static string thisBluetoothMac = null;
+        public static string ThisBluetoothMac
+        {
+            get
+            {
+                if (thisBluetoothMac == null)
+                    thisBluetoothMac = BluetoothAdapters().Select(a => a.GetPhysicalAddress().ToString().Replace(":", "")).FirstOrDefault() ?? string.Empty;
+                return thisBluetoothMac;
+            }
+        }
+
+        public static ulong ThisBluetoothAddress
+        {
+            get
+            {
+                return Convert.ToUInt64(ThisBluetoothMac, 16);
+            }
+        }
+
     }
 }

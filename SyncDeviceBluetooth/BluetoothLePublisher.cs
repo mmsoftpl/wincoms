@@ -65,6 +65,7 @@ namespace SyncDevice.Windows.Bluetooth
         {
             if (PublisherSingleton == null)
             {
+                SessionName = sessionName;
                 PublisherSingleton = new Lazy<BluetoothLEAdvertisementPublisher>(GetPublisher);
                 PublisherSingleton.Value.Start();
                 PublisherSingleton.Value.StatusChanged += OnPublisherStatusChanged;

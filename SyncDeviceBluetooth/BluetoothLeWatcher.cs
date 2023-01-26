@@ -132,6 +132,10 @@ namespace SyncDevice.Windows.Bluetooth
         /// <param name="eventArgs">Event data containing information about the advertisement event.</param>
         private void OnAdvertisementReceived(BluetoothLEAdvertisementWatcher watcher, BluetoothLEAdvertisementReceivedEventArgs eventArgs)
         {
+
+            if (eventArgs.BluetoothAddress == ThisBluetoothAddress) //is this needed?
+                return;
+
             // We can obtain various information about the advertisement we just received by accessing 
             // the properties of the EventArgs class
 
@@ -161,29 +165,21 @@ namespace SyncDevice.Windows.Bluetooth
                     reader.ReadBytes(data);
                 }
 
-                string s = Encoding.ASCII.GetString(data,2, data.Length-2);
+                string s = Encoding.ASCII.GetString(data, 2, data.Length - 2);
 
                 if (HasServiceName(s))
                 {
-                    Signatures.AddOrUpdate(eventArgs.BluetoothAddress, s, (a, b) =>
-                    {
-                        if (b != s)
-                        {
-                            Logger?.LogInformation($"LE Signature of {eventArgs.BluetoothAddress} updated with value '{s}'");
+                    bool updated;
+                    if (Signatures.TryGetValue(eventArgs.BluetoothAddress, out var existingSignature) && existingSignature != s)
+                        updated = Signatures.TryUpdate(eventArgs.BluetoothAddress, s, existingSignature);
+                    else
+                        updated = Signatures.TryAdd(eventArgs.BluetoothAddress, s);
 
-                            Logger?.LogTrace(string.Format("[{0}]: type={1}, rssi={2}, name={3}, manufacturerData=[{4}]",
-                                    timestamp.ToString("hh\\:mm\\:ss\\.fff"),
-                                    advertisementType.ToString(),
-                                    rssi.ToString(),
-                                    localName,
-                                    manufacturerDataString));
-                        }
-                        return s;
-                    });
+                    if (updated)
+                        RaiseOnMessage(s);
                 }
-
             }
-  
+
         }
 
         /// <summary>

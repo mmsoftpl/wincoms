@@ -14,40 +14,40 @@ namespace SyncDevice.Windows.Bluetooth
     {
         private RfcommServiceProvider rfcommProvider;
         private StreamSocketListener socketListener;
-        private BluetoothLeWatcher bluetoothLeWatcher;
+     //   private BluetoothLeWatcher bluetoothLeWatcher;
         public override bool IsHost { get => true; }
 
-        public Task ScanForSignatures(string sessionName)
-        {
-            bluetoothLeWatcher = new BluetoothLeWatcher() { Logger = Logger };
-            bluetoothLeWatcher.OnError += BluetoothLeWatcher_OnError;
-            return bluetoothLeWatcher.StartAsync(sessionName, null, "Publishing LE signature");
-        }
+        //public Task ScanForSignatures(string sessionName)
+        //{
+        //    bluetoothLeWatcher = new BluetoothLeWatcher() { Logger = Logger };
+        //    bluetoothLeWatcher.OnError += BluetoothLeWatcher_OnError;
+        //    return bluetoothLeWatcher.StartAsync(sessionName, null, "Publishing LE signature");
+        //}
 
-        private void BluetoothLeWatcher_OnError(object sender, string error)
-        {
-            RaiseOnError(error);
-        }
+        //private void BluetoothLeWatcher_OnError(object sender, string error)
+        //{
+        //    RaiseOnError(error);
+        //}
 
-        public Task StopScanningForSignatures(string reason)
-        {
-            try
-            {
-                bluetoothLeWatcher.OnError -= BluetoothLeWatcher_OnError;
-                return bluetoothLeWatcher?.StopAsync(reason);
-            }
-            finally 
-            {
-                bluetoothLeWatcher = null; 
-            }
-        }
+        //public Task StopScanningForSignatures(string reason)
+        //{
+        //    try
+        //    {
+        //        bluetoothLeWatcher.OnError -= BluetoothLeWatcher_OnError;
+        //        return bluetoothLeWatcher?.StopAsync(reason);
+        //    }
+        //    finally 
+        //    {
+        //        bluetoothLeWatcher = null; 
+        //    }
+        //}
 
         public override async Task StartAsync(string sessionName, string pin, string reason)
         {
             if (Status == SyncDeviceStatus.Stopped)
             {
                 Pin = pin;
-                await ScanForSignatures(sessionName);
+               // await ScanForSignatures(sessionName);
 
                 SessionName = sessionName;
                 Logger?.LogInformation(reason);
@@ -167,16 +167,16 @@ namespace SyncDevice.Windows.Bluetooth
 
             var clientSignature = remoteDeviceId?.Replace(":", "");
 
-            var watcherSignature = bluetoothLeWatcher.GetSignature(clientSignature);
+            //var watcherSignature = bluetoothLeWatcher.GetSignature(clientSignature);
 
-            if (watcherSignature != null)
-            {
-                clientSignature = GetSessionName(watcherSignature);
-            }
-            else
-            {
-                Logger?.LogInformation($"Unregonized signature {clientSignature}");
-            }
+            //if (watcherSignature != null)
+            //{
+            //    clientSignature = GetSessionName(watcherSignature);
+            //}
+            //else
+            //{
+            //    Logger?.LogInformation($"Unregonized signature {clientSignature}");
+            //}
 
             var channel = new BluetoothWindowsChannel(this, remoteDeviceId, socket) 
             { 
@@ -189,7 +189,7 @@ namespace SyncDevice.Windows.Bluetooth
 
         protected void Disconnect(string disconnectReason)
         {
-            _ = StopScanningForSignatures(disconnectReason);
+           // _ = StopScanningForSignatures(disconnectReason);
 
             if (rfcommProvider != null)
             {

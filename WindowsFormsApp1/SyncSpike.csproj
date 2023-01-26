@@ -82,6 +82,12 @@
     <Compile Include="BluetoothLePublisherPanel.Designer.cs">
       <DependentUpon>BluetoothLePublisherPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="BluetoothMonitorPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="BluetoothMonitorPanel.Designer.cs">
+      <DependentUpon>BluetoothMonitorPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="BluetoothLeWatcherPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -122,6 +128,9 @@
     </Compile>
     <EmbeddedResource Include="BluetoothLePublisherPanel.resx">
       <DependentUpon>BluetoothLePublisherPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BluetoothMonitorPanel.resx">
+      <DependentUpon>BluetoothMonitorPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="BluetoothLeWatcherPanel.resx">
       <DependentUpon>BluetoothLeWatcherPanel.cs</DependentUpon>

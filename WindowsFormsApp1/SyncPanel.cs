@@ -36,7 +36,7 @@ namespace WindowsFormsApp1
         private Button buttonDisconnect;
         protected Label userLabel;
         protected TextBox userTextBox;
-        private Button pingBackButton;
+        protected Button pingBackButton;
         private Label lastErrorLabel;
 
         public MainPage MainPage { get; set; }
