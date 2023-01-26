@@ -750,10 +750,15 @@ namespace WindowsFormsApp1
         }
 
         public string LastReceivedMessage { get; private set; }
-        private void pingBackButton_Click(object sender, EventArgs e)
+
+        protected virtual void OnPingBackButtonClick()
         {
             if (LastReceivedMessage != null)
                 _ = SyncDevice?.SendMessageAsync(LastReceivedMessage);
+        }
+        private void pingBackButton_Click(object sender, EventArgs e)
+        {
+            OnPingBackButtonClick();
         }
     }
 }

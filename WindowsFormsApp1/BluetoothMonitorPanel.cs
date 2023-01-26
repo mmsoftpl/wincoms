@@ -50,7 +50,7 @@ namespace WindowsFormsApp1
             UpdateControls();
         }
 
-        private void pingBackButton_Click(object sender, System.EventArgs e)
+        protected override void OnPingBackButtonClick()
         {
             SyncDevice.SendMessageAsync(System.DateTime.UtcNow.ToString());
         }

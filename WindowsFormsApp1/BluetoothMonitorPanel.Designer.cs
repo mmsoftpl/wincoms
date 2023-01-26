@@ -36,10 +36,6 @@
             // 
             this.userTextBox.Text = "PilotB";
             // 
-            // pingBackButton
-            // 
-            this.pingBackButton.Click += new System.EventHandler(this.pingBackButton_Click);
-            // 
             // BluetoothMonitorPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);

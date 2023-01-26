@@ -247,9 +247,15 @@ namespace SyncDevice.Windows.Bluetooth
 
         public override Task SendMessageAsync(string message)
         {
-            LastMessage = message;
+            if (Status == SyncDeviceStatus.Started)
+            {
+                LastMessage = message;
 
-            return bluetoothWindowsServer?.SendMessageAsync(message);
+                return bluetoothWindowsServer?.SendMessageAsync(message);
+            }
+            else
+                RaiseOnError("Not started");
+            return Task.CompletedTask;
         }
 
     }
