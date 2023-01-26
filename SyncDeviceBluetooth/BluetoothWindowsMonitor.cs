@@ -97,9 +97,15 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 bluetoothWindowsClient = new BluetoothWindowsClient() { Logger = Logger };
                 bluetoothWindowsClient.OnMessage += BluetoothWindowsClient_OnMessage;
+                bluetoothWindowsServer.OnDeviceDisconnected += BluetoothWindowsServer_OnDeviceDisconnected1;
                 return bluetoothWindowsClient.StartAsync(SessionName, Pin, $"Connecting to host");
             }
             return Task.CompletedTask;
+        }
+
+        private void BluetoothWindowsServer_OnDeviceDisconnected1(object sender, ISyncDevice syncDevice)
+        {
+            DisconnectFromHost("Underlying client device disconnected");
         }
 
         private void BluetoothWindowsClient_OnMessage(object sender, MessageEventArgs e)
@@ -133,15 +139,23 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 bluetoothWindowsServer = new BluetoothWindowsServer() { Logger = Logger };
                 bluetoothWindowsServer.OnConnectionStarted += BluetoothWindowsServer_OnConnectionStarted;
+                bluetoothWindowsServer.OnDeviceDisconnected += BluetoothWindowsServer_OnDeviceDisconnected;
                 return bluetoothWindowsServer.StartAsync(SessionName, Pin, $"Connecting to host");
             }
             return Task.CompletedTask;
         }
 
+        private void BluetoothWindowsServer_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
+        {
+            StopHosting("Underlying server device disconnected");
+        }
+
         private void BluetoothWindowsServer_OnConnectionStarted(object sender, ISyncDevice syncDevice)
         {
             syncDevice.SendMessageAsync(csMessage);
-            //syncDevice.StopAsync();
+            syncDevice.StopAsync("Closing connection to save power"); 
+            StopHosting(null); //if 0 connections?
+
         }
 
         private Task StopHosting(string reason)
@@ -191,7 +205,9 @@ namespace SyncDevice.Windows.Bluetooth
             csMessage= message;
             Interlocked.Increment(ref cs);
             await StopPublishingSignatureAsync("signature changed");
+            await StartHosting();
             await StartPublishingSignatureAsync(cs.ToString());
+
         }
     }
 }
