@@ -153,7 +153,7 @@ namespace SyncDevice.Windows.Bluetooth
 
             // Check if there are any manufacturer-specific sections.
             // If there is, print the raw data of the first manufacturer section (if there are multiple).
-            string manufacturerDataString = "";
+           // string manufacturerDataString = "";
             var manufacturerSections = eventArgs.Advertisement.ManufacturerData;
             if (manufacturerSections.Count > 0)
             {

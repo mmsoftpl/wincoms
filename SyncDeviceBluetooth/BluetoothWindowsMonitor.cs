@@ -20,7 +20,7 @@ namespace SyncDevice.Windows.Bluetooth
             private set;
         }
 
-        private async Task SetSignature(string value)
+        public async Task SetSignatureAsync(string value)
         {
             if (Signature != value)
             {
@@ -186,8 +186,7 @@ namespace SyncDevice.Windows.Bluetooth
 
         private void BluetoothWindowsServer_OnConnectionStarted(object sender, ISyncDevice syncDevice)
         {
-            if (!string.IsNullOrEmpty(LastMessage))
-                syncDevice.SendMessageAsync(LastMessage);
+            RaiseOnConnectionStarted(syncDevice);
         }
 
         private Task StopHosting(string reason)
@@ -220,22 +219,6 @@ namespace SyncDevice.Windows.Bluetooth
             }
         }
 
-        private int SignatureId;
-        private string lastMessage;
-        public string LastMessage
-        {
-            get => lastMessage;
-            set
-            {
-                if (lastMessage != value)
-                {
-                    lastMessage = value;
-                    Interlocked.Increment(ref SignatureId);
-                    _ = SetSignature(SignatureId.ToString());
-                }
-            }
-        }
-
         public override async Task StopAsync(string reason)
         {
             Status = SyncDeviceStatus.Stopped;
@@ -247,15 +230,18 @@ namespace SyncDevice.Windows.Bluetooth
 
         public override Task SendMessageAsync(string message)
         {
-            if (Status == SyncDeviceStatus.Started)
-            {
-                LastMessage = message;
+            return bluetoothWindowsServer?.SendMessageAsync(message);
+            //bluetoothWindowsClient?.SendMessageAsync(message); ??
+            //throw new NotImplementedException();
+            //if (Status == SyncDeviceStatus.Started)
+            //{
+            //    LastMessage = message;
 
-                return bluetoothWindowsServer?.SendMessageAsync(message);
-            }
-            else
-                RaiseOnError("Not started");
-            return Task.CompletedTask;
+            //    return bluetoothWindowsServer?.SendMessageAsync(message);
+            //}
+            //else
+            //    RaiseOnError("Not started");
+            //return Task.CompletedTask;
         }
 
     }

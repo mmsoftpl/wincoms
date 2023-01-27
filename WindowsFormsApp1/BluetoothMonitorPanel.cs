@@ -1,5 +1,6 @@
 ﻿using SyncDevice;
 using SyncDevice.Windows.Bluetooth;
+using System.Threading;
 
 namespace WindowsFormsApp1
 {
@@ -23,9 +24,27 @@ namespace WindowsFormsApp1
             SyncDevice = watcher;
         }
 
+        private int SignatureId;
+        private string lastMessage;
+        public string LastMessage
+        {
+            get => lastMessage;
+            set
+            {
+                if (lastMessage != value)
+                {
+                    lastMessage = value;
+                    Interlocked.Increment(ref SignatureId);
+                    _ = (SyncDevice as BluetoothWindowsMonitor).SetSignatureAsync(SignatureId.ToString());
+                }
+            }
+        }
+
         private void Server_OnConnectionStarted(object sender, ISyncDevice device)
         {
-            //_ = KeepWriting();
+            if (!string.IsNullOrEmpty(LastMessage))
+                SyncDevice.SendMessageAsync(LastMessage);
+
         }
 
         private void Server_OnDeviceDisconnected(object sender, ISyncDevice device)
@@ -52,6 +71,8 @@ namespace WindowsFormsApp1
 
         protected override void OnPingBackButtonClick()
         {
+            LastMessage = LastReceivedMessage ?? System.DateTime.UtcNow.ToString();
+
             SyncDevice.SendMessageAsync(System.DateTime.UtcNow.ToString());
         }
     }

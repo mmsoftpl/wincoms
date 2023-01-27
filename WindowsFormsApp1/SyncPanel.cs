@@ -615,10 +615,11 @@ namespace WindowsFormsApp1
             this.pinTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pinTextBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.pinTextBox.Location = new System.Drawing.Point(593, 32);
+            this.pinTextBox.MaxLength = 4;
             this.pinTextBox.Name = "pinTextBox";
             this.pinTextBox.Size = new System.Drawing.Size(134, 20);
             this.pinTextBox.TabIndex = 19;
-            this.pinTextBox.Text = "ABCD1234";
+            this.pinTextBox.Text = "ABCD";
             this.pinTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             this.pinTextBox.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
