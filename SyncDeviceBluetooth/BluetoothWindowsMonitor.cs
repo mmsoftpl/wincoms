@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -186,14 +184,34 @@ namespace SyncDevice.Windows.Bluetooth
             }
         }
 
+        private CancellationTokenSource CancellationTokenSource_cts;
+        private async Task KillConnectionAfter5sec(ISyncDevice syncDevice, CancellationToken cancellationToken)
+        {
+            await Task.Delay(5000, cancellationToken);
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                await syncDevice?.StopAsync("Power save after 5 sec;)");
+            }
+        }
+
+
         private void BluetoothWindowsServer_OnMessageSent(object sender, MessageEventArgs e)
         {
-            RaiseOnMessageSent(e.Message);
+            RaiseOnMessageSent(e.Message); 
+            
+            CancellationTokenSource_cts?.Cancel();
+
+            CancellationTokenSource_cts = new CancellationTokenSource();
+
+            _ = KillConnectionAfter5sec(e.SyncDevice, CancellationTokenSource_cts.Token);
         }
 
         private void BluetoothWindowsServer_OnConnectionStarted(object sender, ISyncDevice syncDevice)
         {
             RaiseOnConnectionStarted(syncDevice);
+
+            if (!string.IsNullOrEmpty(LastMessage))
+                syncDevice.SendMessageAsync(LastMessage);
         }
 
         private Task StopHosting(string reason)
@@ -236,20 +254,33 @@ namespace SyncDevice.Windows.Bluetooth
             await StopScanningForSignatures(reason);
         }
 
+        private int SignatureId;
+        private string lastMessage;
+        public string LastMessage
+        {
+            get => lastMessage;
+            set
+            {
+                if (lastMessage != value)
+                {
+                    lastMessage = value;
+                    Interlocked.Increment(ref SignatureId);
+                    _ = SetSignatureAsync(SignatureId.ToString());
+                }
+            }
+        }
+
         public override Task SendMessageAsync(string message)
         {
-            return bluetoothWindowsServer?.SendMessageAsync(message);
-            //bluetoothWindowsClient?.SendMessageAsync(message); ??
-            //throw new NotImplementedException();
-            //if (Status == SyncDeviceStatus.Started)
-            //{
-            //    LastMessage = message;
+            if (Status == SyncDeviceStatus.Started)
+            {
+                LastMessage = message;
 
-            //    return bluetoothWindowsServer?.SendMessageAsync(message);
-            //}
-            //else
-            //    RaiseOnError("Not started");
-            //return Task.CompletedTask;
+                return bluetoothWindowsServer?.SendMessageAsync(message);
+            }
+            else
+                RaiseOnError("Not started");
+            return Task.CompletedTask;
         }
 
     }
