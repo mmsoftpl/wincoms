@@ -54,7 +54,7 @@ namespace WindowsFormsApp1
 
         protected override void OnPingBackButtonClick()
         {
-            SyncDevice.SendMessageAsync(LastReceivedMessage ?? System.DateTime.UtcNow.ToString());
+            SyncDevice.SendMessageAsync(System.DateTime.UtcNow.ToString());
         }
     }
 }
