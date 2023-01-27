@@ -85,7 +85,7 @@ namespace SyncDevice.Windows.Bluetooth
             }
         }
 
-        internal async Task WriteMessageAsync(DataWriter chatWriter, string message)
+        internal async Task WriteMessageAsync(DataWriter chatWriter, string message, bool notifyOnSent)
         {
             try
             {
@@ -96,7 +96,8 @@ namespace SyncDevice.Windows.Bluetooth
 
                     await chatWriter?.StoreAsync();
 
-                    RaiseOnMessageSent(message);
+                    if (notifyOnSent)
+                        RaiseOnMessageSent(message);
                 }
             }
             catch (Exception ex) when ((uint)ex.HResult == 0x80072745)

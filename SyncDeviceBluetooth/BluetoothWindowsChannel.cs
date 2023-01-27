@@ -72,9 +72,9 @@ namespace SyncDevice.Windows.Bluetooth
         {
             if (IsHost)
             {
-                await SendMessageAsync(HandshakeMessage.EncodeMessage(null, SessionName));
+                await WriteMessageAsync(Writer, HandshakeMessage.EncodeMessage(null, SessionName), false);
 
-                HandshakeMessage handshakeMessage = HandshakeMessage.DecodeMessage(await WaitForMessageAsync(reader));
+                var handshakeMessage = HandshakeMessage.DecodeMessage(await WaitForMessageAsync(reader));
                 if (handshakeMessage != null && handshakeMessage.Pin == Pin)
                 {
                     SessionName = handshakeMessage.SessionName;
@@ -90,12 +90,17 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 if (!string.IsNullOrEmpty(Pin))
                 {
-                    string serverHandshakeMessage = await WaitForMessageAsync(reader);
-                    _ = SendMessageAsync(HandshakeMessage.EncodeMessage(Pin, SessionName));
-                    return true;
+                    var serverHandshakeMessage = HandshakeMessage.DecodeMessage(await WaitForMessageAsync(reader));
+                    if (serverHandshakeMessage != null)
+                    {
+                        SessionName = serverHandshakeMessage.SessionName;
+                        _ = WriteMessageAsync(Writer, HandshakeMessage.EncodeMessage(Pin, SessionName), false);
+                        return true;
+                    }
+                    else
+                        return false;
                 }
-                else
-                    return true;
+                return true;
             }            
         }
 
@@ -207,7 +212,7 @@ namespace SyncDevice.Windows.Bluetooth
 
         public override Task SendMessageAsync(string message)
         {
-            return WriteMessageAsync(Writer, message);
+            return WriteMessageAsync(Writer, message, true);
         }
 
 
