@@ -1,6 +1,7 @@
 ﻿using SyncDevice;
 using SyncDevice.Windows.Bluetooth;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace WindowsFormsApp1
 {
@@ -64,9 +65,24 @@ namespace WindowsFormsApp1
             RecordReciveMessage(e.Message);
         }
 
+        private CancellationTokenSource CancellationTokenSource_cts;
+        private CancellationToken CancellationToken;
+        private async Task KillConnectionAfter1Mni(ISyncDevice syncDevice, CancellationToken cancellationToken)
+        {
+            await Task.Delay(5000, cancellationToken);
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                await syncDevice?.StopAsync("Power save after 5 sec;)");
+            }
+        }
+
         private void Watcher_OnMessageSent(object sender, MessageEventArgs e)
         {
-            _= e.SyncDevice?.StopAsync("Power save ;)");
+            CancellationTokenSource_cts?.Cancel();
+
+            CancellationTokenSource_cts = new CancellationTokenSource();
+
+            _ = KillConnectionAfter1Mni(e.SyncDevice, CancellationTokenSource_cts.Token);
         }
 
         private void Server_OnStatus(object sender, SyncDeviceStatus status)
