@@ -7,19 +7,20 @@ namespace SyncDevice
     public class MessageEventArgs
     {
         public string Message { get; set; }
-
-        public string SessionName { get; set; }
+        public ISyncDevice SyncDevice { get; set; }
     }
 
     public enum SyncDeviceStatus
     {
         Stopped,
         Created,
-        Started,        
+        Started,
         Aborted
     }
 
-    public delegate void OnMessageEventHandler(object sender, MessageEventArgs e);
+    public delegate void OnMessageReceivedEventHandler(object sender, MessageEventArgs e);
+    
+    public delegate void OnMessageSentEventHandler(object sender, MessageEventArgs e);
 
     public delegate void OnStatusEventHandler(object sender, SyncDeviceStatus status);
 
@@ -47,7 +48,8 @@ namespace SyncDevice
 
         ILogger Logger { get; }
 
-        event OnMessageEventHandler OnMessage;
+        event OnMessageReceivedEventHandler OnMessageReceived;
+        event OnMessageSentEventHandler OnMessageSent;
         event OnStatusEventHandler OnStatus;
         event OnConnectionStarted OnConnectionStarted;
         event OnDeviceConnected OnDeviceConnected;

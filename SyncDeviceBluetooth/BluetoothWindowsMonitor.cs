@@ -44,7 +44,7 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 bluetoothLeWatcher = new BluetoothLeWatcher() { Logger = Logger };
                 bluetoothLeWatcher.OnError += BluetoothLeWatcher_OnError;
-                bluetoothLeWatcher.OnMessage += BluetoothLeWatcher_OnMessage;
+                bluetoothLeWatcher.OnMessageReceived += BluetoothLeWatcher_OnMessage;
                 return bluetoothLeWatcher.StartAsync(SessionName, null, $"Start scanning for '{ServiceName}' signatures");
             }
             return Task.CompletedTask;
@@ -119,7 +119,7 @@ namespace SyncDevice.Windows.Bluetooth
             if (bluetoothWindowsClient == null)
             {
                 bluetoothWindowsClient = new BluetoothWindowsClient() { Logger = Logger };
-                bluetoothWindowsClient.OnMessage += BluetoothWindowsClient_OnMessage;
+                bluetoothWindowsClient.OnMessageReceived += BluetoothWindowsClient_OnMessage;
                 bluetoothWindowsClient.OnDeviceDisconnected += BluetoothWindowsClient_OnDeviceDisconnected;
                 return bluetoothWindowsClient.StartAsync(SessionName, Pin, $"Connecting to host");
             }
@@ -130,7 +130,7 @@ namespace SyncDevice.Windows.Bluetooth
         {
             if (sender==bluetoothWindowsClient)
             {
-                bluetoothWindowsClient.OnMessage -= BluetoothWindowsClient_OnMessage;
+                bluetoothWindowsClient.OnMessageReceived -= BluetoothWindowsClient_OnMessage;
                 bluetoothWindowsClient.OnDeviceDisconnected -= BluetoothWindowsClient_OnDeviceDisconnected;
                 bluetoothWindowsClient = null;
             }
@@ -138,7 +138,7 @@ namespace SyncDevice.Windows.Bluetooth
 
         private void BluetoothWindowsClient_OnMessage(object sender, MessageEventArgs e)
         {
-            RaiseOnMessage(e.Message);
+            RaiseOnMessageReceived(e.Message);
         }
 
         private Task DisconnectFromHost(string reason)
@@ -147,7 +147,7 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 if (bluetoothWindowsClient != null)
                 {
-                    bluetoothWindowsClient.OnMessage -= BluetoothWindowsClient_OnMessage;
+                    bluetoothWindowsClient.OnMessageReceived -= BluetoothWindowsClient_OnMessage;
                     bluetoothWindowsClient.OnDeviceDisconnected -= BluetoothWindowsClient_OnDeviceDisconnected;
                     return bluetoothWindowsClient?.StopAsync(reason);
                 }
@@ -168,6 +168,7 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 bluetoothWindowsServer = new BluetoothWindowsServer() { Logger = Logger };
                 bluetoothWindowsServer.OnConnectionStarted += BluetoothWindowsServer_OnConnectionStarted;
+                bluetoothWindowsServer.OnMessageSent += BluetoothWindowsServer_OnMessageSent;
                 bluetoothWindowsServer.OnDeviceDisconnected += BluetoothWindowsServer_OnDeviceDisconnected;
                 return bluetoothWindowsServer.StartAsync(SessionName, Pin, $"Connecting to host");
             }
@@ -178,10 +179,16 @@ namespace SyncDevice.Windows.Bluetooth
         {
             if (sender == bluetoothWindowsServer)
             {
-                bluetoothWindowsServer.OnMessage -= BluetoothWindowsClient_OnMessage;
+                bluetoothWindowsServer.OnConnectionStarted -= BluetoothWindowsServer_OnConnectionStarted;
+                bluetoothWindowsServer.OnMessageSent -= BluetoothWindowsServer_OnMessageSent;
                 bluetoothWindowsServer.OnDeviceDisconnected -= BluetoothWindowsServer_OnDeviceDisconnected;
                 bluetoothWindowsServer = null;
             }
+        }
+
+        private void BluetoothWindowsServer_OnMessageSent(object sender, MessageEventArgs e)
+        {
+            RaiseOnMessageSent(e.Message);
         }
 
         private void BluetoothWindowsServer_OnConnectionStarted(object sender, ISyncDevice syncDevice)
@@ -195,7 +202,8 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 if (bluetoothWindowsServer != null)
                 {
-                    bluetoothWindowsServer.OnMessage -= BluetoothWindowsClient_OnMessage;
+                    bluetoothWindowsServer.OnConnectionStarted -= BluetoothWindowsServer_OnConnectionStarted;
+                    bluetoothWindowsServer.OnMessageSent -= BluetoothWindowsServer_OnMessageSent;
                     bluetoothWindowsServer.OnDeviceDisconnected -= BluetoothWindowsServer_OnDeviceDisconnected;
                     return bluetoothWindowsServer?.StopAsync(reason);
                 }

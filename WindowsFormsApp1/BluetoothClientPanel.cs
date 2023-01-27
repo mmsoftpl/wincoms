@@ -11,7 +11,7 @@ namespace WindowsFormsApp1
 
             var client = new BluetoothWindowsClient() { Logger = SDKTemplate.MainPage.mainPage };
             client.OnStatus += Client_OnStatus;
-            client.OnMessage += Client_OnMessage;
+            client.OnMessageReceived += Client_OnMessage;
             client.OnDeviceConnected += Client_OnDeviceConnected;
             client.OnConnectionStarted += Client_OnConnectionStarted;
             client.OnDeviceDisconnected += Client_OnDeviceDisconnected;

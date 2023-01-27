@@ -24,7 +24,7 @@ namespace WindowsFormsApp1
 
             var publisher = new BluetoothLePublisher() { Logger = SDKTemplate.MainPage.mainPage };
             publisher.OnStatus += Server_OnStatus;
-            publisher.OnMessage += Server_OnMessage;
+            publisher.OnMessageReceived += Server_OnMessage;
             publisher.OnConnectionStarted += Server_OnConnectionStarted;
             publisher.OnDeviceConnected += Server_OnDeviceConnected;
             publisher.OnDeviceDisconnected += Server_OnDeviceDisconnected;

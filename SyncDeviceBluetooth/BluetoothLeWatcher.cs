@@ -176,7 +176,7 @@ namespace SyncDevice.Windows.Bluetooth
                         updated = Signatures.TryAdd(eventArgs.BluetoothAddress, s);
 
                     if (updated)
-                        RaiseOnMessage(s);
+                        RaiseOnMessageReceived(s);
                 }
             }
 

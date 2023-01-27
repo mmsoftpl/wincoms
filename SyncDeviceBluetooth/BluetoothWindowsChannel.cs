@@ -122,7 +122,7 @@ namespace SyncDevice.Windows.Bluetooth
                 {                    
                     string message = await WaitForMessageAsync(reader);
                     if (message != null)
-                        RaiseOnMessage(message);
+                        RaiseOnMessageReceived(message);
                     else break;
                 }
                 // Catch exception HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED).
@@ -149,10 +149,16 @@ namespace SyncDevice.Windows.Bluetooth
 
         public BluetoothWindows Creator { get; set; }
 
-        internal override void RaiseOnMessage(string message)
+        internal override void RaiseOnMessageReceived(string message)
         {
-            base.RaiseOnMessage(message);
-            Creator?.RaiseOnMessage(message);
+            base.RaiseOnMessageReceived(message);
+            Creator?.RaiseOnMessageReceived(message);
+        }
+
+        internal override void RaiseOnMessageSent(string message)
+        {
+            base.RaiseOnMessageSent(message);
+            Creator?.RaiseOnMessageSent(message);
         }
 
         internal override void RaiseOnDeviceConnected(ISyncDevice device)

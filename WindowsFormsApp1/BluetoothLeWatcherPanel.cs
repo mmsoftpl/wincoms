@@ -15,7 +15,7 @@ namespace WindowsFormsApp1
 
             var watcher = new BluetoothLeWatcher() { Logger = SDKTemplate.MainPage.mainPage };
             watcher.OnStatus += Server_OnStatus;
-            watcher.OnMessage += Server_OnMessage;
+            watcher.OnMessageReceived += Server_OnMessage;
             watcher.OnConnectionStarted += Server_OnConnectionStarted;
             watcher.OnDeviceConnected += Server_OnDeviceConnected;
             watcher.OnDeviceDisconnected += Server_OnDeviceDisconnected;

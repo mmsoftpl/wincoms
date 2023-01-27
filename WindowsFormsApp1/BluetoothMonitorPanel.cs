@@ -14,14 +14,15 @@ namespace WindowsFormsApp1
         {
             InitializeComponent();
 
-            var watcher = new BluetoothWindowsMonitor() { Logger = SDKTemplate.MainPage.mainPage };
-            watcher.OnStatus += Server_OnStatus;
-            watcher.OnMessage += Server_OnMessage;
-            watcher.OnConnectionStarted += Server_OnConnectionStarted;
-            watcher.OnDeviceConnected += Server_OnDeviceConnected;
-            watcher.OnDeviceDisconnected += Server_OnDeviceDisconnected;
+            var monitor = new BluetoothWindowsMonitor() { Logger = SDKTemplate.MainPage.mainPage };
+            monitor.OnStatus += Server_OnStatus;
+            monitor.OnMessageReceived += Server_OnMessageReceived;
+            monitor.OnMessageSent += Watcher_OnMessageSent;
+            monitor.OnConnectionStarted += Server_OnConnectionStarted;
+            monitor.OnDeviceConnected += Server_OnDeviceConnected;
+            monitor.OnDeviceDisconnected += Server_OnDeviceDisconnected;
 
-            SyncDevice = watcher;
+            SyncDevice = monitor;
         }
 
         private int SignatureId;
@@ -58,9 +59,14 @@ namespace WindowsFormsApp1
             //_ = device.StartAsync(device.SessionName, "server auto starting device");
         }
 
-        private void Server_OnMessage(object sender, MessageEventArgs e)
+        private void Server_OnMessageReceived(object sender, MessageEventArgs e)
         {
             RecordReciveMessage(e.Message);
+        }
+
+        private void Watcher_OnMessageSent(object sender, MessageEventArgs e)
+        {
+            _= e.SyncDevice?.StopAsync("Power save ;)");
         }
 
         private void Server_OnStatus(object sender, SyncDeviceStatus status)

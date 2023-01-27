@@ -35,18 +35,26 @@ namespace SyncDevice.Windows.Bluetooth
 
         public ILogger Logger { get; set; }
 
-        public event OnMessageEventHandler OnMessage;
+        public event OnMessageReceivedEventHandler OnMessageReceived;
+        public event OnMessageSentEventHandler OnMessageSent;
         public event OnStatusEventHandler OnStatus;
         public event OnDeviceConnected OnDeviceConnected;
         public event OnConnectionStarted OnConnectionStarted;
         public event OnDeviceDisconnected OnDeviceDisconnected;
         public event OnDeviceError OnError;
 
-        internal virtual void RaiseOnMessage(string message) => OnMessage?.Invoke(this, new MessageEventArgs()
+        internal virtual void RaiseOnMessageReceived(string message) => OnMessageReceived?.Invoke(this, new MessageEventArgs()
         {
-            Message = message,
-            SessionName = SessionName,
+            SyncDevice = this,
+            Message = message
         });
+
+        internal virtual void RaiseOnMessageSent(string message) => OnMessageSent?.Invoke(this, new MessageEventArgs()
+        {
+            SyncDevice = this,
+            Message = message
+        });
+
         internal virtual void RaiseOnError(string error)
         {
             Logger?.LogError(error);
@@ -88,6 +96,7 @@ namespace SyncDevice.Windows.Bluetooth
 
                     await chatWriter?.StoreAsync();
 
+                    RaiseOnMessageSent(message);
                 }
             }
             catch (Exception ex) when ((uint)ex.HResult == 0x80072745)

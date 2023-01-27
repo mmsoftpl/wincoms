@@ -32,14 +32,16 @@ namespace SyncDevice.Windows.WifiDirect
 
         public string Id { get => "???"; }
 
-        public event OnMessageEventHandler OnMessage;
+        public event OnMessageReceivedEventHandler OnMessageReceived;
+        public event OnMessageSentEventHandler OnMessageSent;
         public event OnStatusEventHandler OnStatus;
         public event OnConnectionStarted OnConnectionStarted;
         public event OnDeviceConnected OnDeviceConnected;
         public event OnDeviceDisconnected OnDeviceDisconnected;
         public event OnDeviceError OnError;
 
-        public void RaiseOnMessage(string message) => OnMessage?.Invoke(this, new MessageEventArgs() { Message = message });
+        public void RaiseOnMessageReceived(string message) => OnMessageReceived?.Invoke(this, new MessageEventArgs() { Message = message });        
+        public void RaiseOnMessageSent(string message) => OnMessageSent?.Invoke(this, new MessageEventArgs() { Message = message });
         public void RaiseOnError(string error) => OnError?.Invoke(this, error);
         public void RaiseOnConnectionStarted(ISyncDevice device) => OnConnectionStarted?.Invoke(this, device);
         public void RaiseOnDeviceConnected(ISyncDevice device) => OnDeviceConnected?.Invoke(this, device);

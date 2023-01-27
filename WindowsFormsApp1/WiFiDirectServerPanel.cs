@@ -11,7 +11,7 @@ namespace WindowsFormsApp1
 
             var server = new WifiDirectWindowsServer() { Logger = SDKTemplate.MainPage.mainPage };
             server.OnStatus += Server_OnStatus;
-            server.OnMessage += Server_OnMessage;
+            server.OnMessageReceived += Server_OnMessage;
             server.OnDeviceConnected += Server_OnDeviceConnected;
             server.OnDeviceDisconnected += Server_OnDeviceDisconnected;
 
