@@ -9,7 +9,7 @@
 
         public static string EncodeMessage(string pin, string sessionName)
         {
-            return pin.PadLeft(PinLenght) + sessionName;
+            return (pin ?? string.Empty).PadLeft(PinLenght) + sessionName;
         }
 
         public static HandshakeMessage DecodeMessage(string msg)
