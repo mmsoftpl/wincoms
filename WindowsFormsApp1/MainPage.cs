@@ -1,14 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using Windows.Devices.WiFiDirect;
-using Windows.UI.Core;
 using WindowsFormsApp1;
-using static System.Windows.Forms.AxHost;
 
 namespace SDKTemplate
 {
@@ -32,7 +26,8 @@ namespace SDKTemplate
         private Button buttonBluetoothLePublisher;
         private Label label3;
         private Label label4;
-        private Button button1;
+        private Button buttonBluetoothMonitor;
+        private Label label5;
 
         public static MainPage mainPage { get; private set; }
 
@@ -76,6 +71,7 @@ namespace SDKTemplate
             this.btnBluetoothConnector = new System.Windows.Forms.Button();
             this.btnBluetoothAdvertiser = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
+            this.buttonBluetoothMonitor = new System.Windows.Forms.Button();
             this.splitter = new System.Windows.Forms.Splitter();
             this.listView1 = new System.Windows.Forms.ListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -83,13 +79,15 @@ namespace SDKTemplate
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.clearLogButton = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.label5 = new System.Windows.Forms.Label();
             this.leftPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // leftPanel
             // 
             this.leftPanel.AutoSize = true;
+            this.leftPanel.Controls.Add(this.buttonBluetoothMonitor);
+            this.leftPanel.Controls.Add(this.label5);
             this.leftPanel.Controls.Add(this.buttonBluetoothLEWatcher);
             this.leftPanel.Controls.Add(this.buttonBluetoothLePublisher);
             this.leftPanel.Controls.Add(this.label3);
@@ -102,7 +100,7 @@ namespace SDKTemplate
             this.leftPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.leftPanel.Location = new System.Drawing.Point(0, 0);
             this.leftPanel.Name = "leftPanel";
-            this.leftPanel.Size = new System.Drawing.Size(871, 240);
+            this.leftPanel.Size = new System.Drawing.Size(871, 293);
             this.leftPanel.TabIndex = 0;
             // 
             // buttonBluetoothLEWatcher
@@ -216,6 +214,19 @@ namespace SDKTemplate
             this.label1.TabIndex = 1;
             this.label1.Text = "Bluetooth";
             // 
+            // buttonBluetoothMonitor
+            // 
+            this.buttonBluetoothMonitor.AutoSize = true;
+            this.buttonBluetoothMonitor.Dock = System.Windows.Forms.DockStyle.Top;
+            this.buttonBluetoothMonitor.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonBluetoothMonitor.Location = new System.Drawing.Point(0, 266);
+            this.buttonBluetoothMonitor.Name = "buttonBluetoothMonitor";
+            this.buttonBluetoothMonitor.Size = new System.Drawing.Size(871, 27);
+            this.buttonBluetoothMonitor.TabIndex = 18;
+            this.buttonBluetoothMonitor.Text = "Bluetooth Monitor";
+            this.buttonBluetoothMonitor.UseVisualStyleBackColor = true;
+            this.buttonBluetoothMonitor.Click += new System.EventHandler(this.button1_Click_2);
+            // 
             // splitter
             // 
             this.splitter.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -278,29 +289,25 @@ namespace SDKTemplate
             this.label4.AutoSize = true;
             this.label4.Dock = System.Windows.Forms.DockStyle.Top;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(0, 240);
+            this.label4.Location = new System.Drawing.Point(0, 293);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(183, 26);
+            this.label4.Size = new System.Drawing.Size(0, 26);
             this.label4.TabIndex = 16;
-            this.label4.Text = "Bluetooth monitor";
             // 
-            // button1
+            // label5
             // 
-            this.button1.AutoSize = true;
-            this.button1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(0, 266);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(871, 27);
-            this.button1.TabIndex = 18;
-            this.button1.Text = "Bluetooth Monitor";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click_2);
+            this.label5.AutoSize = true;
+            this.label5.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label5.Location = new System.Drawing.Point(0, 240);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(182, 26);
+            this.label5.TabIndex = 19;
+            this.label5.Text = "Bluetooth Monitor";
             // 
             // MainPage
             // 
             this.ClientSize = new System.Drawing.Size(871, 591);
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.clearLogButton);
             this.Controls.Add(this.copyToClipboardButton);

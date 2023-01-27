@@ -57,6 +57,10 @@
             // 
             this.userTextBox.Text = "PilotB";
             // 
+            // pingBackButton
+            // 
+            this.pingBackButton.Size = new System.Drawing.Size(182, 40);
+            // 
             // rescanButton
             // 
             this.rescanButton.Enabled = false;

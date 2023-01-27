@@ -76,7 +76,10 @@ namespace SyncDevice.Windows.Bluetooth
 
                 HandshakeMessage handshakeMessage = HandshakeMessage.DecodeMessage(await WaitForMessageAsync(reader));
                 if (handshakeMessage != null && handshakeMessage.Pin == Pin)
+                {
+                    SessionName = handshakeMessage.SessionName;
                     return true;
+                }
                 else
                 {
                     Logger?.LogInformation($"Handshake message not correct. Expected {Pin} but recived {handshakeMessage?.Pin}");
