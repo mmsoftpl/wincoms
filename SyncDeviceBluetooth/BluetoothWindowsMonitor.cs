@@ -261,7 +261,7 @@ namespace SyncDevice.Windows.Bluetooth
             get => lastMessage;
             set
             {
-                if (lastMessage != value)
+               // if (lastMessage != value)
                 {
                     lastMessage = value;
                     Interlocked.Increment(ref SignatureId);

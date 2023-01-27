@@ -72,21 +72,24 @@ namespace SyncDevice.Windows.Bluetooth
         {
             if (IsHost)
             {
-                await SendMessageAsync(Pin);
-                return true;
+                await SendMessageAsync(HandshakeMessage.EncodeMessage(null, SessionName));
+
+                HandshakeMessage handshakeMessage = HandshakeMessage.DecodeMessage(await WaitForMessageAsync(reader));
+                if (handshakeMessage != null && handshakeMessage.Pin == Pin)
+                    return true;
+                else
+                {
+                    Logger?.LogInformation($"Handshake message not correct. Expected {Pin} but recived {handshakeMessage?.Pin}");
+                    return false;
+                }
             }
             else
             {
                 if (!string.IsNullOrEmpty(Pin))
                 {
-                    string handshakeMessage = await WaitForMessageAsync(reader);
-                    if (handshakeMessage == Pin) // Later, 
-                        return true;
-                    else
-                    {
-                        Logger?.LogInformation($"Handshake message not correct. Expected {Pin} but recived {handshakeMessage}");
-                        return false;
-                    }
+                    string serverHandshakeMessage = await WaitForMessageAsync(reader);
+                    _ = SendMessageAsync(HandshakeMessage.EncodeMessage(Pin, SessionName));
+                    return true;
                 }
                 else
                     return true;
