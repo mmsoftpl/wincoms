@@ -239,6 +239,7 @@ namespace SyncDevice.Windows.Bluetooth
         {
             if (Status == SyncDeviceStatus.Stopped)
             {
+                SessionName = sessionName;
                 Pin = pin;
                 await ScanForSignatures();
                 Status = SyncDeviceStatus.Started;
