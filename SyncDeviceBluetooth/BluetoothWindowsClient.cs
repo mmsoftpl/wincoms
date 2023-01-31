@@ -1,7 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;
@@ -21,19 +23,19 @@ namespace SyncDevice.Windows.Bluetooth
     {
         private DeviceWatcher deviceWatcher = null;
         private BluetoothDevice BluetoothDevice = null;
-        private BluetoothLePublisher bluetoothLePublisher = null;
+       // private BluetoothLePublisher bluetoothLePublisher = null;
         public override bool IsHost { get => false; }
 
         public ConnectStrategy ConnectStrategy = ConnectStrategy.ScanServices;
 
-        private Task StartLePublisherAsync(string sessionName)
-        {
-            var clientMacAddress = string.Join(",", BluetoothAdapters().Select(a => a.GetPhysicalAddress().ToString().Replace(":", "")));
-            var clientSignature = clientMacAddress + "|" + sessionName;
+        //private Task StartLePublisherAsync(string sessionName)
+        //{
+        //    var clientMacAddress = string.Join(",", BluetoothAdapters().Select(a => a.GetPhysicalAddress().ToString().Replace(":", "")));
+        //    var clientSignature = clientMacAddress + "|" + sessionName;
 
-            bluetoothLePublisher = new BluetoothLePublisher() { Logger = Logger, ServiceName = ServiceName, SessionName = clientSignature };
-            return bluetoothLePublisher.StartAsync(clientSignature, null, "Publishing LE signature");
-        }
+        //    bluetoothLePublisher = new BluetoothLePublisher() { Logger = Logger, ServiceName = ServiceName, SessionName = clientSignature };
+        //    return bluetoothLePublisher.StartAsync(clientSignature, null, "Publishing LE signature");
+        //}
 
         public override async Task StartAsync(string sessionName, string pin, string reason)
         {
@@ -68,8 +70,8 @@ namespace SyncDevice.Windows.Bluetooth
 
         internal override void RaiseOnConnectionStarted(ISyncDevice device)
         {
-            StopLePublisher();
-           // StopWatcher();
+            //StopLePublisher();
+            StopWatcher();
             base.RaiseOnConnectionStarted(device);
         }
 
@@ -328,21 +330,21 @@ namespace SyncDevice.Windows.Bluetooth
             }
         }
 
-        private void StopLePublisher()
-        {
-            if (bluetoothLePublisher != null)
-            {
-                Logger?.LogTrace("Stopping Bluetooth LE Publisher watcher");
-                bluetoothLePublisher?.StopAsync(null);
-                bluetoothLePublisher = null;
-            }
-        }
+        //private void StopLePublisher()
+        //{
+        //    if (bluetoothLePublisher != null)
+        //    {
+        //        Logger?.LogTrace("Stopping Bluetooth LE Publisher watcher");
+        //        bluetoothLePublisher?.StopAsync(null);
+        //        bluetoothLePublisher = null;
+        //    }
+        //}
 
         public void Disconnect(string disconnectReason)
         {
             StopWatcher();
             
-            StopLePublisher();
+          //  StopLePublisher();
 
             ClearChannels();
 
