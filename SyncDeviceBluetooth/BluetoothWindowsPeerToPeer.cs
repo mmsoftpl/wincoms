@@ -45,6 +45,7 @@ namespace SyncDevice.Windows.Bluetooth
                 if (PeerToPeerConnections.TryAdd(syncDevice.SessionName, syncDevice))
                 {
                     syncDevice.OnMessageReceived += BluetoothPeerToPeer_OnMessageReceived;
+                    syncDevice.OnDeviceDisconnected += BluetoothPeerToPeer_OnDeviceDisconnected;
                     RaiseOnConnectionStarted(syncDevice);
                 }
                 else
@@ -63,6 +64,7 @@ namespace SyncDevice.Windows.Bluetooth
             if (PeerToPeerConnections.TryRemove(syncDevice.SessionName, out var sd))
             {
                 sd.OnMessageReceived -= BluetoothPeerToPeer_OnMessageReceived;
+                sd.OnDeviceDisconnected += BluetoothPeerToPeer_OnDeviceDisconnected;
                 RaiseOnDeviceDisconnected(sd);
             }
         }

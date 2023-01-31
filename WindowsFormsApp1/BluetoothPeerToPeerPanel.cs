@@ -17,7 +17,6 @@ namespace WindowsFormsApp1
 
             var peerToPeer = new BluetoothWindowsPeerToPeer() { Logger = SDKTemplate.MainPage.mainPage };
             peerToPeer.OnStatus += Server_OnStatus;
-            peerToPeer.OnError += PeerToPeer_OnError;
             peerToPeer.OnMessageReceived += Server_OnMessage;
             peerToPeer.OnConnectionStarted += Server_OnConnectionStarted;
             peerToPeer.OnDeviceConnected += Server_OnDeviceConnected;
@@ -26,14 +25,12 @@ namespace WindowsFormsApp1
             SyncDevice = peerToPeer;
         }
 
-        private void PeerToPeer_OnError(object sender, string error)
-        {
-            throw new System.NotImplementedException();
-        }
+
 
         private void Server_OnConnectionStarted(object sender, ISyncDevice device)
         {
-            _ = KeepWriting();
+            _ = KeepWriting(); 
+            UpdateControls();
         }
 
         private void Server_OnDeviceDisconnected(object sender, ISyncDevice device)
