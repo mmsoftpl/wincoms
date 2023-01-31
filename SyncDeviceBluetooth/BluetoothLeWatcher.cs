@@ -150,7 +150,7 @@ namespace SyncDevice.Windows.Bluetooth
                     WatcherSingleton.Value.Start();
                     Logger?.LogInformation($"BluetoothLeWatcher started, {reason}");
                     Status = SyncDeviceStatus.Started;
-                 //   _ = RemoveConnectionsOlderThan5sec();
+                    _ = RemoveConnectionsOlderThan5sec();
                     return Task.Run(() => true);
                 });
             }
