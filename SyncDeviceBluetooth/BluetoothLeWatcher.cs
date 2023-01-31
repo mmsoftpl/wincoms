@@ -2,17 +2,38 @@
 using System;
 using System.Collections.Concurrent;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.Advertisement;
 using Windows.Storage.Streams;
 
 namespace SyncDevice.Windows.Bluetooth
 {
+    public class SignatureDetails
+    { 
+        public string Data { get; set; }
+        public DateTime Stamp { get; set; }
+
+        public string Message
+        {
+            get
+            {
+                var msg = Data.Split(new char[] { '|' }, System.StringSplitOptions.RemoveEmptyEntries);
+                if (msg.Length> 2) 
+                {
+                    return msg[2];
+                }
+                return null;
+            }
+        }
+    }
+
+
     public class BluetoothLeWatcher : BluetoothWindows
     {
         public override bool IsHost { get => false; }
 
-        public readonly ConcurrentDictionary<ulong, string> Signatures = new ConcurrentDictionary<ulong, string>();
+        public readonly ConcurrentDictionary<ulong, SignatureDetails> Signatures = new ConcurrentDictionary<ulong, SignatureDetails>();
 
         // The Bluetooth LE advertisement publisher class is used to control and customize Bluetooth LE advertising.
         private Lazy<BluetoothLEAdvertisementWatcher> WatcherSingleton = null;
@@ -77,6 +98,8 @@ namespace SyncDevice.Windows.Bluetooth
             // By default, the sampling interval is set to zero, which means there is no sampling and all
             // the advertisement received is returned in the Received event
 
+            //watcher.MaxSamplingInterval = TimeSpan.FromSeconds(1);
+
             // End of watcher configuration. There is no need to comment out any code beyond this point.
             watcher.Received += OnAdvertisementReceived;
             watcher.Stopped += OnAdvertisementWatcherStopped;
@@ -84,17 +107,50 @@ namespace SyncDevice.Windows.Bluetooth
             return watcher;
         }
 
+        private CancellationTokenSource CancellationTokenSource_cts;
+        private async Task RemoveConnectionsOlderThan10sec(CancellationToken cancellationToken)
+        {
+            await Task.Delay(1000, cancellationToken);
+
+            if (!cancellationToken.IsCancellationRequested)
+            {
+                var changed = false;
+                foreach (var signature in Signatures)
+                    if (DateTime.UtcNow - signature.Value.Stamp > TimeSpan.FromSeconds(2))
+                    {
+                        Signatures.TryRemove(signature.Key, out _);
+                        changed = true;
+                    }
+
+                if (changed)
+                    RaiseOnStatus(Status);
+            }
+
+            if (!cancellationToken.IsCancellationRequested)
+                RemoveConnectionsOlderThan10sec(cancellationToken);
+        }
+
+        private Task RemoveConnectionsOlderThan5sec()
+        {
+            CancellationTokenSource_cts?.Cancel();
+
+            CancellationTokenSource_cts = new CancellationTokenSource();
+
+            return RemoveConnectionsOlderThan10sec(CancellationTokenSource_cts.Token);
+        }
+
         public override async Task StartAsync(string sessionName, string pin, string reason)
         {
             if (WatcherSingleton == null)
             {
                 WatcherSingleton = new Lazy<BluetoothLEAdvertisementWatcher>(GetWatcher);
-
+                Signatures.Clear();
                 await BluetoothStartAction(() =>
                 {
                     WatcherSingleton.Value.Start();
                     Logger?.LogInformation($"BluetoothLeWatcher started, {reason}");
                     Status = SyncDeviceStatus.Started;
+                 //   _ = RemoveConnectionsOlderThan5sec();
                     return Task.Run(() => true);
                 });
             }
@@ -104,6 +160,8 @@ namespace SyncDevice.Windows.Bluetooth
         {
             if (WatcherSingleton.IsValueCreated)
             {
+                CancellationTokenSource_cts?.Cancel();
+
                 var watcher = WatcherSingleton.Value;
                 WatcherSingleton = null;                
 
@@ -117,10 +175,10 @@ namespace SyncDevice.Windows.Bluetooth
             return Task.CompletedTask;
         }
 
-        public string GetSignature(string macAddress)
+        public SignatureDetails GetSignature(string macAddress)
         {
-            foreach(var signature in Signatures.Values)
-                if (signature.Contains(macAddress))
+            foreach (var signature in Signatures.Values)
+                if (signature.Data.Contains(macAddress))
                     return signature;
             return null;
         }
@@ -169,14 +227,28 @@ namespace SyncDevice.Windows.Bluetooth
 
                 if (HasServiceName(s))
                 {
+                    SignatureDetails signatureDetails = new SignatureDetails()
+                    {
+                        Data = s,
+                        Stamp = System.DateTime.UtcNow
+                    };
+
                     bool updated;
-                    if (Signatures.TryGetValue(eventArgs.BluetoothAddress, out var existingSignature) && existingSignature != s)
-                        updated = Signatures.TryUpdate(eventArgs.BluetoothAddress, s, existingSignature);
+                    if (Signatures.TryGetValue(eventArgs.BluetoothAddress, out var existingSignature))
+                    {
+                        updated = existingSignature.Data != s;
+                        Signatures[eventArgs.BluetoothAddress] = signatureDetails;                        
+                    }
                     else
-                        updated = Signatures.TryAdd(eventArgs.BluetoothAddress, s);
+                        updated = Signatures.TryAdd(eventArgs.BluetoothAddress, signatureDetails);
 
                     if (updated)
-                        RaiseOnMessageReceived(s);
+                    {
+                        RaiseOnStatus(Status);
+
+                        if (signatureDetails.Message!=null)
+                            RaiseOnMessageReceived(signatureDetails.Message);
+                    }
                 }
             }
 

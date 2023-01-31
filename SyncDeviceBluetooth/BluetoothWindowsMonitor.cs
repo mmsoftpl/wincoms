@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -34,7 +35,34 @@ namespace SyncDevice.Windows.Bluetooth
 
         public override bool IsHost => bluetoothWindowsServer?.IsHost == true;
 
-        public override IList<ISyncDevice> Connections => bluetoothWindowsServer?.Connections ?? bluetoothWindowsClient?.Connections ?? base.Connections;
+        public override IList<ISyncDevice> Connections
+        {
+            get
+            {
+                Dictionary<ulong, ISyncDevice> connections = new System.Collections.Generic.Dictionary<ulong, ISyncDevice>();
+
+                if (bluetoothWindowsServer?.Connections?.Count > 0)
+                    foreach (var connection in bluetoothWindowsServer.Connections)
+                        connections.Add(ToUlong( connection.DeviceId), connection);
+
+                if (bluetoothWindowsServer?.Connections?.Count > 0)
+                    foreach (var connection in bluetoothWindowsClient.Connections)
+                        connections.Add(ToUlong(connection.DeviceId), connection);
+
+                if (bluetoothLeWatcher != null)
+                {
+                    foreach (var signature in bluetoothLeWatcher.Signatures)
+                    {
+                        BluetoothLeSignature bluetoothLeSignature = new BluetoothLeSignature()
+                        {
+                            SessionName = signature.Value.Data,
+                        };
+                        connections.Add(signature.Key, bluetoothLeSignature);
+                    }
+                }
+                return connections.Values.ToList();
+            }
+        }
 
         #region Bluetooth LE Watcher
         private Task ScanForSignatures()
@@ -43,16 +71,23 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 bluetoothLeWatcher = new BluetoothLeWatcher() { Logger = Logger };
                 bluetoothLeWatcher.OnError += BluetoothLeWatcher_OnError;
+                bluetoothLeWatcher.OnStatus += BluetoothLeWatcher_OnStatus;
                 bluetoothLeWatcher.OnMessageReceived += BluetoothLeWatcher_OnMessage;
                 return bluetoothLeWatcher.StartAsync(SessionName, null, $"Start scanning for '{ServiceName}' signatures");
             }
             return Task.CompletedTask;
         }
+
+        private void BluetoothLeWatcher_OnStatus(object sender, SyncDeviceStatus status)
+        {
+            RaiseOnStatus(status);
+        }
+
         private void BluetoothLeWatcher_OnMessage(object sender, MessageEventArgs e)
         {
-            var msg = e.Message.Split('|');
+            
 
-            if (msg?.Length > 2)
+            //if (msg?.Length > 2)
             {
                 ConnectToHost();
             }
@@ -259,7 +294,7 @@ namespace SyncDevice.Windows.Bluetooth
                 await ScanForSignatures();
                 Status = SyncDeviceStatus.Started;
                 
-                await SetSignatureAsync(Interlocked.Increment(ref SignatureId).ToString(), false);
+                await SetSignatureAsync(string.Empty, false);
 
             }
         }

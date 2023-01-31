@@ -55,6 +55,11 @@ namespace SyncDevice.Windows.Bluetooth
             Message = message
         });
 
+        internal virtual void RaiseOnStatus(SyncDeviceStatus status)
+        {
+            OnStatus?.Invoke(this, status);
+        }
+
         internal virtual void RaiseOnError(string error)
         {
             Logger?.LogError(error);
@@ -235,6 +240,11 @@ namespace SyncDevice.Windows.Bluetooth
                     thisBluetoothMac = BluetoothAdapters().Select(a => a.GetPhysicalAddress().ToString().Replace(":", "")).FirstOrDefault() ?? string.Empty;
                 return thisBluetoothMac;
             }
+        }
+
+        public static ulong ToUlong(string s)
+        {
+            return Convert.ToUInt64(s.ToString().Replace(":", ""), 16);
         }
 
         public static ulong ThisBluetoothAddress
