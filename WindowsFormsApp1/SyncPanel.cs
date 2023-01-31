@@ -167,6 +167,9 @@ namespace WindowsFormsApp1
 
         public void Reset()
         {
+            if (string.IsNullOrEmpty(userTextBox.Text))
+                userTextBox.Text = $"Pilot{Char.ConvertFromUtf32(62 + r.Next(30))}";
+
             messagesRecived = 0;
             messagesSent = 0;
             Invoke((MethodInvoker)(() =>
@@ -262,15 +265,14 @@ namespace WindowsFormsApp1
         public SyncPanel()
         {
             InitializeComponent();
-
-
             OnUpdateControls();
         }
+
+        Random r = new Random();
 
         public SyncPanel(ISyncDevice syncDevice) : this()
         {
             SyncDevice = syncDevice;
-
 
             OnUpdateControls();
         }

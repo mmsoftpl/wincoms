@@ -5,7 +5,7 @@ namespace WindowsFormsApp1
 {
     public partial class BluetoothClientPanel : SyncPanel
     {
-        public BluetoothClientPanel()
+        public BluetoothClientPanel() : base()
         {
             InitializeComponent();
 

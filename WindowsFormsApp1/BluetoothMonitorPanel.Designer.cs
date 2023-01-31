@@ -32,22 +32,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown)).BeginInit();
             this.SuspendLayout();
             // 
-            // headerLabel
-            // 
-            this.headerLabel.Location = new System.Drawing.Point(0, 19);
-            // 
-            // panel4
-            // 
-            this.panel4.Location = new System.Drawing.Point(0, 130);
-            // 
-            // panel5
-            // 
-            this.panel5.Location = new System.Drawing.Point(0, 304);
-            // 
-            // userTextBox
-            // 
-            this.userTextBox.Text = "PilotB";
-            // 
             // BluetoothMonitorPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
