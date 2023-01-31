@@ -45,7 +45,7 @@ namespace SyncDevice.Windows.Bluetooth
                     foreach (var connection in bluetoothWindowsServer.Connections)
                         connections.Add(ToUlong( connection.DeviceId), connection);
 
-                if (bluetoothWindowsServer?.Connections?.Count > 0)
+                if (bluetoothWindowsClient?.Connections?.Count > 0)
                     foreach (var connection in bluetoothWindowsClient.Connections)
                         connections.Add(ToUlong(connection.DeviceId), connection);
 
@@ -252,7 +252,8 @@ namespace SyncDevice.Windows.Bluetooth
         }
 
         private void BluetoothWindowsServer_OnConnectionStarted(object sender, ISyncDevice syncDevice)
-        {            
+        {
+            RaiseOnConnectionStarted(syncDevice);
             if (lastRecipients.TryRemove(syncDevice.SessionName, out var message))
             {
                 RaiseOnConnectionStarted(syncDevice);
@@ -260,7 +261,7 @@ namespace SyncDevice.Windows.Bluetooth
             }
             else
             {
-                _ = KillConnectionAfter5sec(syncDevice);
+              //  _ = KillConnectionAfter5sec(syncDevice);
             }
         }
 
