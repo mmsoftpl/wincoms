@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -18,17 +19,17 @@ namespace SyncDevice.Windows.Bluetooth
             private set;
         }
 
-        public async Task SetSignatureAsync(string value)
+        public async Task SetSignatureAsync(string value, bool startHosting)
         {
             if (Signature != value)
             {
                 Signature = value;
 
                 await StopPublishingSignatureAsync("signature changed");
-                await StartHosting();
+                if (startHosting)
+                    await StartHosting();
                 await StartPublishingSignatureAsync();
             }
-
         }
 
         public override bool IsHost => bluetoothWindowsServer?.IsHost == true;
@@ -49,7 +50,12 @@ namespace SyncDevice.Windows.Bluetooth
         }
         private void BluetoothLeWatcher_OnMessage(object sender, MessageEventArgs e)
         {
-            ConnectToHost();
+            var msg = e.Message.Split('|');
+
+            if (msg?.Length > 2)
+            {
+                ConnectToHost();
+            }
         }
 
         private void BluetoothLeWatcher_OnError(object sender, string error)
@@ -194,24 +200,33 @@ namespace SyncDevice.Windows.Bluetooth
             }
         }
 
-
-        private void BluetoothWindowsServer_OnMessageSent(object sender, MessageEventArgs e)
+        private Task KillConnectionAfter5sec(ISyncDevice syncDevice)
         {
-            RaiseOnMessageSent(e.Message); 
-            
             CancellationTokenSource_cts?.Cancel();
 
             CancellationTokenSource_cts = new CancellationTokenSource();
 
-            _ = KillConnectionAfter5sec(e.SyncDevice, CancellationTokenSource_cts.Token);
+            return KillConnectionAfter5sec(syncDevice, CancellationTokenSource_cts.Token);
+        }
+
+
+        private void BluetoothWindowsServer_OnMessageSent(object sender, MessageEventArgs e)
+        {
+            RaiseOnMessageSent(e.Message);
+            _ = KillConnectionAfter5sec(e.SyncDevice);
         }
 
         private void BluetoothWindowsServer_OnConnectionStarted(object sender, ISyncDevice syncDevice)
-        {
-            RaiseOnConnectionStarted(syncDevice);
-
-            if (!string.IsNullOrEmpty(LastMessage))
-                syncDevice.SendMessageAsync(LastMessage);
+        {            
+            if (lastRecipients.TryRemove(syncDevice.SessionName, out var message))
+            {
+                RaiseOnConnectionStarted(syncDevice);
+                syncDevice.SendMessageAsync(message);
+            }
+            else
+            {
+                _ = KillConnectionAfter5sec(syncDevice);
+            }
         }
 
         private Task StopHosting(string reason)
@@ -243,6 +258,9 @@ namespace SyncDevice.Windows.Bluetooth
                 Pin = pin;
                 await ScanForSignatures();
                 Status = SyncDeviceStatus.Started;
+                
+                await SetSignatureAsync(Interlocked.Increment(ref SignatureId).ToString(), false);
+
             }
         }
 
@@ -256,26 +274,37 @@ namespace SyncDevice.Windows.Bluetooth
         }
 
         private int SignatureId;
-        private string lastMessage;
+        private ConcurrentDictionary<string, string> lastRecipients = new ConcurrentDictionary<string, string>();
         public string LastMessage
         {
-            get => lastMessage;
-            set
+            get;set;
+        }
+
+        private void SetLastMessage(string message, string[] recipients)
+        {
+            lastRecipients = new ConcurrentDictionary<string, string>();
+            if (recipients?.Length > 0)
             {
-               // if (lastMessage != value)
+                foreach (var recipient in recipients)
                 {
-                    lastMessage = value;
-                    Interlocked.Increment(ref SignatureId);
-                    _ = SetSignatureAsync(SignatureId.ToString());
+                    if (!string.IsNullOrEmpty(recipient))
+                        lastRecipients.TryAdd(recipient, message);
                 }
+            }
+
+            // if (lastMessage != value)
+            {
+                LastMessage = message;
+
+                _ = SetSignatureAsync(Interlocked.Increment(ref SignatureId).ToString(), true);
             }
         }
 
-        public override Task SendMessageAsync(string message)
+        public override Task SendMessageAsync(string message, string[] recipients = null)
         {
             if (Status == SyncDeviceStatus.Started)
             {
-                LastMessage = message;
+                SetLastMessage(message, recipients);
 
                 return bluetoothWindowsServer?.SendMessageAsync(message);
             }

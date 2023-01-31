@@ -26,6 +26,8 @@ namespace SyncDevice.Windows.WifiDirect
         public string DeviceId { get; internal set; }
 
         public string SessionName { get; set; }
+        public string ServiceName { get; set; }
+
         public ILogger Logger { get; set; }
 
         public IList<ISyncDevice> Connections { get => null; }
@@ -52,7 +54,7 @@ namespace SyncDevice.Windows.WifiDirect
         public virtual Task RestartAsync(string reason) { throw new NotImplementedException(); }
         public abstract Task StopAsync(string reason);
 
-        public virtual async Task SendMessageAsync(string message)
+        public virtual async Task SendMessageAsync(string message, string[] recipients= null)
         {
             if (!string.IsNullOrEmpty(message))
             {

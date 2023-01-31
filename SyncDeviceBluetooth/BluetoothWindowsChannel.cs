@@ -210,7 +210,7 @@ namespace SyncDevice.Windows.Bluetooth
             Status = SyncDeviceStatus.Created;
         }
 
-        public override Task SendMessageAsync(string message)
+        public override Task SendMessageAsync(string message, string[] recipients= null)
         {
             return WriteMessageAsync(Writer, message, true);
         }

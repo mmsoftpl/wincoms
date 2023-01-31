@@ -34,13 +34,15 @@ namespace SyncDevice
 
     public interface ISyncDevice
     {
-        Task SendMessageAsync(string message);
+        Task SendMessageAsync(string message, string[] recipients=null);
 
         SyncDeviceStatus Status { get; }
 
         bool IsHost { get; }
 
         string SessionName { get; }
+
+        string ServiceName { get;set; }
 
         string DeviceId { get; }
 

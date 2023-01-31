@@ -30,7 +30,7 @@ namespace SyncDevice.Windows.Bluetooth
         const string DefaultServiceName = "EFM";
         const string DefaultSessionName = "XYZ";
 
-        public string ServiceName { get; internal set; } = DefaultServiceName;
+        public string ServiceName { get; set; } = DefaultServiceName;
         public string SessionName { get; internal set; } = DefaultSessionName;
 
         public ILogger Logger { get; set; }
@@ -107,7 +107,7 @@ namespace SyncDevice.Windows.Bluetooth
             }
         }
 
-        public virtual async Task SendMessageAsync(string message)
+        public virtual async Task SendMessageAsync(string message, string[] recipients= null)
         {
             if (!string.IsNullOrEmpty(message))
             {
