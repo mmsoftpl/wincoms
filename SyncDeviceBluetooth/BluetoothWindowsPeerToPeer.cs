@@ -58,7 +58,7 @@ namespace SyncDevice.Windows.Bluetooth
         private void BluetoothPeerToPeer_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
         {
             if (syncDevice == bluetoothWindowsClient)
-                syncDevice.StartAsync(SessionName, Pin, "Restarting client");
+                syncDevice.RestartAsync("Restarting client");
             else
             if (syncDevice == bluetoothWindowsServer)
                 syncDevice.StartAsync(SessionName, Pin, "Restarting server");
@@ -94,21 +94,17 @@ namespace SyncDevice.Windows.Bluetooth
 
         private Task DisconnectFromHost(string reason)
         {
-            try
+            var _bluetoothWindowsClient = bluetoothWindowsClient;
+            bluetoothWindowsClient = null;
+
+            if (_bluetoothWindowsClient != null)
             {
-                if (bluetoothWindowsClient != null)
-                {
-                    bluetoothWindowsClient.OnDeviceConnected -= BluetoothPeerToPeer_OnDeviceConnected;
-                    bluetoothWindowsClient.OnDeviceDisconnected -= BluetoothPeerToPeer_OnDeviceDisconnected;
-                   // bluetoothWindowsClient.OnStatus -= BluetoothPeerToPeer_OnStatus;
-                    return bluetoothWindowsClient?.StopAsync(reason);
-                }
-                return Task.CompletedTask;
+                _bluetoothWindowsClient.OnDeviceConnected -= BluetoothPeerToPeer_OnDeviceConnected;
+                _bluetoothWindowsClient.OnDeviceDisconnected -= BluetoothPeerToPeer_OnDeviceDisconnected;
+                // bluetoothWindowsClient.OnStatus -= BluetoothPeerToPeer_OnStatus;
+                return _bluetoothWindowsClient?.StopAsync(reason);
             }
-            finally
-            {
-                bluetoothWindowsClient = null;
-            }
+            return Task.CompletedTask;
         }
         #endregion
 
@@ -176,26 +172,22 @@ namespace SyncDevice.Windows.Bluetooth
 
         private Task StopHosting(string reason)
         {
-            try
+            var _bluetoothWindowsServer = bluetoothWindowsServer;
+            bluetoothWindowsServer = null;
+            if (_bluetoothWindowsServer != null)
             {
-                if (bluetoothWindowsServer != null)
-                {
-                    bluetoothWindowsServer.OnDeviceConnected -= BluetoothPeerToPeer_OnDeviceConnected;
-                    bluetoothWindowsServer.OnDeviceDisconnected -= BluetoothPeerToPeer_OnDeviceDisconnected;
-                  //  bluetoothWindowsServer.OnStatus -= BluetoothPeerToPeer_OnStatus;
+                _bluetoothWindowsServer.OnDeviceConnected -= BluetoothPeerToPeer_OnDeviceConnected;
+                _bluetoothWindowsServer.OnDeviceDisconnected -= BluetoothPeerToPeer_OnDeviceDisconnected;
 
-                    //bluetoothWindowsServer.OnConnectionStarted -= BluetoothWindowsServer_OnConnectionStarted;
-                    //bluetoothWindowsServer.OnMessageSent -= BluetoothWindowsServer_OnMessageSent;
+                //  bluetoothWindowsServer.OnStatus -= BluetoothPeerToPeer_OnStatus;
 
-                    //bluetoothWindowsServer.OnDeviceDisconnected -= BluetoothWindowsServer_OnDeviceDisconnected;
-                    return bluetoothWindowsServer?.StopAsync(reason);
-                }
-                return Task.CompletedTask;
+                //bluetoothWindowsServer.OnConnectionStarted -= BluetoothWindowsServer_OnConnectionStarted;
+                //bluetoothWindowsServer.OnMessageSent -= BluetoothWindowsServer_OnMessageSent;
+
+                //bluetoothWindowsServer.OnDeviceDisconnected -= BluetoothWindowsServer_OnDeviceDisconnected;
+                return _bluetoothWindowsServer?.StopAsync(reason);
             }
-            finally
-            {
-                bluetoothWindowsServer = null;
-            }
+            return Task.CompletedTask;
         }
 
         #endregion  
