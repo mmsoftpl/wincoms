@@ -40,6 +40,12 @@ namespace SyncDevice.Windows.Bluetooth
 
         private void BluetoothPeerToPeer_OnDeviceConnected(object sender, ISyncDevice syncDevice)
         {
+            if (syncDevice == bluetoothWindowsClient)
+                ;
+            else
+            if (syncDevice == bluetoothWindowsServer)
+                ;
+            else
             if (PeerToPeerConnections.TryAdd(syncDevice.SessionName, syncDevice))
             {
                 syncDevice.OnMessageReceived += BluetoothPeerToPeer_OnMessageReceived;
@@ -51,6 +57,12 @@ namespace SyncDevice.Windows.Bluetooth
 
         private void BluetoothPeerToPeer_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
         {
+            if (syncDevice == bluetoothWindowsClient)
+                syncDevice.StartAsync(SessionName, Pin, "Restarting client");
+            else
+            if (syncDevice == bluetoothWindowsServer)
+                syncDevice.StartAsync(SessionName, Pin, "Restarting server");
+            else
             if (PeerToPeerConnections.TryRemove(syncDevice.SessionName, out var sd))
             {
                 sd.OnMessageReceived -= BluetoothPeerToPeer_OnMessageReceived;
@@ -192,6 +204,7 @@ namespace SyncDevice.Windows.Bluetooth
         {
             if (Status == SyncDeviceStatus.Stopped)
             {
+                Connections.Clear();
                 SessionName = sessionName;
                 Pin = pin;
                 await ConnectToHost();
