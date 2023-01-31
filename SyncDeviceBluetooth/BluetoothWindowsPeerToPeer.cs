@@ -45,6 +45,8 @@ namespace SyncDevice.Windows.Bluetooth
                 syncDevice.OnMessageReceived += BluetoothPeerToPeer_OnMessageReceived;
                 RaiseOnConnected(syncDevice); RaiseOnStatus(Status);
             }
+            else
+                syncDevice.StopAsync("Already connected");
         }
 
         private void BluetoothPeerToPeer_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
