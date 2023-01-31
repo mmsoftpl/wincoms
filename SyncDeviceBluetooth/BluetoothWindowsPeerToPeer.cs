@@ -56,14 +56,13 @@ namespace SyncDevice.Windows.Bluetooth
         private void BluetoothPeerToPeer_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
         {
             if (syncDevice == bluetoothWindowsClient)
-                _ = syncDevice.RestartAsync("Restarting client");
-            else
-            if (syncDevice == bluetoothWindowsServer)
             {
-                if (bluetoothWindowsServer.Connections.Count == 0)
+                if (bluetoothWindowsClient?.Connections?.Count == 0 && bluetoothWindowsServer?.Connections?.Count == 0)
                 {
-                    _ = RestartAsync("Restarting");
+                    _ = RestartAsync("Restarting client & server");
                 }
+                else
+                    bluetoothWindowsClient?.RestartAsync("Restarting client");
             }
             else
             if (PeerToPeerConnections.TryRemove(syncDevice.SessionName, out var sd))
