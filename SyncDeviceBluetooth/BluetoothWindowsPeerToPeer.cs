@@ -56,15 +56,20 @@ namespace SyncDevice.Windows.Bluetooth
         private void BluetoothPeerToPeer_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
         {
             if (syncDevice == bluetoothWindowsClient)
-                syncDevice.RestartAsync("Restarting client");
+                _ = syncDevice.RestartAsync("Restarting client");
             else
             if (syncDevice == bluetoothWindowsServer)
-                syncDevice.StartAsync(SessionName, Pin, "Restarting server");
+            {
+                if (bluetoothWindowsServer.Connections.Count == 0)
+                {
+                    _ = RestartAsync("Restarting");
+                }
+            }
             else
             if (PeerToPeerConnections.TryRemove(syncDevice.SessionName, out var sd))
             {
                 sd.OnMessageReceived -= BluetoothPeerToPeer_OnMessageReceived;
-                sd.OnDeviceDisconnected += BluetoothPeerToPeer_OnDeviceDisconnected;
+                sd.OnDeviceDisconnected -= BluetoothPeerToPeer_OnDeviceDisconnected;
                 RaiseOnDeviceDisconnected(sd);
             }
         }
@@ -192,6 +197,12 @@ namespace SyncDevice.Windows.Bluetooth
             Status = SyncDeviceStatus.Stopped;
             await StopHosting(reason);
             await DisconnectFromHost(reason);
+        }
+
+        public override async Task RestartAsync(string reason)
+        {
+            await StopAsync(reason);
+            await StartAsync(SessionName, Pin, reason);
         }
 
         public override async Task SendMessageAsync(string message, string[] recipients = null)
