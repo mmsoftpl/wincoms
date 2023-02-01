@@ -75,11 +75,19 @@ namespace SyncDevice.Windows.Bluetooth
             base.RaiseOnConnectionStarted(device);
         }
 
-        public ConcurrentDictionary<string, DeviceInformation> ResultCollection
+        public class dd
+        {
+            public RfcommDeviceService RfcommDeviceService { get; set; }
+            public DeviceInformation DeviceInformation { get; set; }            
+            public string ServiceName { get; set; }
+        }
+
+
+        public ConcurrentDictionary<string, dd> ResultCollection
         {
             get;
             private set;
-        } = new ConcurrentDictionary<string, DeviceInformation>();
+        } = new ConcurrentDictionary<string, dd>();
 
         public void FindDevices()
         {
@@ -119,26 +127,26 @@ namespace SyncDevice.Windows.Bluetooth
                 else
                 if (HasServiceName(serviceName) && deviceInfo.Id.Contains("RFCOMM"))
                 {
-                    ResultCollection.TryAdd(deviceInfo.Id, deviceInfo);
+                    ResultCollection.TryAdd(deviceInfo.Id, new dd() { DeviceInformation = deviceInfo, ServiceName = serviceName });
                     Logger?.LogInformation($"[Service added] {deviceInfo.Id}, {deviceInfo.Name}");
                 }
             });
 
             deviceWatcher.Updated += new TypedEventHandler<DeviceWatcher, DeviceInformationUpdate>((watcher, deviceInfoUpdate) =>
             {
-                if (ResultCollection.TryGetValue(deviceInfoUpdate.Id, out var rfcommInfoDisp))
+                if (ResultCollection.TryGetValue(deviceInfoUpdate.Id, out var s))
                 {
-                    rfcommInfoDisp.Update(deviceInfoUpdate);
+                    s.DeviceInformation.Update(deviceInfoUpdate);
 
-                    Logger?.LogInformation($"[Device updated] {rfcommInfoDisp.Id}, {rfcommInfoDisp.Name}");
+                    Logger?.LogInformation($"[Device updated] {s.DeviceInformation.Id}, {s.DeviceInformation.Name}");
                 }
             });
 
             deviceWatcher.Removed += new TypedEventHandler<DeviceWatcher, DeviceInformationUpdate>((watcher, deviceInfoUpdate) =>
             {
-                if (ResultCollection.TryRemove(deviceInfoUpdate.Id, out var rfcommInfoDisp))
+                if (ResultCollection.TryRemove(deviceInfoUpdate.Id, out var s))
                 {
-                    Logger?.LogInformation($"[Device removed] {rfcommInfoDisp.Id}, {rfcommInfoDisp.Name}");
+                    Logger?.LogInformation($"[Device removed] {s.DeviceInformation.Id}, {s.DeviceInformation.Name}");
                 }
             });
 
@@ -146,14 +154,14 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 Logger?.LogInformation($"[Enumeration completed] {ResultCollection.Count} devices found");
 
-                foreach (var deviceInfo in ResultCollection.Values)
+                foreach (var dd in ResultCollection.Values)
                 {
-                    var channel = Task.Run(() => Connect(deviceInfo)).Result;
+                    var channel = Task.Run(() => Connect(dd)).Result;
 
                     if (channel != null)
                     {
                         StopWatcher();
-                        Logger?.LogInformation($"Connected to {deviceInfo.Name}...");
+                        Logger?.LogInformation($"Connected to {dd.DeviceInformation.Name}...");
 
                         Status = channel.Status;
 
@@ -207,6 +215,12 @@ namespace SyncDevice.Windows.Bluetooth
 
                 if (HasServiceName(serviceName) && deviceInfo.Id.Contains("RFCOMM"))
                 {
+                    ResultCollection.TryAdd(deviceInfo.Id, new dd()
+                    {
+                        DeviceInformation = deviceInfo,
+                        ServiceName = serviceName,
+                        RfcommDeviceService = s.Item1
+                    });
                     Logger?.LogInformation($"[Device added] {deviceInfo.Id}, {deviceInfo.Name}");
                     return;
                 }
@@ -303,32 +317,34 @@ namespace SyncDevice.Windows.Bluetooth
             return bluetoothDevice;
         }
 
-        public async Task<BluetoothWindowsChannel> Connect(DeviceInformation deviceInfoDisp)
+        public async Task<BluetoothWindowsChannel> Connect(dd s)
         {
-            BluetoothDevice = await CreateBluetoothDevice(deviceInfoDisp);
-
-            if (BluetoothDevice != null)
+            if (s.RfcommDeviceService == null)
             {
-                var s = await GetRfcommDeviceService(BluetoothDevice);
-
-                RfcommDeviceService rfcommDeviceService = s?.Item1;
-
-                if (rfcommDeviceService != null)
+                BluetoothDevice = await CreateBluetoothDevice(s.DeviceInformation);
+                if (BluetoothDevice != null)
                 {
-                    var channel = new BluetoothWindowsChannel(this, rfcommDeviceService.ConnectionHostName.DisplayName, rfcommDeviceService) 
-                    { 
-                        Logger = Logger, 
-                        SessionName = GetSessionName(s?.Item2)
-                    };
-
-                    RegisterChannel(channel, Pin);
-
-                    return channel;
+                    var sss = await GetRfcommDeviceService(BluetoothDevice);
+                    s.RfcommDeviceService = sss.Item1;
+                    s.ServiceName = sss.Item2;
                 }
+            }
+
+            if (s.RfcommDeviceService != null)
+            {
+                var channel = new BluetoothWindowsChannel(this, s.RfcommDeviceService.ConnectionHostName.DisplayName, s.RfcommDeviceService)
+                {
+                    Logger = Logger,
+                    SessionName = GetSessionName(s.ServiceName)
+                };
+
+                RegisterChannel(channel, Pin);
+
+                return channel;
             }
             else
             {
-                Logger?.LogError($"Bluetooth Device is null? {deviceInfoDisp}");
+                Logger?.LogError($"Bluetooth Device is null? {s.DeviceInformation}");
             }
             return null;
         }
