@@ -208,21 +208,24 @@ namespace SyncDevice.Windows.Bluetooth
         {
             var b = await CreateBluetoothDevice(deviceInfo);
 
-            if (b != null)
+            if (deviceInfo.Id.Contains("RFCOMM"))
             {
-                var s = await GetRfcommDeviceService(b);
-                var serviceName = s?.Item2;
-
-                if (HasServiceName(serviceName) && deviceInfo.Id.Contains("RFCOMM"))
+                if (b != null)
                 {
-                    ResultCollection.TryAdd(deviceInfo.Id, new dd()
+                    var s = await GetRfcommDeviceService(b);
+                    var serviceName = s?.Item2;
+
+                    if (s.Item1 != null && HasServiceName(serviceName) && deviceInfo.Id.Contains("RFCOMM"))
                     {
-                        DeviceInformation = deviceInfo,
-                        ServiceName = serviceName,
-                        RfcommDeviceService = s.Item1
-                    });
-                    Logger?.LogInformation($"[Device added] {deviceInfo.Id}, {deviceInfo.Name}");
-                    return;
+                        ResultCollection.TryAdd(deviceInfo.Id, new dd()
+                        {
+                            DeviceInformation = deviceInfo,
+                            ServiceName = serviceName,
+                            RfcommDeviceService = s.Item1
+                        });
+                        Logger?.LogInformation($"[Device added] {deviceInfo.Id}, {deviceInfo.Name}");
+                        return;
+                    }
                 }
             }
             Logger?.LogInformation($"[Device NOT added] {deviceInfo.Id}, {deviceInfo.Name}");
