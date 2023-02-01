@@ -9,26 +9,47 @@ namespace SyncDevice.Windows.Bluetooth
 {
     public class PeerToPeerConnection : IComparable
     {
-        public string SesionNameA { get; set; }
-        public string SesionNameB { get; set; }
+        private readonly string SessionName;
+        public readonly string SessionNameA;
+        public readonly string SessionNameB;
 
-        private static bool AreSame(PeerToPeerConnection a, PeerToPeerConnection b)
+        protected PeerToPeerConnection(string sessionNameA, string sessionNameB)
         {
-            return (a.SesionNameA == b.SesionNameA && a.SesionNameB == b.SesionNameB) ||
-                   (a.SesionNameA == b.SesionNameB && a.SesionNameB == b.SesionNameA);
+            if (string.Compare( sessionNameA, sessionNameB) <=0)
+                SessionName = sessionNameA + " - " + sessionNameB;
+            else
+                SessionName = sessionNameB + " - " + sessionNameA;
+            SessionNameA = sessionNameA;
+            SessionNameB = sessionNameB;
         }
+
+        public static PeerToPeerConnection Create(string sesionNameA,string SesionNameB)
+        {
+            if (string.IsNullOrEmpty(sesionNameA)) throw new ArgumentNullException(nameof(sesionNameA));
+            if (string.IsNullOrEmpty(SesionNameB)) throw new ArgumentNullException(nameof(SesionNameB));
+            return new PeerToPeerConnection(sesionNameA, SesionNameB);
+        }
+
+        public static PeerToPeerConnection Create(ISyncDevice syncDevice)
+        {
+            return PeerToPeerConnection.Create(
+                    syncDevice.SessionName,
+                    (syncDevice as BluetoothWindowsChannel).Creator.SessionName);
+        }
+
+        public override int GetHashCode() => SessionName.GetHashCode();
 
         public override bool Equals(object obj)
         {
             if (obj is PeerToPeerConnection peerToPeerConnection)
-                return AreSame(this, peerToPeerConnection); 
+                return string.Compare(SessionName, peerToPeerConnection.SessionName) == 0;
             return false;
         }
 
         public int CompareTo(object obj)
         {
-            if (obj is PeerToPeerConnection peerToPeerConnection && AreSame(this, peerToPeerConnection))
-                return 0;
+            if (obj is PeerToPeerConnection peerToPeerConnection)
+                return string.Compare(SessionName, peerToPeerConnection.SessionName);
             return -1;
         }
     }
@@ -52,7 +73,7 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 bluetoothWindowsClient = new BluetoothWindowsClient() { Logger = Logger, ServiceName = ServiceName };
                 bluetoothWindowsClient.OnConnectionStarted += BluetoothPeerToPeer_OnConnectionStarted;
-                bluetoothWindowsClient.OnDeviceDisconnected += BluetoothPeerToPeer_OnDeviceDisconnected;
+                //bluetoothWindowsClient.OnDeviceDisconnected += BluetoothPeerToPeer_OnDeviceDisconnected;
              //   bluetoothWindowsClient.OnStatus += BluetoothPeerToPeer_OnStatus;
                 /*                bluetoothWindowsClient.OnMessageReceived += BluetoothWindowsClient_OnMessage;
                                 bluetoothWindowsClient.OnError += BluetoothWindowsClient_OnError;
@@ -70,13 +91,7 @@ namespace SyncDevice.Windows.Bluetooth
         {
             if (syncDevice != bluetoothWindowsClient && syncDevice != bluetoothWindowsServer)
             {
-                PeerToPeerConnection peerToPeerConnection = new PeerToPeerConnection()
-                {
-                    SesionNameA = syncDevice.SessionName,
-                    SesionNameB = (syncDevice as BluetoothWindowsChannel).Creator.SessionName
-                };
-
-                if (PeerToPeerConnections.TryAdd(peerToPeerConnection, syncDevice))
+                if (PeerToPeerConnections.TryAdd(PeerToPeerConnection.Create(syncDevice), syncDevice))
                 {
                     syncDevice.OnMessageReceived += BluetoothPeerToPeer_OnMessageReceived;
                     syncDevice.OnDeviceDisconnected += BluetoothPeerToPeer_OnDeviceDisconnected;
@@ -100,13 +115,7 @@ namespace SyncDevice.Windows.Bluetooth
             }
             else
             {
-                PeerToPeerConnection peerToPeerConnection = new PeerToPeerConnection()
-                {
-                    SesionNameA = syncDevice.SessionName,
-                    SesionNameB = (syncDevice as BluetoothWindowsChannel).Creator.SessionName
-                };
-
-                if (PeerToPeerConnections.TryRemove(peerToPeerConnection, out var sd))
+                if (PeerToPeerConnections.TryRemove(PeerToPeerConnection.Create(syncDevice), out var sd))
                 {
                     sd.OnMessageReceived -= BluetoothPeerToPeer_OnMessageReceived;
                     sd.OnDeviceDisconnected -= BluetoothPeerToPeer_OnDeviceDisconnected;
@@ -128,7 +137,7 @@ namespace SyncDevice.Windows.Bluetooth
             if (_bluetoothWindowsClient != null)
             {
                 _bluetoothWindowsClient.OnConnectionStarted -= BluetoothPeerToPeer_OnConnectionStarted;
-                _bluetoothWindowsClient.OnDeviceDisconnected -= BluetoothPeerToPeer_OnDeviceDisconnected;
+             //   _bluetoothWindowsClient.OnDeviceDisconnected -= BluetoothPeerToPeer_OnDeviceDisconnected;
                 // bluetoothWindowsClient.OnStatus -= BluetoothPeerToPeer_OnStatus;
                 return _bluetoothWindowsClient?.StopAsync(reason);
             }
@@ -144,7 +153,7 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 bluetoothWindowsServer = new BluetoothWindowsServer() { Logger = Logger, ServiceName = ServiceName };
                 bluetoothWindowsServer.OnConnectionStarted += BluetoothPeerToPeer_OnConnectionStarted;
-                bluetoothWindowsServer.OnDeviceDisconnected += BluetoothPeerToPeer_OnDeviceDisconnected;
+              //  bluetoothWindowsServer.OnDeviceDisconnected += BluetoothPeerToPeer_OnDeviceDisconnected;
               //  bluetoothWindowsServer.OnStatus += BluetoothPeerToPeer_OnStatus;
                 //bluetoothWindowsServer.OnConnectionStarted += BluetoothWindowsServer_OnConnectionStarted;
                 //bluetoothWindowsServer.OnMessageSent += BluetoothWindowsServer_OnMessageSent;
@@ -205,7 +214,7 @@ namespace SyncDevice.Windows.Bluetooth
             if (_bluetoothWindowsServer != null)
             {
                 _bluetoothWindowsServer.OnConnectionStarted -= BluetoothPeerToPeer_OnConnectionStarted;
-                _bluetoothWindowsServer.OnDeviceDisconnected -= BluetoothPeerToPeer_OnDeviceDisconnected;
+              //  _bluetoothWindowsServer.OnDeviceDisconnected -= BluetoothPeerToPeer_OnDeviceDisconnected;
 
                 //  bluetoothWindowsServer.OnStatus -= BluetoothPeerToPeer_OnStatus;
 
