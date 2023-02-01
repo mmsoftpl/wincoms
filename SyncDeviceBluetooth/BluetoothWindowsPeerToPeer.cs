@@ -159,7 +159,7 @@ namespace SyncDevice.Windows.Bluetooth
             if (_bluetoothWindowsServer != null)
             {
                 _bluetoothWindowsServer.OnConnectionStarted -= BluetoothPeerToPeer_OnConnectionStarted;
-                bluetoothWindowsServer.OnDeviceDisconnected -= BluetoothWindowsServer_OnDeviceDisconnected;
+                _bluetoothWindowsServer.OnDeviceDisconnected -= BluetoothWindowsServer_OnDeviceDisconnected;
                 return _bluetoothWindowsServer?.StopAsync(reason);
             }
             return Task.CompletedTask;
