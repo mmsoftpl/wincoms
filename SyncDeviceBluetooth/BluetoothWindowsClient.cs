@@ -114,18 +114,20 @@ namespace SyncDevice.Windows.Bluetooth
 
                 if (ConnectStrategy == ConnectStrategy.ScanDevices)
                 {
-                    var b = Task.Run(() => CreateBluetoothDevice(deviceInfo)).Result;
+                    ResultCollection.TryAdd(deviceInfo.Id, deviceInfo);
+                    /*var b = Task.Run(() => CreateBluetoothDevice(deviceInfo)).Result;
                     if (b != null)
                     {
                         var s = Task.Run(() => GetRfcommDeviceService(b)).Result;
                         serviceName = s?.Item2;
-                    }
+                    }*/
+                    Logger?.LogInformation($"[Device added] {deviceInfo.Id}, {deviceInfo.Name}");
                 }
-
+                else
                 if (HasServiceName(serviceName) && deviceInfo.Id.Contains("RFCOMM"))
                 {
                     ResultCollection.TryAdd(deviceInfo.Id, deviceInfo);
-                    Logger?.LogInformation($"[Device added] {deviceInfo.Id}, {deviceInfo.Name}");
+                    Logger?.LogInformation($"[Service added] {deviceInfo.Id}, {deviceInfo.Name}");
                 }
             });
 
@@ -312,6 +314,10 @@ namespace SyncDevice.Windows.Bluetooth
 
                     return channel;
                 }
+            }
+            else
+            {
+                Logger?.LogError($"Bluetooth Device is null? {deviceInfoDisp}");
             }
             return null;
         }

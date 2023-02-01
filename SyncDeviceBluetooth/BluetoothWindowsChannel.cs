@@ -93,8 +93,8 @@ namespace SyncDevice.Windows.Bluetooth
                     var serverHandshakeMessage = HandshakeMessage.DecodeMessage(await WaitForMessageAsync(reader));
                     if (serverHandshakeMessage != null)
                     {
-                       // SessionName = serverHandshakeMessage.SessionName;
-                        _ = WriteMessageAsync(Writer, HandshakeMessage.EncodeMessage(Pin, SessionName), false);
+                        //SessionName = serverHandshakeMessage.SessionName;
+                        _ = WriteMessageAsync(Writer, HandshakeMessage.EncodeMessage(Pin, Creator.SessionName), false);
                         return true;
                     }
                     else
