@@ -114,14 +114,7 @@ namespace SyncDevice.Windows.Bluetooth
 
                 if (ConnectStrategy == ConnectStrategy.ScanDevices)
                 {
-                    ResultCollection.TryAdd(deviceInfo.Id, deviceInfo);
-                    /*var b = Task.Run(() => CreateBluetoothDevice(deviceInfo)).Result;
-                    if (b != null)
-                    {
-                        var s = Task.Run(() => GetRfcommDeviceService(b)).Result;
-                        serviceName = s?.Item2;
-                    }*/
-                    Logger?.LogInformation($"[Device added] {deviceInfo.Id}, {deviceInfo.Name}");
+                    AddDeviceIfService(deviceInfo).Wait();
                 }
                 else
                 if (HasServiceName(serviceName) && deviceInfo.Id.Contains("RFCOMM"))
@@ -201,6 +194,24 @@ namespace SyncDevice.Windows.Bluetooth
             
             deviceWatcher.Start();
             
+        }
+
+        private async Task AddDeviceIfService(DeviceInformation deviceInfo)
+        {
+            var b = await CreateBluetoothDevice(deviceInfo);
+
+            if (b != null)
+            {
+                var s = await GetRfcommDeviceService(b);
+                var serviceName = s?.Item2;
+
+                if (HasServiceName(serviceName) && deviceInfo.Id.Contains("RFCOMM"))
+                {
+                    Logger?.LogInformation($"[Device added] {deviceInfo.Id}, {deviceInfo.Name}");
+                    return;
+                }
+            }
+            Logger?.LogInformation($"[Device NOT added] {deviceInfo.Id}, {deviceInfo.Name}");
         }
 
         private async Task<Tuple<RfcommDeviceService,string>> GetRfcommDeviceService(BluetoothDevice bluetoothDevice)
