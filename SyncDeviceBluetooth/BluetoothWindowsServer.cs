@@ -157,6 +157,7 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 Logger?.LogError(e.Message);
                 Disconnect("OnConnectionReceived exception");
+                RaiseOnDeviceDisconnected(this);
                 return;
             }
 
@@ -193,7 +194,15 @@ namespace SyncDevice.Windows.Bluetooth
 
             if (rfcommProvider != null)
             {
-                rfcommProvider.StopAdvertising();
+                try
+                {
+                    rfcommProvider.StopAdvertising();
+                }
+                catch (Exception e)
+                {
+                    Logger?.LogError(e, "StopAdvertising error");
+                    RaiseOnError("Disconnect/StopAdvertising error");
+                }
                 rfcommProvider = null;
             }
 
