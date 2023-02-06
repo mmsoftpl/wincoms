@@ -146,7 +146,7 @@ namespace SyncDevice.Windows.Bluetooth
 
             Array.Copy(strBytes, bytes, strBytes.Length);
 
-            Guid guid = new Guid(bytes.Reverse().ToArray());
+            Guid guid = new Guid(bytes);
 
             return guid;
         }
