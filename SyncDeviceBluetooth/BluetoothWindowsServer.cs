@@ -67,7 +67,7 @@ namespace SyncDevice.Windows.Bluetooth
         /// </summary>
         private async Task InitializeRfcommServer()
         {
-            rfcommProvider = await BluetoothStartAction(()=>RfcommServiceProvider.CreateAsync(RfcommServiceId.FromUuid(RfcommChatServiceUuid(ServiceName))).AsTask());
+            rfcommProvider = await BluetoothStartAction(()=>RfcommServiceProvider.CreateAsync(RfcommServiceId.FromUuid(RfcommChatServiceUuid)).AsTask());
 
             if (rfcommProvider != null)
             {

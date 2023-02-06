@@ -134,21 +134,30 @@ namespace SyncDevice.Windows.Bluetooth
         public virtual Task RestartAsync(string reason) { throw new NotImplementedException(); }
 
         public abstract Task StopAsync(string reason);
-
-        // The Chat Server's custom service Uuid: 34B1CF4D-1069-4AD6-89B6-E161D79BE4D8
-       // public static readonly Guid _RfcommChatServiceUuid = Guid.Parse("34B1CF4D-1069-4AD6-89B6-E161D79BE4D8");
+        
         public static readonly Guid BluetoothProtocolId = Guid.Parse("e0cbf06c-cd8b-4647-bb8a-263b43f0f974");
 
-        public static Guid RfcommChatServiceUuid(string sessionName)
+        // The Chat Server's custom service Uuid, based on ServiceName
+        public Guid RfcommChatServiceUuid
         {
-            byte[] bytes = new byte[16];
-            byte[] strBytes = Encoding.ASCII.GetBytes(sessionName);
+            get
+            {
+                if (!string.IsNullOrEmpty(ServiceName))
+                {
+                    byte[] bytes = new byte[16];
+                    byte[] strBytes = Encoding.ASCII.GetBytes(ServiceName);
+                    if (strBytes.Length > bytes.Length)
+                        throw new ArgumentException("Service name is too long");
 
-            Array.Copy(strBytes, bytes, strBytes.Length);
+                    Array.Copy(strBytes, bytes, strBytes.Length);
 
-            Guid guid = new Guid(bytes);
+                    Guid guid = new Guid(bytes);
 
-            return guid;
+                    return guid;
+                }
+                else
+                    return Guid.Parse("34B1CF4D-1069-4AD6-89B6-E161D79BE4D8");
+            }
         }
 
         // The Id of the Service Name SDP attribute
