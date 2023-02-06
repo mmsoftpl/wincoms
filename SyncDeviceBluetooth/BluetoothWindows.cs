@@ -169,7 +169,8 @@ namespace SyncDevice.Windows.Bluetooth
         //    -  the SDP Attribute Type value in the most significant 5 bits.
         protected const byte SdpServiceNameAttributeType = (4 << 3) | 5;
 
-        public bool HasServiceName(string serviceName) => serviceName?.ToUpper().Contains(ServiceName.ToUpper()) == true;
+        //public bool HasServiceName(string serviceName) => serviceName?.ToUpper().Contains(ServiceName.ToUpper()) == true;
+        public bool HasServiceName(string serviceName) => serviceName?.ToUpper().StartsWith(ServiceName.ToUpper()) == true;
 
         public string GetSessionName(string serviceName)
         {

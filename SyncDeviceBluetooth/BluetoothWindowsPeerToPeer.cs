@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -229,6 +230,7 @@ namespace SyncDevice.Windows.Bluetooth
                     {
                         await StartPublishingSignatureAsync();
                         await StartHosting();
+                        await StopScanningForServerSignatures("Starting in server mode, no need to scan for other servers");
                     }
                     else
                     {

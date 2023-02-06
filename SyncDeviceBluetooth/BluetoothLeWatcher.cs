@@ -225,7 +225,7 @@ namespace SyncDevice.Windows.Bluetooth
 
                 string s = Encoding.ASCII.GetString(data, 2, data.Length - 2);
 
-                if (HasServiceName(s))
+                if ( HasServiceName(s))
                 {
                     SignatureDetails signatureDetails = new SignatureDetails()
                     {

@@ -86,8 +86,8 @@ namespace SyncDevice.Windows.Bluetooth
             string[] requestedProperties = new string[] { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
 
             //string asqFilter = $"(System.Devices.AepService.ProtocolId:=\"{BluetoothProtocolId}\" AND\r\nSystem.Devices.AepService.ServiceClassId:=\"{RfcommChatServiceUuid}\")";
-            //string asqFilter = $"(System.Devices.AepService.ProtocolId:=\"{{{BluetoothProtocolId}}}\")";
-            string asqFilter = $"(System.Devices.AepService.ServiceClassId:=\"{{{RfcommChatServiceUuid}}}\")";
+            string asqFilter = $"(System.Devices.AepService.ProtocolId:=\"{{{BluetoothProtocolId}}}\")";
+            //string asqFilter = $"(System.Devices.AepService.ServiceClassId:=\"{{{RfcommChatServiceUuid}}}\")";
 
             if (ConnectStrategy == ConnectStrategy.ScanDevices)
             {
