@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.Rfcomm;
 using Windows.Networking.Sockets;
@@ -78,6 +79,7 @@ namespace SyncDevice.Windows.Bluetooth
                 if (handshakeMessage != null && handshakeMessage.Pin == Pin)
                 {
                     SessionName = handshakeMessage.SessionName;
+                    Creator.SessionName = SessionName;
                     return true;
                 }
                 else
@@ -133,7 +135,7 @@ namespace SyncDevice.Windows.Bluetooth
                 {                    
                     string message = await WaitForMessageAsync(reader);
                     if (message != null)
-                        RaiseOnMessageReceived(message);
+                        RaiseOnMessageReceived(message, this);
                     else break;
                 }
                 // Catch exception HRESULT_FROM_WIN32(ERROR_OPERATION_ABORTED).
@@ -160,10 +162,10 @@ namespace SyncDevice.Windows.Bluetooth
 
         public BluetoothWindows Creator { get; set; }
 
-        internal override void RaiseOnMessageReceived(string message)
+        internal override void RaiseOnMessageReceived(string message, ISyncDevice device)
         {
-            base.RaiseOnMessageReceived(message);
-            Creator?.RaiseOnMessageReceived(message);
+            base.RaiseOnMessageReceived(message, device);
+            Creator?.RaiseOnMessageReceived(message, device);
         }
 
         internal override void RaiseOnMessageSent(string message)
@@ -212,7 +214,9 @@ namespace SyncDevice.Windows.Bluetooth
 
         public override Task SendMessageAsync(string message, string[] recipients= null)
         {
-            return WriteMessageAsync(Writer, message, true);
+            if (recipients == null || recipients.Contains(SessionName))
+                return WriteMessageAsync(Writer, message, true);
+            return Task.CompletedTask;
         }
 
 

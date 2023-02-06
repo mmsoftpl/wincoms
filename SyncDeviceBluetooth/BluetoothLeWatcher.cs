@@ -247,7 +247,7 @@ namespace SyncDevice.Windows.Bluetooth
                         RaiseOnStatus(Status);
 
                         if (signatureDetails.Message!=null)
-                            RaiseOnMessageReceived(signatureDetails.Message);
+                            RaiseOnMessageReceived(signatureDetails.Message, this);
                     }
                 }
             }

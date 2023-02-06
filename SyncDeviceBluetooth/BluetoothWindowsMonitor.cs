@@ -177,7 +177,7 @@ namespace SyncDevice.Windows.Bluetooth
 
         private void BluetoothWindowsClient_OnMessage(object sender, MessageEventArgs e)
         {
-            RaiseOnMessageReceived(e.Message);
+            RaiseOnMessageReceived(e.Message, this);
         }
 
         private Task DisconnectFromHost(string reason)

@@ -108,7 +108,7 @@ namespace SyncDevice.Windows.Bluetooth
 
         private void BluetoothPeerToPeer_OnMessageReceived(object sender, MessageEventArgs e)
         {
-            RaiseOnMessageReceived(e.Message);
+            RaiseOnMessageReceived(e.Message, sender as ISyncDevice);
         }
 
         private Task DisconnectFromHost(string reason)

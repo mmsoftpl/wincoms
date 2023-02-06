@@ -43,9 +43,9 @@ namespace SyncDevice.Windows.Bluetooth
         public event OnDeviceDisconnected OnDeviceDisconnected;
         public event OnDeviceError OnError;
 
-        internal virtual void RaiseOnMessageReceived(string message) => OnMessageReceived?.Invoke(this, new MessageEventArgs()
+        internal virtual void RaiseOnMessageReceived(string message, ISyncDevice device) => OnMessageReceived?.Invoke(this, new MessageEventArgs()
         {
-            SyncDevice = this,
+            SyncDevice = device,
             Message = message
         });
 
@@ -122,7 +122,9 @@ namespace SyncDevice.Windows.Bluetooth
             if (!string.IsNullOrEmpty(message))
             {
                 foreach (var writer in Channels.Values)
-                    await writer.SendMessageAsync(message);
+                {
+                    await writer.SendMessageAsync(message, recipients);
+                }
             }
         }
 
