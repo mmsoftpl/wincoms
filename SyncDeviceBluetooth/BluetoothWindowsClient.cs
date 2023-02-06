@@ -85,7 +85,7 @@ namespace SyncDevice.Windows.Bluetooth
             // Request additional properties
             string[] requestedProperties = new string[] { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
 
-            string asqFilter = $"(System.Devices.AepService.ProtocolId:=\"{BluetoothProtocolId}\" AND\r\nSystem.Devices.AepService.ServiceClassId:=\"{RfcommChatServiceUuid}\")";
+            string asqFilter = $"(System.Devices.AepService.ProtocolId:=\"{BluetoothProtocolId}\" AND\r\nSystem.Devices.AepService.ServiceClassId:=\"{RfcommChatServiceUuid(ServiceName)}\")";
             asqFilter = $"(System.Devices.AepService.ProtocolId:=\"{{{BluetoothProtocolId}}}\")";
 
             if (ConnectStrategy == ConnectStrategy.ScanDevices)
@@ -207,7 +207,7 @@ namespace SyncDevice.Windows.Bluetooth
 
             // This should return a list of uncached Bluetooth services (so if the server was not active when paired, it will still be detected by this call
             var rfcommServicesTask = bluetoothDevice.GetRfcommServicesForIdAsync(
-                RfcommServiceId.FromUuid(RfcommChatServiceUuid), BluetoothCacheMode.Uncached).AsTask();
+                RfcommServiceId.FromUuid(RfcommChatServiceUuid(ServiceName)), BluetoothCacheMode.Uncached).AsTask();
 
             rfcommServicesTask.Wait();
 
