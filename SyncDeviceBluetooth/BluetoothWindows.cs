@@ -156,7 +156,7 @@ namespace SyncDevice.Windows.Bluetooth
                     return guid;
                 }
                 else
-                    return Guid.Parse("34B1CF4D-1069-4AD6-89B6-E161D79BE4D8");
+                    return Guid.Parse("34B1CF4D-1069-4AD6-89B6-E161D79BE4D8"); //othw, some custom GUID
             }
         }
 

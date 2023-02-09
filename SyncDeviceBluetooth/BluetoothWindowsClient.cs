@@ -20,24 +20,13 @@ namespace SyncDevice.Windows.Bluetooth
     {
         private DeviceWatcher deviceWatcher = null;
         private BluetoothDevice BluetoothDevice = null;
-       // private BluetoothLePublisher bluetoothLePublisher = null;
         public override bool IsHost { get => false; }
 
         public ConnectStrategy ConnectStrategy = ConnectStrategy.ScanServices;
 
-        //private Task StartLePublisherAsync(string sessionName)
-        //{
-        //    var clientMacAddress = string.Join(",", BluetoothAdapters().Select(a => a.GetPhysicalAddress().ToString().Replace(":", "")));
-        //    var clientSignature = clientMacAddress + "|" + sessionName;
-
-        //    bluetoothLePublisher = new BluetoothLePublisher() { Logger = Logger, ServiceName = ServiceName, SessionName = clientSignature };
-        //    return bluetoothLePublisher.StartAsync(clientSignature, null, "Publishing LE signature");
-        //}
-
         public override async Task StartAsync(string sessionName, string pin, string reason)
         {
             Pin = pin;
-           // await StartLePublisherAsync(sessionName);
 
             SessionName = sessionName;
             ConnectStrategy = ConnectStrategy.ScanServices;
@@ -67,8 +56,6 @@ namespace SyncDevice.Windows.Bluetooth
 
         internal override void RaiseOnConnectionStarted(ISyncDevice device)
         {
-            //StopLePublisher();
-           // StopWatcher();
             base.RaiseOnConnectionStarted(device);
         }
 
@@ -87,7 +74,6 @@ namespace SyncDevice.Windows.Bluetooth
 
             //string asqFilter = $"(System.Devices.AepService.ProtocolId:=\"{BluetoothProtocolId}\" AND\r\nSystem.Devices.AepService.ServiceClassId:=\"{RfcommChatServiceUuid}\")";
             string asqFilter = $"(System.Devices.AepService.ProtocolId:=\"{{{BluetoothProtocolId}}}\")";
-            //string asqFilter = $"(System.Devices.AepService.ServiceClassId:=\"{{{RfcommChatServiceUuid}}}\")";
 
             if (ConnectStrategy == ConnectStrategy.ScanDevices)
             {
@@ -113,12 +99,6 @@ namespace SyncDevice.Windows.Bluetooth
                 if (ConnectStrategy == ConnectStrategy.ScanDevices)
                 {
                     ResultCollection.TryAdd(deviceInfo.Id, deviceInfo);
-                    /*var b = Task.Run(() => CreateBluetoothDevice(deviceInfo)).Result;
-                    if (b != null)
-                    {
-                        var s = Task.Run(() => GetRfcommDeviceService(b)).Result;
-                        serviceName = s?.Item2;
-                    }*/
                     Logger?.LogInformation($"[Device added] {deviceInfo.Id}, {deviceInfo.Name}");
                 }
                 else
@@ -318,7 +298,7 @@ namespace SyncDevice.Windows.Bluetooth
 
             if (null != w)
             {
-                Logger?.LogTrace("Stopping DeviceWatcher watcher"); 
+                Logger?.LogTrace("Stopping DeviceWatcher"); 
                 if ((DeviceWatcherStatus.Started == w.Status ||
                      DeviceWatcherStatus.EnumerationCompleted == w.Status))
                 {
@@ -328,21 +308,9 @@ namespace SyncDevice.Windows.Bluetooth
             }
         }
 
-        //private void StopLePublisher()
-        //{
-        //    if (bluetoothLePublisher != null)
-        //    {
-        //        Logger?.LogTrace("Stopping Bluetooth LE Publisher watcher");
-        //        bluetoothLePublisher?.StopAsync(null);
-        //        bluetoothLePublisher = null;
-        //    }
-        //}
-
         public void Disconnect(string disconnectReason)
         {
             StopWatcher();
-            
-          //  StopLePublisher();
 
             ClearChannels();
 

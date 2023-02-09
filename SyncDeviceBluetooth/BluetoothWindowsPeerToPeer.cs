@@ -19,14 +19,14 @@ namespace SyncDevice.Windows.Bluetooth
                 bluetoothWindowsClient.OnConnectionStarted += BluetoothPeerToPeer_OnConnectionStarted;
                 bluetoothWindowsClient.OnError += BluetoothWindowsClient_OnError;
                 bluetoothWindowsClient.OnDeviceDisconnected += BluetoothWindowsClient_OnDeviceDisconnected;
-                return bluetoothWindowsClient.StartAsync(SessionName, Pin, $"Other server found. Starting in client mode.");
+                return bluetoothWindowsClient.StartAsync(SessionName, Pin, $"Starting client");
             }
             return Task.CompletedTask;
         }
 
         private async void BluetoothWindowsClient_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
         {
-            await DisconnectFromHost("Restarting after client disconnected");
+            await DisconnectFromHost("Restarting client after disconnected");
             await ConnectToHost();         
         }
 
@@ -99,14 +99,14 @@ namespace SyncDevice.Windows.Bluetooth
                 bluetoothWindowsServer.OnConnectionStarted += BluetoothPeerToPeer_OnConnectionStarted;
                 bluetoothWindowsServer.OnError += BluetoothWindowsServer_OnError;
                 bluetoothWindowsServer.OnDeviceDisconnected += BluetoothWindowsServer_OnDeviceDisconnected;
-                return bluetoothWindowsServer.StartAsync(SessionName, Pin, $"No server found. Starting in server mode.");
+                return bluetoothWindowsServer.StartAsync(SessionName, Pin, $"Starting server");
             }
             return Task.CompletedTask;
         }
 
         private async void BluetoothWindowsServer_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
         {
-            await StopHosting("Restarting after server disconnected");
+            await StopHosting("Restarting server after disconnected");
             await StartHosting();
         }
 
@@ -156,6 +156,10 @@ namespace SyncDevice.Windows.Bluetooth
             Status = SyncDeviceStatus.Stopped;
             await StopHosting(reason);
             await DisconnectFromHost(reason);
+            foreach(var c in Channels)
+            {
+                await c.Value.StopAsync(reason);
+            }
             ClearChannels();
         }
 
