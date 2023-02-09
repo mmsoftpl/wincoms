@@ -165,29 +165,23 @@ namespace SyncDevice.Windows.Bluetooth
                     }
                 }
 
-                if (Channels.Count == 0)
+                if (Channels.Count == 0 && ConnectStrategy == ConnectStrategy.ScanServices)
                 {
-                    //if (bluetoothLePublisher?.LastError == BluetoothError.RadioNotAvailable)
-                    //{
-                    //    RaiseOnError($"Make sure your Bluetooth Radio is on; '{bluetoothLePublisher.LastError}'");
-                    //    Disconnect(null);
-                    //}
-                    //else
-                    if (ConnectStrategy == ConnectStrategy.ScanDevices)
-                        {
-                            Status = SyncDeviceStatus.Stopped;
-                            Disconnect($"Could not discover {SdpServiceName}");
-                            RaiseOnError("No hosting sessions in range?");
-                        }
-                        else
                     if (ConnectStrategy == ConnectStrategy.ScanServices)
                     {
+                        deviceWatcher.Stop();
                         ConnectStrategy = ConnectStrategy.ScanDevices;
-                        RestartAsync("Restart in scan mode");
+                        deviceWatcher.Start();
                     }
                 }
                 else
-                    StopWatcher();
+                    if (Channels.Count > 0)
+                        StopWatcher();
+                else
+                {
+                    deviceWatcher.Stop();
+                    deviceWatcher.Start();
+                }
 
             });
 
@@ -309,9 +303,8 @@ namespace SyncDevice.Windows.Bluetooth
                         SessionName = GetSessionName(s?.Item2)
                     };
 
-                    RegisterChannel(channel, Pin);
-
-                    return channel;
+                    if (RegisterChannel(channel, Pin))
+                        return channel;
                 }
             }
             else
