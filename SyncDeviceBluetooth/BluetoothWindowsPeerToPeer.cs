@@ -45,10 +45,10 @@ namespace SyncDevice.Windows.Bluetooth
                 if (Channels.TryAdd(ConnectionId.Create(SessionName, syncDevice.SessionName).SessionName, bluetoothWindowsChannel))
                 {
                     bluetoothWindowsChannel.Creator.UnRegisterChannel(bluetoothWindowsChannel);
-                    bluetoothWindowsChannel.Creator = this;                   
+                    bluetoothWindowsChannel.Creator = this;
 
-                    syncDevice.OnMessageReceived += BluetoothPeerToPeer_OnMessageReceived;
-                    syncDevice.OnDeviceDisconnected += BluetoothPeerToPeer_OnDeviceDisconnected;
+                    bluetoothWindowsChannel.OnMessageReceived += BluetoothPeerToPeer_OnMessageReceived;
+                    bluetoothWindowsChannel.OnDeviceDisconnected += BluetoothPeerToPeer_OnDeviceDisconnected;
                     RaiseOnConnectionStarted(syncDevice);
                 }
                 else
@@ -58,20 +58,11 @@ namespace SyncDevice.Windows.Bluetooth
 
         private void BluetoothPeerToPeer_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
         {
-            string k = null;
-            foreach(var c in Channels)
-                if (c.Value== syncDevice)
-                {
-                    k = c.Key;
-                }
-            if (k != null)
+            if (Channels.TryRemove(ConnectionId.Create(SessionName, syncDevice.SessionName).SessionName, out var bluetoothWindowsChannel))
             {
-                if (Channels.TryRemove(k, out var bluetoothWindowsChannel))
-                {
-                    bluetoothWindowsChannel.OnMessageReceived -= BluetoothPeerToPeer_OnMessageReceived;
-                    bluetoothWindowsChannel.OnDeviceDisconnected -= BluetoothPeerToPeer_OnDeviceDisconnected;
-                    RaiseOnDeviceDisconnected(bluetoothWindowsChannel);
-                }
+                bluetoothWindowsChannel.OnMessageReceived -= BluetoothPeerToPeer_OnMessageReceived;
+                bluetoothWindowsChannel.OnDeviceDisconnected -= BluetoothPeerToPeer_OnDeviceDisconnected;
+                RaiseOnDeviceDisconnected(bluetoothWindowsChannel);
             }
             else
                 Logger.LogWarning($"Unable to remove channel from list? {syncDevice.SessionName}");
@@ -150,7 +141,8 @@ namespace SyncDevice.Windows.Bluetooth
                 Pin = pin;
 
                 await StartHosting();
-                await ConnectToHost();
+                await ConnectToHost(); 
+                Status = SyncDeviceStatus.Started;
             }
         }
 
@@ -161,11 +153,10 @@ namespace SyncDevice.Windows.Bluetooth
 
         public override async Task StopAsync(string reason)
         {
-
-            ClearChannels();
             Status = SyncDeviceStatus.Stopped;
             await StopHosting(reason);
             await DisconnectFromHost(reason);
+            ClearChannels();
         }
 
         public override async Task RestartAsync(string reason)
