@@ -147,11 +147,16 @@ namespace SyncDevice.Windows.Bluetooth
             if (!string.IsNullOrEmpty(ServiceName))
             {
                 byte[] bytes = new byte[16];
-                byte[] strBytes = Encoding.ASCII.GetBytes(ServiceName);
-                if (strBytes.Length > bytes.Length)
-                    throw new ArgumentException("Service name is too long");
+                byte[] serviceNameBytes = Encoding.ASCII.GetBytes(ServiceName);
+                if (serviceNameBytes.Length > 8)
+                    throw new ArgumentException($"Service name is too long ({serviceNameBytes.Length})");
 
-                Array.Copy(strBytes, bytes, strBytes.Length);
+                byte[] sessionNameBytes = Encoding.ASCII.GetBytes(SessionName.ToString());
+                if (sessionNameBytes.Length > 8)
+                    throw new ArgumentException($"Session name is too long ({sessionNameBytes.Length})");
+
+                Array.Copy(serviceNameBytes, bytes, serviceNameBytes.Length);
+                Array.Copy(sessionNameBytes, 0, bytes, 8, sessionNameBytes.Length);
 
                 bytes[bytes.Length-1] = order.Value;
 
