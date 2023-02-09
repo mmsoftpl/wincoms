@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SyncDevice.Windows.Bluetooth
@@ -24,10 +25,24 @@ namespace SyncDevice.Windows.Bluetooth
             return Task.CompletedTask;
         }
 
-        private async void BluetoothWindowsClient_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
+        CancellationTokenSource StartConnectToHostCancelationTokenSource;
+        private async Task ReConnectToHostHosting()
         {
+            StartConnectToHostCancelationTokenSource?.Cancel();
             await DisconnectFromHost("Restarting client after disconnected");
-            await ConnectToHost();         
+
+            StartConnectToHostCancelationTokenSource = new CancellationTokenSource();
+            var token = StartConnectToHostCancelationTokenSource.Token;
+
+            await Task.Delay(3000, token);
+            if (!token.IsCancellationRequested)
+                await ConnectToHost();
+        }
+
+
+        private void BluetoothWindowsClient_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
+        {
+            _ = ReConnectToHostHosting();
         }
 
         private void BluetoothWindowsClient_OnError(object sender, string error)
@@ -90,7 +105,7 @@ namespace SyncDevice.Windows.Bluetooth
         #endregion       
 
         #region Bluetooth Server
-
+        
         private Task StartHosting()
         {
             if (bluetoothWindowsServer == null)
@@ -103,11 +118,24 @@ namespace SyncDevice.Windows.Bluetooth
             }
             return Task.CompletedTask;
         }
-
-        private async void BluetoothWindowsServer_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
+        
+        CancellationTokenSource StartHostingCancelationTokenSource;
+        private async Task ReStartHosting()
         {
+            StartHostingCancelationTokenSource?.Cancel();
             await StopHosting("Restarting server after disconnected");
-            await StartHosting();
+            
+            StartHostingCancelationTokenSource = new CancellationTokenSource();
+            var token = StartHostingCancelationTokenSource.Token;
+
+            await Task.Delay(3000, token);
+            if (!token.IsCancellationRequested)
+                await StartHosting();
+        }
+
+        private void BluetoothWindowsServer_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
+        {
+            _ = ReStartHosting();
         }
 
         private void BluetoothWindowsServer_OnError(object sender, string error)
@@ -132,7 +160,7 @@ namespace SyncDevice.Windows.Bluetooth
 
         #endregion  
 
-        public async Task startAsync(string sessionName, string pin, int delayMs = 2000)
+        public override async Task StartAsync(string sessionName, string pin, string reason)
         {
             if (Status == SyncDeviceStatus.Stopped)
             {
@@ -141,14 +169,9 @@ namespace SyncDevice.Windows.Bluetooth
                 Pin = pin;
 
                 await StartHosting();
-                await ConnectToHost(); 
+                await ConnectToHost();
                 Status = SyncDeviceStatus.Started;
             }
-        }
-
-        public override Task StartAsync(string sessionName, string pin, string reason)
-        {
-            return startAsync(sessionName, pin);
         }
 
         public override async Task StopAsync(string reason)
@@ -166,13 +189,8 @@ namespace SyncDevice.Windows.Bluetooth
 
         public override async Task RestartAsync(string reason)
         {
-            bool wasHosting = IsHost;
-
             await StopAsync(reason);
-            if (wasHosting)
-                await startAsync(SessionName, Pin, 1000);
-            else
-                await startAsync(SessionName, Pin, 3000);
+            await StartAsync(SessionName, Pin, reason);
         }
 
         public override async Task SendMessageAsync(string message, string[] recipients = null)
