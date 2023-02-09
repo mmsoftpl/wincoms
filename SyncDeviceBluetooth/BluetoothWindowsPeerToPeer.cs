@@ -31,7 +31,8 @@ namespace SyncDevice.Windows.Bluetooth
 
         private void BluetoothWindowsClient_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
         {
-            _ = RestartAsync("Restarting after client disconnected");           
+            bluetoothWindowsClient?.FindDevices();
+            //_ = RestartAsync("Restarting after client disconnected");           
         }
 
         private void BluetoothWindowsClient_OnError(object sender, string error)
@@ -103,7 +104,7 @@ namespace SyncDevice.Windows.Bluetooth
 
         private void BluetoothWindowsServer_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
         {
-            _= RestartAsync("Restarting after server disconnected");
+           // _= RestartAsync("Restarting after server disconnected");
         }
 
         private void BluetoothWindowsServer_OnError(object sender, string error)

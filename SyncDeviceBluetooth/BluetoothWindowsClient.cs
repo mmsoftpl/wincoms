@@ -68,7 +68,7 @@ namespace SyncDevice.Windows.Bluetooth
         internal override void RaiseOnConnectionStarted(ISyncDevice device)
         {
             //StopLePublisher();
-            StopWatcher();
+            //            StopWatcher();
             base.RaiseOnConnectionStarted(device);
         }
 
@@ -157,7 +157,6 @@ namespace SyncDevice.Windows.Bluetooth
 
                     if (channel != null)
                     {
-                        StopWatcher();
                         Logger?.LogInformation($"Connected to {deviceInfo.Name}...");
 
                         Status = channel.Status;
@@ -187,7 +186,9 @@ namespace SyncDevice.Windows.Bluetooth
                         RestartAsync("Restart in scan mode");
                     }
                 }
-                
+                else
+                    StopWatcher();
+
             });
 
             deviceWatcher.Stopped += new TypedEventHandler<DeviceWatcher, object>((watcher, obj) =>
