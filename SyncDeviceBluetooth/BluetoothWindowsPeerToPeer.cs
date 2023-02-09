@@ -158,6 +158,7 @@ namespace SyncDevice.Windows.Bluetooth
             await DisconnectFromHost(reason);
             foreach(var c in Channels)
             {
+                c.Value.Creator = null;
                 await c.Value.StopAsync(reason);
             }
             ClearChannels();
