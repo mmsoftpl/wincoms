@@ -42,7 +42,7 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 BluetoothWindowsChannel bluetoothWindowsChannel = syncDevice as BluetoothWindowsChannel;
                 
-                if (Channels.TryAdd(ConnectionId.Create(syncDevice).SessionName, bluetoothWindowsChannel))
+                if (Channels.TryAdd(ConnectionId.Create(SessionName, syncDevice.SessionName).SessionName, bluetoothWindowsChannel))
                 {
                     bluetoothWindowsChannel.Creator.UnRegisterChannel(bluetoothWindowsChannel);
                     bluetoothWindowsChannel.Creator = this;                   
