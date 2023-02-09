@@ -137,6 +137,7 @@ namespace SyncDevice.Windows.Bluetooth
                 Pin = pin;
 
                 await StartHosting();
+                await Task.Delay(delayMs);
                 await ConnectToHost();
             }
         }

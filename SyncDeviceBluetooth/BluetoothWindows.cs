@@ -28,7 +28,7 @@ namespace SyncDevice.Windows.Bluetooth
         protected string Pin { get; set; }
         public string DeviceId { get; internal set; }
 
-        const string DefaultServiceName = "EFM";
+        const string DefaultServiceName = "EFM:DEM";
         const string DefaultSessionName = "XYZ";
 
         public string ServiceName { get; set; } = DefaultServiceName;
