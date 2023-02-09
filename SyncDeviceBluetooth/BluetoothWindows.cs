@@ -218,6 +218,15 @@ namespace SyncDevice.Windows.Bluetooth
             }
         }
 
+        public BluetoothWindowsChannel UnRegisterChannel(BluetoothWindowsChannel channel)
+        {
+            if (Channels.TryRemove(channel.DeviceId, out var v))
+            {
+                return v;
+            }
+            return null;
+        }
+
         protected void ClearChannels()
         {
             foreach (var w in Channels.Values)

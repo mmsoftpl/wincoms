@@ -1,6 +1,8 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
+using System.Runtime.Remoting.Channels;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,8 +14,8 @@ namespace SyncDevice.Windows.Bluetooth
         private BluetoothWindowsServer bluetoothWindowsServer;
 
         public override bool IsHost => bluetoothWindowsServer?.IsHost ?? bluetoothWindowsClient?.IsHost ?? false;
-        private readonly ConcurrentDictionary<ConnectionId, ISyncDevice> PeerToPeerConnections = new ConcurrentDictionary<ConnectionId, ISyncDevice>();
-        public override IList<ISyncDevice> Connections => PeerToPeerConnections.Values.ToList();
+//        private readonly ConcurrentDictionary<ConnectionId, BluetoothWindowsChannel> PeerToPeerConnections = new ConcurrentDictionary<ConnectionId, BluetoothWindowsChannel>();
+    //    public override IList<ISyncDevice> Connections => PeerToPeerConnections.Values.Cast<ISyncDevice>().ToList();
       
         #region Bluetooth Client
         private Task ConnectToHost()
@@ -29,10 +31,10 @@ namespace SyncDevice.Windows.Bluetooth
             return Task.CompletedTask;
         }
 
-        private void BluetoothWindowsClient_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
+        private async void BluetoothWindowsClient_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
         {
-            bluetoothWindowsClient?.FindDevices();
-            //_ = RestartAsync("Restarting after client disconnected");           
+            await DisconnectFromHost("Restarting after client disconnected");
+            await ConnectToHost();         
         }
 
         private void BluetoothWindowsClient_OnError(object sender, string error)
@@ -45,8 +47,13 @@ namespace SyncDevice.Windows.Bluetooth
         {
             if (syncDevice != bluetoothWindowsClient && syncDevice != bluetoothWindowsServer)
             {
-                if (PeerToPeerConnections.TryAdd(ConnectionId.Create(syncDevice), syncDevice))
+                BluetoothWindowsChannel bluetoothWindowsChannel = syncDevice as BluetoothWindowsChannel;
+
+                if (Channels.TryAdd(ConnectionId.Create(syncDevice).SessionName, bluetoothWindowsChannel))
                 {
+                    bluetoothWindowsChannel.Creator.UnRegisterChannel(bluetoothWindowsChannel);
+                    bluetoothWindowsChannel.Creator = this;                   
+
                     syncDevice.OnMessageReceived += BluetoothPeerToPeer_OnMessageReceived;
                     syncDevice.OnDeviceDisconnected += BluetoothPeerToPeer_OnDeviceDisconnected;
                     RaiseOnConnectionStarted(syncDevice);
@@ -58,11 +65,11 @@ namespace SyncDevice.Windows.Bluetooth
 
         private void BluetoothPeerToPeer_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
         {
-            if (PeerToPeerConnections.TryRemove(ConnectionId.Create(syncDevice), out var sd))
+            if (Channels.TryRemove(ConnectionId.Create(syncDevice).SessionName, out var bluetoothWindowsChannel))
             {
-                sd.OnMessageReceived -= BluetoothPeerToPeer_OnMessageReceived;
-                sd.OnDeviceDisconnected -= BluetoothPeerToPeer_OnDeviceDisconnected;
-                RaiseOnDeviceDisconnected(sd);
+                bluetoothWindowsChannel.OnMessageReceived -= BluetoothPeerToPeer_OnMessageReceived;
+                bluetoothWindowsChannel.OnDeviceDisconnected -= BluetoothPeerToPeer_OnDeviceDisconnected;
+                RaiseOnDeviceDisconnected(bluetoothWindowsChannel);
             }
         }
 
@@ -102,9 +109,10 @@ namespace SyncDevice.Windows.Bluetooth
             return Task.CompletedTask;
         }
 
-        private void BluetoothWindowsServer_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
+        private async void BluetoothWindowsServer_OnDeviceDisconnected(object sender, ISyncDevice syncDevice)
         {
-           // _= RestartAsync("Restarting after server disconnected");
+            await StopHosting("Restarting after server disconnected");
+            await StartHosting();
         }
 
         private void BluetoothWindowsServer_OnError(object sender, string error)
@@ -138,7 +146,6 @@ namespace SyncDevice.Windows.Bluetooth
                 Pin = pin;
 
                 await StartHosting();
-                await Task.Delay(delayMs);
                 await ConnectToHost();
             }
         }
@@ -150,6 +157,8 @@ namespace SyncDevice.Windows.Bluetooth
 
         public override async Task StopAsync(string reason)
         {
+
+            ClearChannels();
             Status = SyncDeviceStatus.Stopped;
             await StopHosting(reason);
             await DisconnectFromHost(reason);

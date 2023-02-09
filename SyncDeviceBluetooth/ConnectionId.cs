@@ -5,7 +5,6 @@ namespace SyncDevice.Windows
 {
     public class ConnectionId : IComparable
     {
-        private readonly string SessionName;
         public readonly string SessionNameA;
         public readonly string SessionNameB;
 
@@ -48,5 +47,7 @@ namespace SyncDevice.Windows
                 return string.Compare(SessionName, peerToPeerConnection.SessionName);
             return -1;
         }
+
+        public string SessionName { get; private set; }
     }
 }

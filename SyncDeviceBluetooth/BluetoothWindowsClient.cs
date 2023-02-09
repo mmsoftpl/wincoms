@@ -68,7 +68,7 @@ namespace SyncDevice.Windows.Bluetooth
         internal override void RaiseOnConnectionStarted(ISyncDevice device)
         {
             //StopLePublisher();
-            //            StopWatcher();
+           // StopWatcher();
             base.RaiseOnConnectionStarted(device);
         }
 
@@ -157,6 +157,7 @@ namespace SyncDevice.Windows.Bluetooth
 
                     if (channel != null)
                     {
+                     //   StopWatcher();
                         Logger?.LogInformation($"Connected to {deviceInfo.Name}...");
 
                         Status = channel.Status;
@@ -165,24 +166,20 @@ namespace SyncDevice.Windows.Bluetooth
                     }
                 }
 
-                if (Channels.Count == 0 && ConnectStrategy == ConnectStrategy.ScanServices)
+                if (ConnectStrategy == ConnectStrategy.ScanDevices)
                 {
-                    if (ConnectStrategy == ConnectStrategy.ScanServices)
-                    {
-                        deviceWatcher.Stop();
-                        ConnectStrategy = ConnectStrategy.ScanDevices;
-                        deviceWatcher.Start();
-                    }
+                    Status = SyncDeviceStatus.Stopped;
+                    Disconnect($"Could not discover {SdpServiceName}");
+                    RaiseOnError("No hosting sessions in range?");
                 }
                 else
-                    if (Channels.Count > 0)
-                        StopWatcher();
-                else
+                if (ConnectStrategy == ConnectStrategy.ScanServices)
                 {
-                    deviceWatcher.Stop();
-                    deviceWatcher.Start();
+                    ConnectStrategy = ConnectStrategy.ScanDevices;
+                    Status = SyncDeviceStatus.Created;
+                    FindDevices();
                 }
-
+                
             });
 
             deviceWatcher.Stopped += new TypedEventHandler<DeviceWatcher, object>((watcher, obj) =>
@@ -303,8 +300,9 @@ namespace SyncDevice.Windows.Bluetooth
                         SessionName = GetSessionName(s?.Item2)
                     };
 
-                    if (RegisterChannel(channel, Pin))
-                        return channel;
+                    RegisterChannel(channel, Pin);
+
+                    return channel;
                 }
             }
             else
@@ -316,13 +314,15 @@ namespace SyncDevice.Windows.Bluetooth
 
         private void StopWatcher()
         {
-            if (null != deviceWatcher)
+            var w = deviceWatcher;
+
+            if (null != w)
             {
                 Logger?.LogTrace("Stopping DeviceWatcher watcher"); 
-                if ((DeviceWatcherStatus.Started == deviceWatcher.Status ||
-                     DeviceWatcherStatus.EnumerationCompleted == deviceWatcher.Status))
+                if ((DeviceWatcherStatus.Started == w.Status ||
+                     DeviceWatcherStatus.EnumerationCompleted == w.Status))
                 {
-                    deviceWatcher.Stop();
+                    w.Stop();
                 }
                 deviceWatcher = null;
             }
