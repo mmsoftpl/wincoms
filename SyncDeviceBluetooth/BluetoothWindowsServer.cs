@@ -35,13 +35,34 @@ namespace SyncDevice.Windows.Bluetooth
             return Task.CompletedTask;
         }
 
+        private static readonly Guid ServiceUuid = Guid.NewGuid();
+
+        // The Chat Server's custom service Uuid, based on ServiceName+SessionName
+        public Guid RfcommChatServiceUuid
+        {
+            get
+            {
+                if (!string.IsNullOrEmpty(ServiceName))
+                {
+                    byte[] bytes = new byte[16];
+                    byte[] serviceNameBytes = System.Text.Encoding.ASCII.GetBytes((ServiceName + SessionName).GetHashCode().ToString());
+                    Array.Copy(serviceNameBytes, bytes, serviceNameBytes.Length);
+                    Guid guid = new Guid(bytes);
+
+                    return guid;
+                }
+                else
+                    return ServiceUuid;
+            }
+        }
+
         /// <summary>
         /// Initializes the server using RfcommServiceProvider to advertise the Chat Service UUID and start listening
         /// for incoming connections.
         /// </summary>
         private async Task InitializeRfcommServer()
         {
-            rfcommProvider = await BluetoothStartAction(()=>RfcommServiceProvider.CreateAsync(RfcommServiceId.FromUuid(GetRfcommChatServiceUuid(null))).AsTask());
+            rfcommProvider = await BluetoothStartAction(()=>RfcommServiceProvider.CreateAsync(RfcommServiceId.FromUuid(RfcommChatServiceUuid)).AsTask());
 
             if (rfcommProvider != null)
             {

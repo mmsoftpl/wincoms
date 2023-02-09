@@ -190,12 +190,11 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 if (rfcommDeviceService != null)
                 {
-                    var s = rfcommDeviceService.ConnectionServiceName;
-
                     // Do various checks of the SDP record to make sure you are talking to a device that actually supports the Bluetooth Rfcomm Chat Service
-                    var attributes = await rfcommDeviceService.GetSdpRawAttributesAsync(BluetoothCacheMode.Uncached);
+                    var attributes = await rfcommDeviceService.GetSdpRawAttributesAsync();
                     if (!attributes.ContainsKey(SdpServiceNameAttributeId))
                     {
+                        continue;
                         Logger?.LogError(
                             "The Chat service is not advertising the Service Name attribute (attribute id=0x100). " +
                             "Please verify that you are running the BluetoothRfcommChat server.");
@@ -205,6 +204,7 @@ namespace SyncDevice.Windows.Bluetooth
                     var attributeType = attributeReader.ReadByte();
                     if (attributeType != SdpServiceNameAttributeType)
                     {
+                        continue;
                         Logger?.LogError(
                             "The Chat service is using an unexpected format for the Service Name attribute. " +
                             "Please verify that you are running the BluetoothRfcommChat server.");
