@@ -190,8 +190,10 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 if (rfcommDeviceService != null)
                 {
+                    var s = rfcommDeviceService.ConnectionServiceName;
+
                     // Do various checks of the SDP record to make sure you are talking to a device that actually supports the Bluetooth Rfcomm Chat Service
-                    var attributes = await rfcommDeviceService.GetSdpRawAttributesAsync();
+                    var attributes = await rfcommDeviceService.GetSdpRawAttributesAsync(BluetoothCacheMode.Uncached);
                     if (!attributes.ContainsKey(SdpServiceNameAttributeId))
                     {
                         Logger?.LogError(
