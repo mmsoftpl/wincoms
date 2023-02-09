@@ -137,29 +137,32 @@ namespace SyncDevice.Windows.Bluetooth
         
         public static readonly Guid BluetoothProtocolId = Guid.Parse("e0cbf06c-cd8b-4647-bb8a-263b43f0f974");
 
+
+        public static byte ServiceOrder = 0;
         // The Chat Server's custom service Uuid, based on ServiceName
-        public Guid RfcommChatServiceUuid
+        public Guid GetRfcommChatServiceUuid(byte? order)
         {
-            get
+            if (order == null)
+                order = ServiceOrder;
+            if (!string.IsNullOrEmpty(ServiceName))
             {
-                if (!string.IsNullOrEmpty(ServiceName))
-                {
-                    byte[] bytes = new byte[16];
-                    byte[] strBytes = Encoding.ASCII.GetBytes(ServiceName);
-                    if (strBytes.Length > bytes.Length)
-                        throw new ArgumentException("Service name is too long");
+                byte[] bytes = new byte[16];
+                byte[] strBytes = Encoding.ASCII.GetBytes(ServiceName);
+                if (strBytes.Length > bytes.Length)
+                    throw new ArgumentException("Service name is too long");
 
-                    Array.Copy(strBytes, bytes, strBytes.Length);
+                Array.Copy(strBytes, bytes, strBytes.Length);
 
-                    Guid guid = new Guid(bytes);
+                bytes[bytes.Length-1] = order.Value;
 
-                    return guid;
-                }
-                else
-                    return Guid.Parse("34B1CF4D-1069-4AD6-89B6-E161D79BE4D8"); //othw, some custom GUID
+                Guid guid = new Guid(bytes);
+
+                return guid;
             }
+            else
+                return Guid.Parse("34B1CF4D-1069-4AD6-89B6-E161D79BE4D8"); //othw, some custom GUID
         }
-
+        
         // The Id of the Service Name SDP attribute
         protected const ushort SdpServiceNameAttributeId = 0x100;
 

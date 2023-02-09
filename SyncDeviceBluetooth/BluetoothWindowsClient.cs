@@ -22,14 +22,14 @@ namespace SyncDevice.Windows.Bluetooth
         private BluetoothDevice BluetoothDevice = null;
         public override bool IsHost { get => false; }
 
-        public ConnectStrategy ConnectStrategy = ConnectStrategy.ScanServices;
+        public ConnectStrategy ConnectStrategy = ConnectStrategy.ScanDevices;
 
         public override async Task StartAsync(string sessionName, string pin, string reason)
         {
             Pin = pin;
 
             SessionName = sessionName;
-            ConnectStrategy = ConnectStrategy.ScanServices;
+            ConnectStrategy = ConnectStrategy.ScanDevices;
             await RestartAsync(reason);
         }
 
@@ -178,18 +178,23 @@ namespace SyncDevice.Windows.Bluetooth
             if (bluetoothDevice == null)
                 return null;
 
-            // This should return a list of uncached Bluetooth services (so if the server was not active when paired, it will still be detected by this call
-            var rfcommServicesTask = bluetoothDevice.GetRfcommServicesForIdAsync(
-                RfcommServiceId.FromUuid(RfcommChatServiceUuid), BluetoothCacheMode.Uncached).AsTask();
-
-            rfcommServicesTask.Wait();
-
-            var rfcommServices = rfcommServicesTask.Result;
             RfcommDeviceService rfcommDeviceService = null;
+            for (byte b = 0; b < 10; b++)
+            {
+                // This should return a list of uncached Bluetooth services (so if the server was not active when paired, it will still be detected by this call
+                var rfcommServicesTask = bluetoothDevice.GetRfcommServicesForIdAsync(
+                    RfcommServiceId.FromUuid(GetRfcommChatServiceUuid(b)), BluetoothCacheMode.Uncached).AsTask();
 
-            if (rfcommServices.Services.Count > 0)
-                rfcommDeviceService = rfcommServices.Services[0];
+                rfcommServicesTask.Wait();
 
+                var rfcommServices = rfcommServicesTask.Result;
+
+                if (rfcommServices.Services.Count > 0)
+                {
+                    rfcommDeviceService = rfcommServices.Services[0];
+                    break;
+                }
+            }
             string serviceName = string.Empty;
 
             if (rfcommDeviceService != null)
