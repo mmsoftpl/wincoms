@@ -84,7 +84,7 @@ namespace WindowsFormsApp1
         private string ConnectionId(ISyncDevice syncDevice)
         {
             if (syncDevice != null)
-                return syncDevice.SessionName + " - " + syncDevice.DeviceId;
+                return syncDevice.SessionName + " - " + syncDevice.NetworkId;
             return null;
         }
 

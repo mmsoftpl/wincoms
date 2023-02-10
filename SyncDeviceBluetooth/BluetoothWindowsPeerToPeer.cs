@@ -16,7 +16,7 @@ namespace SyncDevice.Windows.Bluetooth
         {
             if (bluetoothWindowsClient == null)
             {
-                bluetoothWindowsClient = new BluetoothWindowsClient() { Logger = Logger, ServiceName = ServiceName };
+                bluetoothWindowsClient = new BluetoothWindowsClient() { Logger = Logger, GroupName = GroupName };
                 bluetoothWindowsClient.OnDeviceConnecting += BluetoothWindowsClient_OnDeviceConnecting;
                 bluetoothWindowsClient.OnConnectionStarted += BluetoothPeerToPeer_OnConnectionStarted;
                 bluetoothWindowsClient.OnError += BluetoothWindowsClient_OnError;
@@ -32,7 +32,7 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 if (c.Value is BluetoothWindowsChannel  bluetoothWindowsChannel)
                 {
-                    if (bluetoothWindowsChannel.DeviceId == e.SyncDevice.DeviceId)
+                    if (bluetoothWindowsChannel.NetworkId == e.SyncDevice.NetworkId)
                     {
                         e.Cancel = true;
                         break;
@@ -128,7 +128,7 @@ namespace SyncDevice.Windows.Bluetooth
         {
             if (bluetoothWindowsServer == null)
             {
-                bluetoothWindowsServer = new BluetoothWindowsServer() { Logger = Logger, ServiceName = ServiceName };
+                bluetoothWindowsServer = new BluetoothWindowsServer() { Logger = Logger, GroupName = GroupName };
                 bluetoothWindowsServer.OnConnectionStarted += BluetoothPeerToPeer_OnConnectionStarted;
                 bluetoothWindowsServer.OnDeviceConnecting += BluetoothWindowsClient_OnDeviceConnecting;
                 bluetoothWindowsServer.OnError += BluetoothWindowsServer_OnError;

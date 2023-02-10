@@ -120,12 +120,12 @@ namespace SyncDevice.Windows.Bluetooth
 
             if (await WaitForHandshakeMessage(reader))
             {
-                Logger?.LogInformation("Connection accepted, " + DeviceId);
+                Logger?.LogInformation("Connection accepted, " + NetworkId);
                 RaiseOnConnectionStarted(this);
             }
             else
             {
-                await StopAsync("Connection not accepted, " + DeviceId);
+                await StopAsync("Connection not accepted, " + NetworkId);
                 return;
             }
 
@@ -154,7 +154,7 @@ namespace SyncDevice.Windows.Bluetooth
 
             reader.DetachStream();
             RaiseOnDeviceDisconnected(this);
-            Logger?.LogInformation($"Client {DeviceId} disconnected");
+            Logger?.LogInformation($"Client {NetworkId} disconnected");
         }
 
         public DataWriter Writer { get; set; }
@@ -207,7 +207,7 @@ namespace SyncDevice.Windows.Bluetooth
             isHost = creator.IsHost;
             Creator = creator;
             Socket = streamSocket;
-            DeviceId = deviceId;
+            NetworkId = deviceId;
             Status = SyncDeviceStatus.Created;
         }
 
@@ -216,7 +216,7 @@ namespace SyncDevice.Windows.Bluetooth
             isHost = creator.IsHost;
             Creator = creator;
             ChatService = chatService;
-            DeviceId = deviceId;
+            NetworkId = deviceId;
             Status = SyncDeviceStatus.Created;
         }
 

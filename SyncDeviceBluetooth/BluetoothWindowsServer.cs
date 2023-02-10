@@ -42,10 +42,10 @@ namespace SyncDevice.Windows.Bluetooth
         {
             get
             {
-                if (!string.IsNullOrEmpty(ServiceName))
+                if (!string.IsNullOrEmpty(GroupName))
                 {
                     byte[] bytes = new byte[16];
-                    byte[] serviceNameBytes = System.Text.Encoding.ASCII.GetBytes((ServiceName + SessionName).GetHashCode().ToString());
+                    byte[] serviceNameBytes = System.Text.Encoding.ASCII.GetBytes((GroupName + SessionName).GetHashCode().ToString());
                     Array.Copy(serviceNameBytes, bytes, serviceNameBytes.Length);
                     Guid guid = new Guid(bytes);
 

@@ -51,9 +51,9 @@ namespace SyncDevice
 
         string SessionName { get; }
 
-        string ServiceName { get;set; }
+        string GroupName { get;set; }
 
-        string DeviceId { get; }
+        string NetworkId { get; }
 
         IList<ISyncDevice> Connections { get; }
 

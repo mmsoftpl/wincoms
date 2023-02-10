@@ -43,11 +43,11 @@ namespace SyncDevice.Windows.Bluetooth
 
                 if (bluetoothWindowsServer?.Connections?.Count > 0)
                     foreach (var connection in bluetoothWindowsServer.Connections)
-                        connections.Add(ToUlong( connection.DeviceId), connection);
+                        connections.Add(ToUlong( connection.NetworkId), connection);
 
                 if (bluetoothWindowsClient?.Connections?.Count > 0)
                     foreach (var connection in bluetoothWindowsClient.Connections)
-                        connections.Add(ToUlong(connection.DeviceId), connection);
+                        connections.Add(ToUlong(connection.NetworkId), connection);
 
                 if (bluetoothLeWatcher != null)
                 {
@@ -73,7 +73,7 @@ namespace SyncDevice.Windows.Bluetooth
                 bluetoothLeWatcher.OnError += BluetoothLeWatcher_OnError;
                 bluetoothLeWatcher.OnStatus += BluetoothLeWatcher_OnStatus;
                 bluetoothLeWatcher.OnMessageReceived += BluetoothLeWatcher_OnMessage;
-                return bluetoothLeWatcher.StartAsync(SessionName, null, $"Start scanning for '{ServiceName}' signatures");
+                return bluetoothLeWatcher.StartAsync(SessionName, null, $"Start scanning for '{GroupName}' signatures");
             }
             return Task.CompletedTask;
         }
@@ -125,7 +125,7 @@ namespace SyncDevice.Windows.Bluetooth
 
             if (bluetoothLePublisher == null)
             {
-                bluetoothLePublisher = new BluetoothLePublisher() { Logger = Logger, ServiceName = ServiceName, SessionName = clientSignature };
+                bluetoothLePublisher = new BluetoothLePublisher() { Logger = Logger, GroupName = GroupName, SessionName = clientSignature };
                 return bluetoothLePublisher.StartAsync(clientSignature, null, $"Start publishing signature");
             }
             else

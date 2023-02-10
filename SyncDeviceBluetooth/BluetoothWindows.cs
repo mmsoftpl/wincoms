@@ -26,7 +26,7 @@ namespace SyncDevice.Windows.Bluetooth
         public abstract bool IsHost { get; }
 
         protected string Pin { get; set; }
-        public string DeviceId 
+        public string NetworkId 
         { 
             get; 
             internal set; 
@@ -35,7 +35,7 @@ namespace SyncDevice.Windows.Bluetooth
         const string DefaultServiceName = "EFM:DEM";
         const string DefaultSessionName = "XYZ";
 
-        public string ServiceName { get; set; } = DefaultServiceName;
+        public string GroupName { get; set; } = DefaultServiceName;
         public string SessionName { get; internal set; } = DefaultSessionName;
 
         public ILogger Logger { get; set; }
@@ -95,9 +95,9 @@ namespace SyncDevice.Windows.Bluetooth
 
             if (device is BluetoothWindowsChannel channel)
             {
-                if (Channels.TryRemove(channel.DeviceId, out var writer))
+                if (Channels.TryRemove(channel.NetworkId, out var writer))
                 {
-                    writer.StopAsync($"Stoping & removing {writer.DeviceId} from directory");
+                    writer.StopAsync($"Stoping & removing {writer.NetworkId} from directory");
                 }
             }
         }
@@ -155,7 +155,7 @@ namespace SyncDevice.Windows.Bluetooth
         protected const byte SdpServiceNameAttributeType = (4 << 3) | 5;
 
         //public bool HasServiceName(string serviceName) => serviceName?.ToUpper().Contains(ServiceName.ToUpper()) == true;
-        public bool HasServiceName(string serviceName) => serviceName?.ToUpper().StartsWith(ServiceName.ToUpper()) == true;
+        public bool HasServiceName(string serviceName) => serviceName?.ToUpper().StartsWith(GroupName.ToUpper()) == true;
 
         public string GetSessionName(string serviceName)
         {
@@ -172,7 +172,7 @@ namespace SyncDevice.Windows.Bluetooth
         {
             get
             {
-                var sn = $"{ServiceName ?? DefaultServiceName}|{SessionName ?? DefaultSessionName}";
+                var sn = $"{GroupName ?? DefaultServiceName}|{SessionName ?? DefaultSessionName}";
                 if (sn.Length > 23)
                     sn = sn.Substring(0, 23);
                 return sn;
@@ -185,14 +185,14 @@ namespace SyncDevice.Windows.Bluetooth
 
         protected bool RegisterChannel(BluetoothWindowsChannel channel, string pin)
         {
-            if (!Channels.TryAdd(channel.DeviceId, channel))
+            if (!Channels.TryAdd(channel.NetworkId, channel))
             {
-                Logger?.LogInformation($"Channel {channel?.DeviceId} already registered?");
+                Logger?.LogInformation($"Channel {channel?.NetworkId} already registered?");
                 return false;
             }
             else
             {
-                Logger?.LogInformation($"Channel {channel?.DeviceId} registered");
+                Logger?.LogInformation($"Channel {channel?.NetworkId} registered");
                 RaiseOnDeviceConnected(channel);
 
                 if (!string.IsNullOrEmpty(pin))
@@ -205,7 +205,7 @@ namespace SyncDevice.Windows.Bluetooth
 
         public BluetoothWindowsChannel UnRegisterChannel(BluetoothWindowsChannel channel)
         {
-            if (Channels.TryRemove(channel.DeviceId, out var v))
+            if (Channels.TryRemove(channel.NetworkId, out var v))
             {
                 return v;
             }
