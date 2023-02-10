@@ -18,7 +18,7 @@ namespace SyncDevice.Windows.Bluetooth
             set
             {
                 status = value;
-                OnStatus?.Invoke(this, status);
+                RaiseOnStatus(status);
             }
         }
 

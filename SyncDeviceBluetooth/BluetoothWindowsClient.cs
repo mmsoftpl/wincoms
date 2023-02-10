@@ -129,7 +129,10 @@ namespace SyncDevice.Windows.Bluetooth
 
             deviceWatcher.EnumerationCompleted += new TypedEventHandler<DeviceWatcher, object>((watcher, obj) =>
             {
-                Logger?.LogInformation($"[Enumeration completed] {ResultCollection.Count} devices found");
+                if (ConnectStrategy == ConnectStrategy.ScanServices)
+                    Logger?.LogInformation($"[Enumeration completed] {ResultCollection.Count} services found");
+                else
+                    Logger?.LogInformation($"[Enumeration completed] {ResultCollection.Count} devices found");
 
                 foreach (var deviceInfo in ResultCollection.Values)
                 {
@@ -137,19 +140,17 @@ namespace SyncDevice.Windows.Bluetooth
 
                     if (channel != null)
                     {
-                     //   StopWatcher();
-                        Logger?.LogInformation($"Connected to {deviceInfo.Name}...");
+                    //    Logger?.LogInformation($"Connected to {deviceInfo.Name}...");
 
                         Status = channel.Status;
-
-                        RaiseOnDeviceConnected(this);
+                      //  RaiseOnDeviceConnected(this);
                     }
                 }
 
                 if (ConnectStrategy == ConnectStrategy.ScanDevices)
                 {
                     Status = SyncDeviceStatus.Stopped;
-                    Disconnect($"Could not discover {SdpServiceName}");
+                    Disconnect($"Fini discover {SdpServiceName}");
                     RaiseOnError("No hosting sessions in range?");
                 }
                 else
