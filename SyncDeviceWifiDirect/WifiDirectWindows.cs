@@ -23,6 +23,8 @@ namespace SyncDevice.Windows.WifiDirect
         }
 
         public bool IsHost => false;
+        public Guid? HostId { get; set; }
+
         public string NetworkId { get; internal set; }
 
         public string SessionName { get; set; }

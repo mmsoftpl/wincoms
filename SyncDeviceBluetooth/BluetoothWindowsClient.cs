@@ -166,21 +166,39 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 ResultCollection.Clear();
             });
-
-
             
-            deviceWatcher.Start();
-            
+            deviceWatcher.Start();            
         }
 
-        private async Task<Tuple<RfcommDeviceService,string>> GetRfcommDeviceService(BluetoothDevice bluetoothDevice)
+        private async Task<string> GetServiceNameAsync(RfcommDeviceService rfcommDeviceService)
+        {
+            if (rfcommDeviceService != null)
+            {
+                // Do various checks of the SDP record to make sure you are talking to a device that actually supports the Bluetooth Rfcomm Chat Service
+                var attributes = await rfcommDeviceService.GetSdpRawAttributesAsync();
+                if (!attributes.ContainsKey(SdpServiceNameAttributeId))
+                    return null;
+
+                var attributeReader = DataReader.FromBuffer(attributes[SdpServiceNameAttributeId]);
+                var attributeType = attributeReader.ReadByte();
+                if (attributeType != SdpServiceNameAttributeType)
+                    return null;
+
+                var serviceNameLength = attributeReader.ReadByte();
+                // The Service Name attribute requires UTF-8 encoding.
+                attributeReader.UnicodeEncoding = UnicodeEncoding.Utf8;
+                return attributeReader.ReadString(serviceNameLength);
+            }
+            return null;
+        }
+
+        private async Task<Tuple<RfcommDeviceService,string>> GetServiceAsync(BluetoothDevice bluetoothDevice)
         {
             if (bluetoothDevice == null)
                 return null;
 
             // This should return a list of uncached Bluetooth services (so if the server was not active when paired, it will still be detected by this call
             var rfcommServicesTask = bluetoothDevice.GetRfcommServicesAsync(BluetoothCacheMode.Uncached).AsTask();
-            //..GetRfcommServicesForIdAsync(RfcommServiceId.FromUuid(GetRfcommChatServiceUuid(b)), BluetoothCacheMode.Uncached).AsTask();
 
             rfcommServicesTask.Wait();
             
@@ -188,39 +206,10 @@ namespace SyncDevice.Windows.Bluetooth
 
             foreach (var rfcommDeviceService in rfcommServices.Services)
             {
-                if (rfcommDeviceService != null)
-                {
-                    // Do various checks of the SDP record to make sure you are talking to a device that actually supports the Bluetooth Rfcomm Chat Service
-                    var attributes = await rfcommDeviceService.GetSdpRawAttributesAsync();
-                    if (!attributes.ContainsKey(SdpServiceNameAttributeId))
-                    {
-                        continue;
-                        Logger?.LogError(
-                            "The Chat service is not advertising the Service Name attribute (attribute id=0x100). " +
-                            "Please verify that you are running the BluetoothRfcommChat server.");
-                        return null;
-                    }
-                    var attributeReader = DataReader.FromBuffer(attributes[SdpServiceNameAttributeId]);
-                    var attributeType = attributeReader.ReadByte();
-                    if (attributeType != SdpServiceNameAttributeType)
-                    {
-                        continue;
-                        Logger?.LogError(
-                            "The Chat service is using an unexpected format for the Service Name attribute. " +
-                            "Please verify that you are running the BluetoothRfcommChat server.");
-                        // ResetMainUI();
-                        return null;
-                    }
-                    var serviceNameLength = attributeReader.ReadByte();
-                    // The Service Name attribute requires UTF-8 encoding.
-                    attributeReader.UnicodeEncoding = UnicodeEncoding.Utf8;
-                    var serviceName = attributeReader.ReadString(serviceNameLength);
-
-                    if (HasServiceName(serviceName))
-                    {
-                        return new Tuple<RfcommDeviceService, string>(rfcommDeviceService, serviceName);
-                    }
-                }
+                var serviceName = await GetServiceNameAsync(rfcommDeviceService);
+                
+                if (HasServiceName(serviceName))
+                    return new Tuple<RfcommDeviceService, string>(rfcommDeviceService, serviceName);
             }
             
             return new Tuple<RfcommDeviceService, string>(null,null);
@@ -272,7 +261,7 @@ namespace SyncDevice.Windows.Bluetooth
 
             if (BluetoothDevice != null)
             {
-                var s = await GetRfcommDeviceService(BluetoothDevice);
+                var s = await GetServiceAsync(BluetoothDevice);
 
                 RfcommDeviceService rfcommDeviceService = s?.Item1;
 

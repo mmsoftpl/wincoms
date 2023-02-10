@@ -1,5 +1,6 @@
 ﻿
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -48,10 +49,11 @@ namespace SyncDevice
         SyncDeviceStatus Status { get; }
 
         bool IsHost { get; }
+        Guid? HostId { get; set; }
 
-        string SessionName { get; }
+        string SessionName { get; } // ie PilotABC
 
-        string GroupName { get;set; }
+        string GroupName { get;set; } //ie eFM:DEM
 
         string NetworkId { get; }
 

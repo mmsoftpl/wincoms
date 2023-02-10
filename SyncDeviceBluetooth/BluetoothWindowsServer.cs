@@ -42,10 +42,21 @@ namespace SyncDevice.Windows.Bluetooth
         {
             get
             {
+                if (HostId.HasValue) 
+                    return HostId.Value;
+
+                var hostIdHash = GroupName + SessionName;
+
+                if (string.IsNullOrEmpty(hostIdHash))
+                    throw new ArgumentException("Host id can't be empty");
+
+                if (hostIdHash.Length > 16)
+                    hostIdHash = hostIdHash.GetHashCode().ToString();
+
                 if (!string.IsNullOrEmpty(GroupName))
                 {
                     byte[] bytes = new byte[16];
-                    byte[] serviceNameBytes = System.Text.Encoding.ASCII.GetBytes((GroupName + SessionName).GetHashCode().ToString());
+                    byte[] serviceNameBytes = System.Text.Encoding.ASCII.GetBytes(hostIdHash);
                     Array.Copy(serviceNameBytes, bytes, serviceNameBytes.Length);
                     Guid guid = new Guid(bytes);
 

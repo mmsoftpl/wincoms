@@ -4,7 +4,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
-using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage.Streams;
 
@@ -24,6 +23,7 @@ namespace SyncDevice.Windows.Bluetooth
         }
 
         public abstract bool IsHost { get; }
+        public Guid? HostId { get; set; }
 
         protected string Pin { get; set; }
         public string NetworkId 
@@ -33,7 +33,7 @@ namespace SyncDevice.Windows.Bluetooth
         }
 
         const string DefaultServiceName = "EFM:DEM";
-        const string DefaultSessionName = "XYZ";
+        const string DefaultSessionName = "SyncDeviceDem";
 
         public string GroupName { get; set; } = DefaultServiceName;
         public string SessionName { get; internal set; } = DefaultSessionName;
