@@ -148,9 +148,9 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 socket = args.Socket;
             }
-            catch (Exception e)
+            catch (Exception exception)
             {
-                Logger?.LogError(e.Message);
+                Logger?.LogError(exception.Message);
                 Disconnect("OnConnectionReceived exception");
                 RaiseOnDeviceDisconnected(this);
                 return;
@@ -159,7 +159,7 @@ namespace SyncDevice.Windows.Bluetooth
             // Note - this is the supported way to get a Bluetooth device from a given socket
             var remoteDevice = await BluetoothDevice.FromHostNameAsync(socket.Information.RemoteHostName);
 
-            var remoteDeviceId = remoteDevice.HostName?.DisplayName?.TrimStart('(')?.TrimEnd(')');
+            var remoteDeviceId = FormatDeviceName(remoteDevice.HostName?.DisplayName);
 
             var clientSignature = remoteDeviceId?.Replace(":", "");
 
@@ -169,7 +169,13 @@ namespace SyncDevice.Windows.Bluetooth
                 SessionName = clientSignature
             };
 
-            RegisterChannel(channel, Pin);
+
+            RaiseOnDeviceConnecting(channel, out var e);
+
+            if (!e.Cancel)
+            {
+                RegisterChannel(channel, Pin);
+            }
         }
 
         protected void Disconnect(string disconnectReason)

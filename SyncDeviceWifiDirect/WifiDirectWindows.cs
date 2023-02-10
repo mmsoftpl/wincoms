@@ -38,6 +38,7 @@ namespace SyncDevice.Windows.WifiDirect
         public event OnMessageSentEventHandler OnMessageSent;
         public event OnStatusEventHandler OnStatus;
         public event OnConnectionStarted OnConnectionStarted;
+        public event OnDeviceConnecting OnDeviceConnecting;
         public event OnDeviceConnected OnDeviceConnected;
         public event OnDeviceDisconnected OnDeviceDisconnected;
         public event OnDeviceError OnError;

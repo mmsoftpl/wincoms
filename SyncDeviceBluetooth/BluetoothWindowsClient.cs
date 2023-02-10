@@ -278,15 +278,19 @@ namespace SyncDevice.Windows.Bluetooth
 
                 if (rfcommDeviceService != null)
                 {
-                    var channel = new BluetoothWindowsChannel(this, rfcommDeviceService.ConnectionHostName.DisplayName, rfcommDeviceService) 
+                    var channel = new BluetoothWindowsChannel(this, FormatDeviceName( rfcommDeviceService.ConnectionHostName.DisplayName), rfcommDeviceService) 
                     { 
                         Logger = Logger, 
                         SessionName = GetSessionName(s?.Item2)
                     };
 
-                    RegisterChannel(channel, Pin);
+                    RaiseOnDeviceConnecting(channel, out var e);
 
-                    return channel;
+                    if (!e.Cancel)
+                    {
+                        RegisterChannel(channel, Pin);
+                        return channel;
+                    }
                 }
             }
             else

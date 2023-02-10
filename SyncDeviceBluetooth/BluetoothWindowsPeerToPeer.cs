@@ -17,12 +17,29 @@ namespace SyncDevice.Windows.Bluetooth
             if (bluetoothWindowsClient == null)
             {
                 bluetoothWindowsClient = new BluetoothWindowsClient() { Logger = Logger, ServiceName = ServiceName };
+                bluetoothWindowsClient.OnDeviceConnecting += BluetoothWindowsClient_OnDeviceConnecting;
                 bluetoothWindowsClient.OnConnectionStarted += BluetoothPeerToPeer_OnConnectionStarted;
                 bluetoothWindowsClient.OnError += BluetoothWindowsClient_OnError;
                 bluetoothWindowsClient.OnDeviceDisconnected += BluetoothWindowsClient_OnDeviceDisconnected;
                 return bluetoothWindowsClient.StartAsync(SessionName, Pin, $"Starting client");
             }
             return Task.CompletedTask;
+        }
+
+        private void BluetoothWindowsClient_OnDeviceConnecting(object sender, ConnectingEventArgs e)
+        {
+            foreach(var c in Channels)
+            {
+                if (c.Value is BluetoothWindowsChannel  bluetoothWindowsChannel)
+                {
+                    if (bluetoothWindowsChannel.DeviceId == e.SyncDevice.DeviceId)
+                    {
+                        e.Cancel = true;
+                        break;
+                    }
+                }
+
+            }
         }
 
         CancellationTokenSource StartConnectToHostCancelationTokenSource;
@@ -96,6 +113,7 @@ namespace SyncDevice.Windows.Bluetooth
             if (_bluetoothWindowsClient != null)
             {
                 _bluetoothWindowsClient.OnConnectionStarted -= BluetoothPeerToPeer_OnConnectionStarted;
+                _bluetoothWindowsClient.OnDeviceConnecting -= BluetoothWindowsClient_OnDeviceConnecting; 
                 _bluetoothWindowsClient.OnDeviceDisconnected -= BluetoothWindowsClient_OnDeviceDisconnected;
                 _bluetoothWindowsClient.OnError -= BluetoothWindowsClient_OnError;
                 return _bluetoothWindowsClient?.StopAsync(reason);
@@ -112,6 +130,7 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 bluetoothWindowsServer = new BluetoothWindowsServer() { Logger = Logger, ServiceName = ServiceName };
                 bluetoothWindowsServer.OnConnectionStarted += BluetoothPeerToPeer_OnConnectionStarted;
+                bluetoothWindowsServer.OnDeviceConnecting += BluetoothWindowsClient_OnDeviceConnecting;
                 bluetoothWindowsServer.OnError += BluetoothWindowsServer_OnError;
                 bluetoothWindowsServer.OnDeviceDisconnected += BluetoothWindowsServer_OnDeviceDisconnected;
                 return bluetoothWindowsServer.StartAsync(SessionName, Pin, $"Starting server");
@@ -151,6 +170,7 @@ namespace SyncDevice.Windows.Bluetooth
             if (_bluetoothWindowsServer != null)
             {
                 _bluetoothWindowsServer.OnConnectionStarted -= BluetoothPeerToPeer_OnConnectionStarted;
+                _bluetoothWindowsServer.OnDeviceConnecting -= BluetoothWindowsClient_OnDeviceConnecting;
                 _bluetoothWindowsServer.OnError += BluetoothWindowsServer_OnError;
                 _bluetoothWindowsServer.OnDeviceDisconnected -= BluetoothWindowsServer_OnDeviceDisconnected;
                 return _bluetoothWindowsServer?.StopAsync(reason);

@@ -175,6 +175,13 @@ namespace SyncDevice.Windows.Bluetooth
             Creator?.RaiseOnMessageSent(message);
         }
 
+        internal override void RaiseOnDeviceConnecting(ISyncDevice device, out ConnectingEventArgs e)
+        {
+            base.RaiseOnDeviceConnecting(device, out e);
+            if (!e.Cancel)
+                Creator?.RaiseOnDeviceConnecting(device, out e);
+        }
+
         internal override void RaiseOnDeviceConnected(ISyncDevice device)
         {
             base.RaiseOnDeviceConnected(device);

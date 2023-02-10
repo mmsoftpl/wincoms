@@ -26,7 +26,11 @@ namespace SyncDevice.Windows.Bluetooth
         public abstract bool IsHost { get; }
 
         protected string Pin { get; set; }
-        public string DeviceId { get; internal set; }
+        public string DeviceId 
+        { 
+            get; 
+            internal set; 
+        }
 
         const string DefaultServiceName = "EFM:DEM";
         const string DefaultSessionName = "XYZ";
@@ -39,6 +43,7 @@ namespace SyncDevice.Windows.Bluetooth
         public event OnMessageReceivedEventHandler OnMessageReceived;
         public event OnMessageSentEventHandler OnMessageSent;
         public event OnStatusEventHandler OnStatus;
+        public event OnDeviceConnecting OnDeviceConnecting;
         public event OnDeviceConnected OnDeviceConnected;
         public event OnConnectionStarted OnConnectionStarted;
         public event OnDeviceDisconnected OnDeviceDisconnected;
@@ -61,11 +66,6 @@ namespace SyncDevice.Windows.Bluetooth
             OnStatus?.Invoke(this, status);
         }
 
-        internal virtual void RaiseOnConnected(ISyncDevice device)
-        {
-            OnDeviceConnected?.Invoke(this, device);
-        }
-
         internal virtual void RaiseOnError(string error)
         {
             Logger?.LogError(error);
@@ -76,6 +76,12 @@ namespace SyncDevice.Windows.Bluetooth
         {
             Status = SyncDeviceStatus.Started;
             OnConnectionStarted?.Invoke(this, device);
+        }
+
+        internal virtual void RaiseOnDeviceConnecting(ISyncDevice device, out ConnectingEventArgs e)
+        {
+            e = new ConnectingEventArgs() { SyncDevice = device, Cancel= false };
+            OnDeviceConnecting?.Invoke(this, e);
         }
 
         internal virtual void RaiseOnDeviceConnected(ISyncDevice device)
@@ -136,7 +142,9 @@ namespace SyncDevice.Windows.Bluetooth
         public abstract Task StopAsync(string reason);
         
         public static readonly Guid BluetoothProtocolId = Guid.Parse("e0cbf06c-cd8b-4647-bb8a-263b43f0f974");
-        
+
+        public static string FormatDeviceName(string displayName) => displayName?.TrimStart('(')?.TrimEnd(')');
+
         // The Id of the Service Name SDP attribute
         protected const ushort SdpServiceNameAttributeId = 0x100;
 
