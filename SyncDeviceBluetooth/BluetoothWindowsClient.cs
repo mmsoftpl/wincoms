@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;
@@ -23,6 +24,7 @@ namespace SyncDevice.Windows.Bluetooth
         public override bool IsHost { get => false; }
 
         public ConnectStrategy ConnectStrategy = ConnectStrategy.ScanServices;
+        public TimeSpan? ScanInterval { get; set; }
 
         public override async Task StartAsync(string sessionName, string pin, string reason)
         {
@@ -149,9 +151,16 @@ namespace SyncDevice.Windows.Bluetooth
 
                 if (ConnectStrategy == ConnectStrategy.ScanDevices)
                 {
-                    Status = SyncDeviceStatus.Stopped;
-                    Disconnect($"Fini discover {SdpServiceName}");
-                    RaiseOnError("No hosting sessions in range?");
+                    if (ScanInterval.HasValue)
+                    {
+                        _ = Rescan(ScanInterval.Value);
+                    }
+                    else
+                    {
+                        Status = SyncDeviceStatus.Stopped;
+                        Disconnect($"Finished discovering devices");
+                        RaiseOnError("No hosting sessions in range?");
+                    }
                 }
                 else
                 if (ConnectStrategy == ConnectStrategy.ScanServices)
@@ -169,6 +178,27 @@ namespace SyncDevice.Windows.Bluetooth
             });
             
             deviceWatcher.Start();            
+        }
+
+        CancellationTokenSource StartConnectToHostCancelationTokenSource;
+        private async Task Rescan(TimeSpan delay)
+        {
+            StartConnectToHostCancelationTokenSource?.Cancel();
+
+            if (delay > TimeSpan.Zero)
+            {
+                StartConnectToHostCancelationTokenSource = new CancellationTokenSource();
+                var token = StartConnectToHostCancelationTokenSource.Token;
+
+                await Task.Delay(delay, token);
+                if (!token.IsCancellationRequested)
+                {
+                    ConnectStrategy = ConnectStrategy.ScanServices;
+                    FindDevices();
+                }
+            }
+            else
+                FindDevices();
         }
 
         private async Task<string> GetServiceNameAsync(RfcommDeviceService rfcommDeviceService)

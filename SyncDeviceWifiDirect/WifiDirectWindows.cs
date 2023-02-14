@@ -22,6 +22,8 @@ namespace SyncDevice.Windows.WifiDirect
             }
         }
 
+        public bool Busy { get; set; }
+
         public bool IsHost => false;
         public Guid? HostId { get; set; }
 

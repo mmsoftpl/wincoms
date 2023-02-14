@@ -172,12 +172,9 @@ namespace SyncDevice.Windows.Bluetooth
 
             var remoteDeviceId = FormatDeviceName(remoteDevice.HostName?.DisplayName);
 
-            var clientSignature = remoteDeviceId?.Replace(":", "");
-
             var channel = new BluetoothWindowsChannel(this, remoteDeviceId, socket) 
             { 
-                Logger = Logger, 
-                SessionName = clientSignature
+                Logger = Logger
             };
 
 

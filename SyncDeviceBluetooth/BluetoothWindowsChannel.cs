@@ -73,13 +73,12 @@ namespace SyncDevice.Windows.Bluetooth
         {
             if (IsHost)
             {
-                await WriteMessageAsync(Writer, HandshakeMessage.EncodeMessage(null, SessionName), false);
+                await WriteMessageAsync(Writer, HandshakeMessage.EncodeMessage(null, Creator.SessionName), false);
 
                 var handshakeMessage = HandshakeMessage.DecodeMessage(await WaitForMessageAsync(reader));
                 if (handshakeMessage != null && handshakeMessage.Pin == Pin)
                 {
                     SessionName = handshakeMessage.SessionName;
-                    Creator.SessionName = SessionName;
                     return true;
                 }
                 else
@@ -96,7 +95,6 @@ namespace SyncDevice.Windows.Bluetooth
                     if (serverHandshakeMessage != null)
                     {
                         SessionName = serverHandshakeMessage.SessionName;
-                     //   Creator.SessionName = SessionName;
                         _ = WriteMessageAsync(Writer, HandshakeMessage.EncodeMessage(Pin, Creator.SessionName), false);
                         return true;
                     }

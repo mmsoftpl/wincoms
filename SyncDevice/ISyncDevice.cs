@@ -48,8 +48,11 @@ namespace SyncDevice
 
         SyncDeviceStatus Status { get; }
 
+        bool Busy { get; }
+
         bool IsHost { get; }
-        Guid? HostId { get; set; }
+        Guid? HostId { get; set; } //ie DeviceId
+
 
         string SessionName { get; } // ie PilotABC
 

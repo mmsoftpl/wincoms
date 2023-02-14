@@ -22,6 +22,8 @@ namespace SyncDevice.Windows.Bluetooth
             }
         }
 
+        public bool Busy { get; set; }
+
         public abstract bool IsHost { get; }
         public Guid? HostId { get; set; }
 
