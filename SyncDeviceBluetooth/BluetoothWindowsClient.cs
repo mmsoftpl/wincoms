@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
@@ -136,48 +137,47 @@ namespace SyncDevice.Windows.Bluetooth
                 else
                     Logger?.LogInformation($"[Enumeration completed] {ResultCollection.Count} devices found");
 
-                foreach (var deviceInfo in ResultCollection.Values)
-                {
-                    var channel = Task.Run(() => Connect(deviceInfo)).Result;
-
-                    if (channel != null)
-                    {
-                    //    Logger?.LogInformation($"Connected to {deviceInfo.Name}...");
-
-                        Status = channel.Status;
-                      //  RaiseOnDeviceConnected(this);
-                    }
-                }
-
-                if (ConnectStrategy == ConnectStrategy.ScanDevices)
-                {
-                    if (ScanInterval.HasValue)
-                    {
-                        _ = Rescan(ScanInterval.Value);
-                    }
-                    else
-                    {
-                        Status = SyncDeviceStatus.Stopped;
-                        Disconnect($"Finished discovering devices");
-                        RaiseOnError("No hosting sessions in range?");
-                    }
-                }
-                else
-                if (ConnectStrategy == ConnectStrategy.ScanServices)
-                {
-                    ConnectStrategy = ConnectStrategy.ScanDevices;
-                    Status = SyncDeviceStatus.Created;
-                    FindDevices();
-                }
+                _ = ProcessResults(ResultCollection.Values);
                 
+                StopWatcher();
             });
 
             deviceWatcher.Stopped += new TypedEventHandler<DeviceWatcher, object>((watcher, obj) =>
             {
-                ResultCollection.Clear();
+               ResultCollection.Clear();
             });
             
             deviceWatcher.Start();            
+        }
+
+        private async Task ProcessResults(IEnumerable<DeviceInformation> results)
+        {
+            foreach (var deviceInfo in results)
+            {
+                var channel = await Connect(deviceInfo);
+
+            }
+
+            if (ConnectStrategy == ConnectStrategy.ScanDevices)
+            {
+                if (ScanInterval.HasValue)
+                {
+                    Logger?.LogInformation($"Schedule rescan");
+                    _ = Rescan(ScanInterval.Value);
+                }
+                else
+                {
+                    Status = SyncDeviceStatus.Stopped;
+                    Disconnect($"Finished discovering devices");
+                }
+            }
+            else
+            if (ConnectStrategy == ConnectStrategy.ScanServices)
+            {
+                ConnectStrategy = ConnectStrategy.ScanDevices;
+                Status = SyncDeviceStatus.Created;
+                FindDevices();
+            }
         }
 
         CancellationTokenSource StartConnectToHostCancelationTokenSource;
@@ -199,6 +199,15 @@ namespace SyncDevice.Windows.Bluetooth
             }
             else
                 FindDevices();
+        }
+
+        private bool AlreadyConnected(string deviceName)
+        {
+            foreach (var k in Channels.Keys)
+            {
+                if (deviceName.ToUpper().Contains(k)) return true;
+            }
+            return false;
         }
 
         private async Task<string> GetServiceNameAsync(RfcommDeviceService rfcommDeviceService)
@@ -288,10 +297,19 @@ namespace SyncDevice.Windows.Bluetooth
 
         public async Task<BluetoothWindowsChannel> Connect(DeviceInformation deviceInfoDisp)
         {
+            if (AlreadyConnected(deviceInfoDisp?.Id))
+            {
+                Logger?.LogInformation($"Skipping remote device {deviceInfoDisp.Name}, already connected");
+                return null;
+            }
+
             BluetoothDevice = await CreateBluetoothDevice(deviceInfoDisp);
 
             if (BluetoothDevice != null)
             {
+                if (Channels.ContainsKey(FormatDeviceName(BluetoothDevice.HostName.DisplayName))) 
+                    return null;
+
                 var s = await GetServiceAsync(BluetoothDevice);
 
                 RfcommDeviceService rfcommDeviceService = s?.Item1;
@@ -326,10 +344,10 @@ namespace SyncDevice.Windows.Bluetooth
 
             if (null != w)
             {
-                Logger?.LogTrace("Stopping DeviceWatcher"); 
                 if ((DeviceWatcherStatus.Started == w.Status ||
                      DeviceWatcherStatus.EnumerationCompleted == w.Status))
                 {
+                    Logger?.LogTrace("Stopping DeviceWatcher");
                     w.Stop();
                 }
                 deviceWatcher = null;
