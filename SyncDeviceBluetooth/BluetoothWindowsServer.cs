@@ -154,6 +154,14 @@ namespace SyncDevice.Windows.Bluetooth
                 return;
             }
 
+            // Note - this is the supported way to get a Bluetooth device from a given socket
+            var remoteDevice = await BluetoothDevice.FromHostNameAsync(args.Socket.Information.RemoteHostName);
+
+            var remoteDeviceId = FormatDeviceName(remoteDevice.HostName?.DisplayName);
+
+            RaiseOnDeviceDetected(null, null, remoteDeviceId, out var detectedArgs);
+            if (!detectedArgs.Cancel) return;
+            
             StreamSocket socket;                 
             try
             {
@@ -166,11 +174,6 @@ namespace SyncDevice.Windows.Bluetooth
                 RaiseOnDeviceDisconnected(this);
                 return;
             }
-
-            // Note - this is the supported way to get a Bluetooth device from a given socket
-            var remoteDevice = await BluetoothDevice.FromHostNameAsync(socket.Information.RemoteHostName);
-
-            var remoteDeviceId = FormatDeviceName(remoteDevice.HostName?.DisplayName);
 
             var channel = new BluetoothWindowsChannel(this, remoteDeviceId, socket) 
             { 

@@ -45,6 +45,7 @@ namespace SyncDevice.Windows.Bluetooth
         public event OnMessageReceivedEventHandler OnMessageReceived;
         public event OnMessageSentEventHandler OnMessageSent;
         public event OnStatusEventHandler OnStatus;
+        public event OnDeviceDetected OnDeviceDetected;
         public event OnDeviceConnecting OnDeviceConnecting;
         public event OnDeviceConnected OnDeviceConnected;
         public event OnConnectionStarted OnConnectionStarted;
@@ -78,6 +79,12 @@ namespace SyncDevice.Windows.Bluetooth
         {
             Status = SyncDeviceStatus.Started;
             OnConnectionStarted?.Invoke(this, device);
+        }
+
+        internal virtual void RaiseOnDeviceDetected(string name, string id, string host, out DetectedEventArgs e)
+        {
+            e = new DetectedEventArgs() { Name = name, Id = id, HostName = host, Cancel = false };
+            OnDeviceDetected?.Invoke(this, e);
         }
 
         internal virtual void RaiseOnDeviceConnecting(ISyncDevice device, out ConnectingEventArgs e)
@@ -182,6 +189,23 @@ namespace SyncDevice.Windows.Bluetooth
         }
 
         protected ConcurrentDictionary<string, BluetoothWindowsChannel> Channels = new ConcurrentDictionary<string, BluetoothWindowsChannel>();
+
+        protected bool ChannelCreated(params string[] names)
+        {
+            foreach (var channel in Channels)
+            {
+                foreach (var name in names)
+                {
+                    if (name.ToUpper().Contains(channel.Key))
+                        return true;
+                    if (name.ToUpper().Contains(channel.Value.NetworkId))
+                        return true;
+
+                }
+            }
+            return false;
+        }
+
 
         public virtual IList<ISyncDevice> Connections { get => Channels?.Values?.Cast<ISyncDevice>().ToList(); }
 

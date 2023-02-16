@@ -30,6 +30,8 @@ namespace SDKTemplate
         private Label label5;
         private Button buttonBluettothPeerToPeer;
         private Label label6;
+        private Button buttonBluetoothWatcher;
+        private Label label7;
 
         public static MainPage mainPage { get; private set; }
 
@@ -64,6 +66,8 @@ namespace SDKTemplate
         {
             this.components = new System.ComponentModel.Container();
             this.leftPanel = new System.Windows.Forms.Panel();
+            this.buttonBluettothPeerToPeer = new System.Windows.Forms.Button();
+            this.label6 = new System.Windows.Forms.Label();
             this.buttonBluetoothMonitor = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
             this.buttonBluetoothLEWatcher = new System.Windows.Forms.Button();
@@ -82,14 +86,16 @@ namespace SDKTemplate
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.clearLogButton = new System.Windows.Forms.Button();
             this.label4 = new System.Windows.Forms.Label();
-            this.buttonBluettothPeerToPeer = new System.Windows.Forms.Button();
-            this.label6 = new System.Windows.Forms.Label();
+            this.buttonBluetoothWatcher = new System.Windows.Forms.Button();
+            this.label7 = new System.Windows.Forms.Label();
             this.leftPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // leftPanel
             // 
             this.leftPanel.AutoSize = true;
+            this.leftPanel.Controls.Add(this.buttonBluetoothWatcher);
+            this.leftPanel.Controls.Add(this.label7);
             this.leftPanel.Controls.Add(this.buttonBluettothPeerToPeer);
             this.leftPanel.Controls.Add(this.label6);
             this.leftPanel.Controls.Add(this.buttonBluetoothMonitor);
@@ -106,8 +112,32 @@ namespace SDKTemplate
             this.leftPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.leftPanel.Location = new System.Drawing.Point(0, 0);
             this.leftPanel.Name = "leftPanel";
-            this.leftPanel.Size = new System.Drawing.Size(871, 346);
+            this.leftPanel.Size = new System.Drawing.Size(871, 399);
             this.leftPanel.TabIndex = 0;
+            // 
+            // buttonBluettothPeerToPeer
+            // 
+            this.buttonBluettothPeerToPeer.AutoSize = true;
+            this.buttonBluettothPeerToPeer.Dock = System.Windows.Forms.DockStyle.Top;
+            this.buttonBluettothPeerToPeer.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonBluettothPeerToPeer.Location = new System.Drawing.Point(0, 319);
+            this.buttonBluettothPeerToPeer.Name = "buttonBluettothPeerToPeer";
+            this.buttonBluettothPeerToPeer.Size = new System.Drawing.Size(871, 27);
+            this.buttonBluettothPeerToPeer.TabIndex = 20;
+            this.buttonBluettothPeerToPeer.Text = "Bluetooth Peer To Peer";
+            this.buttonBluettothPeerToPeer.UseVisualStyleBackColor = true;
+            this.buttonBluettothPeerToPeer.Click += new System.EventHandler(this.buttonBluettothPeerToPeer_Click);
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label6.Location = new System.Drawing.Point(0, 293);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(238, 26);
+            this.label6.TabIndex = 21;
+            this.label6.Text = "Bluetooth Peer To Peer";
             // 
             // buttonBluetoothMonitor
             // 
@@ -306,34 +336,34 @@ namespace SDKTemplate
             this.label4.AutoSize = true;
             this.label4.Dock = System.Windows.Forms.DockStyle.Top;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(0, 346);
+            this.label4.Location = new System.Drawing.Point(0, 399);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(0, 26);
             this.label4.TabIndex = 16;
             // 
-            // buttonBluettothPeerToPeer
+            // buttonBluetoothWatcher
             // 
-            this.buttonBluettothPeerToPeer.AutoSize = true;
-            this.buttonBluettothPeerToPeer.Dock = System.Windows.Forms.DockStyle.Top;
-            this.buttonBluettothPeerToPeer.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonBluettothPeerToPeer.Location = new System.Drawing.Point(0, 319);
-            this.buttonBluettothPeerToPeer.Name = "buttonBluettothPeerToPeer";
-            this.buttonBluettothPeerToPeer.Size = new System.Drawing.Size(871, 27);
-            this.buttonBluettothPeerToPeer.TabIndex = 20;
-            this.buttonBluettothPeerToPeer.Text = "Bluetooth Peer To Peer";
-            this.buttonBluettothPeerToPeer.UseVisualStyleBackColor = true;
-            this.buttonBluettothPeerToPeer.Click += new System.EventHandler(this.buttonBluettothPeerToPeer_Click);
+            this.buttonBluetoothWatcher.AutoSize = true;
+            this.buttonBluetoothWatcher.Dock = System.Windows.Forms.DockStyle.Top;
+            this.buttonBluetoothWatcher.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonBluetoothWatcher.Location = new System.Drawing.Point(0, 372);
+            this.buttonBluetoothWatcher.Name = "buttonBluetoothWatcher";
+            this.buttonBluetoothWatcher.Size = new System.Drawing.Size(871, 27);
+            this.buttonBluetoothWatcher.TabIndex = 22;
+            this.buttonBluetoothWatcher.Text = "Bluetooth Watcher";
+            this.buttonBluetoothWatcher.UseVisualStyleBackColor = true;
+            this.buttonBluetoothWatcher.Click += new System.EventHandler(this.buttonBluetoothWatcher_Click);
             // 
-            // label6
+            // label7
             // 
-            this.label6.AutoSize = true;
-            this.label6.Dock = System.Windows.Forms.DockStyle.Top;
-            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label6.Location = new System.Drawing.Point(0, 293);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(238, 26);
-            this.label6.TabIndex = 21;
-            this.label6.Text = "Bluetooth Peer To Peer";
+            this.label7.AutoSize = true;
+            this.label7.Dock = System.Windows.Forms.DockStyle.Top;
+            this.label7.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label7.Location = new System.Drawing.Point(0, 346);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(191, 26);
+            this.label7.TabIndex = 23;
+            this.label7.Text = "Bluetooth Watcher";
             // 
             // MainPage
             // 
@@ -473,6 +503,11 @@ namespace SDKTemplate
         private void buttonBluettothPeerToPeer_Click(object sender, EventArgs e)
         {
             ShowPanel(new BluetoothPeerToPeerPanel());
+        }
+
+        private void buttonBluetoothWatcher_Click(object sender, EventArgs e)
+        {
+            ShowPanel(new BluetoothWatcherPanel());
         }
     }
 

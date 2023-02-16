@@ -20,10 +20,16 @@ namespace SyncDevice.Windows.Bluetooth
                 bluetoothWindowsClient.OnDeviceConnecting += BluetoothWindowsClient_OnDeviceConnecting;
                 bluetoothWindowsClient.OnConnectionStarted += BluetoothPeerToPeer_OnConnectionStarted;
                 bluetoothWindowsClient.OnError += BluetoothWindowsClient_OnError;
+                bluetoothWindowsClient.OnDeviceDetected += BluetoothWindowsClient_OnDeviceDetected;
                 bluetoothWindowsClient.OnDeviceDisconnected += BluetoothWindowsClient_OnDeviceDisconnected;
                 return bluetoothWindowsClient.StartAsync(SessionName, Pin, $"Starting client");
             }
             return Task.CompletedTask;
+        }
+
+        private void BluetoothWindowsClient_OnDeviceDetected(object sender, DetectedEventArgs e)
+        {
+            e.Cancel = ChannelCreated(e.Name, e.Id, e.HostName);
         }
 
         private void BluetoothWindowsClient_OnDeviceConnecting(object sender, ConnectingEventArgs e)

@@ -11,7 +11,6 @@ namespace WindowsFormsApp1
             InitializeComponent();
 
             var client = new BluetoothWindowsClient() { Logger = SDKTemplate.MainPage.mainPage };
-            client.ScanInterval = TimeSpan.FromSeconds(10);
             client.OnStatus += Client_OnStatus;
             client.OnMessageReceived += Client_OnMessage;
             client.OnDeviceConnected += Client_OnDeviceConnected;
@@ -63,7 +62,7 @@ namespace WindowsFormsApp1
         {
             SyncDevice.StopAsync("Rescan");
             Reset();
-            (SyncDevice as BluetoothWindowsClient).ConnectStrategy = ConnectStrategy.ScanDevices;
+//            (SyncDevice as BluetoothWindowsClient).ConnectStrategy = ConnectStrategy.ScanDevices;
             SyncDevice.RestartAsync("Rescan");
         }
     }

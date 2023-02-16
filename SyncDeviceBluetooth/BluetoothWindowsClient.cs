@@ -1,13 +1,9 @@
 ﻿using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Rfcomm;
 using Windows.Devices.Enumeration;
-using Windows.Foundation;
 using Windows.Storage.Streams;
 
 namespace SyncDevice.Windows.Bluetooth
@@ -20,195 +16,73 @@ namespace SyncDevice.Windows.Bluetooth
 
     public class BluetoothWindowsClient : BluetoothWindows
     {
-        private DeviceWatcher deviceWatcher = null;
         private BluetoothDevice BluetoothDevice = null;
         public override bool IsHost { get => false; }
 
-        public ConnectStrategy ConnectStrategy = ConnectStrategy.ScanServices;
-        public TimeSpan? ScanInterval { get; set; }
+        private BluetoothWatcher bluetoothWatcherServices = null;
+        private BluetoothWatcher bluetoothWatcheroDevices = null;
+
+        private async Task StartWatchers(string sessionName)
+        {
+            if (bluetoothWatcheroDevices == null)
+            {
+                bluetoothWatcheroDevices = new BluetoothWatcher() { ConnectStrategy = ConnectStrategy.ScanDevices, Logger = Logger };
+
+                await bluetoothWatcheroDevices.StartAsync(sessionName, null, "Starting devices scanner");
+                bluetoothWatcheroDevices.OnChanged += BluetoothWatcherServices_OnChanged;
+            }
+
+            if (bluetoothWatcherServices == null)
+            {
+                bluetoothWatcherServices = new BluetoothWatcher() { ConnectStrategy = ConnectStrategy.ScanServices, Logger = Logger };
+
+                await bluetoothWatcherServices.StartAsync(sessionName, null, "Starting services scanner");
+                bluetoothWatcherServices.OnChanged += BluetoothWatcherServices_OnChanged;
+            }
+        }
+
+        private void BluetoothWatcherServices_OnChanged(object sender, System.Collections.Generic.IEnumerable<DeviceInformationDetails> e)
+        {
+            foreach (var deviceInfo in e)
+            {
+                RaiseOnDeviceDetected(deviceInfo.DeviceInformation.Name, deviceInfo.DeviceInformation.Id, "?", out var detectedArgs);
+                if (!detectedArgs.Cancel)
+                    Connect(deviceInfo.DeviceInformation).Wait();
+            }
+        }
+
+        private async Task StopWatchers(string reason)
+        {
+            await bluetoothWatcheroDevices?.StopAsync(reason);
+            bluetoothWatcheroDevices = null;
+            await bluetoothWatcherServices?.StopAsync(reason);
+            bluetoothWatcherServices = null;
+        }
 
         public override async Task StartAsync(string sessionName, string pin, string reason)
         {
             Pin = pin;
-
             SessionName = sessionName;
-            ConnectStrategy = ConnectStrategy.ScanServices;
-            await RestartAsync(reason);
-        }
 
-        public override Task RestartAsync(string reason)
-        {
-            Logger?.LogInformation(reason);
-            ClearChannels();
-            Status = SyncDeviceStatus.Created;
-            FindDevices();
-            return Task.CompletedTask;
+            await StartWatchers(sessionName);
+            Status = SyncDeviceStatus.Started;
         }
 
         public override Task StopAsync(string reason)
         {
-            Disconnect(reason);
-            return Task.CompletedTask;
+            return Disconnect(reason);
         }
 
         internal override void RaiseOnDeviceDisconnected(ISyncDevice device)
         {
-            Status = SyncDeviceStatus.Stopped;
+            //Status = SyncDeviceStatus.Stopped;
             base.RaiseOnDeviceDisconnected(device); 
         }
 
         internal override void RaiseOnConnectionStarted(ISyncDevice device)
         {
             base.RaiseOnConnectionStarted(device);
-        }
-
-        public ConcurrentDictionary<string, DeviceInformation> ResultCollection
-        {
-            get;
-            private set;
-        } = new ConcurrentDictionary<string, DeviceInformation>();
-
-        public void FindDevices()
-        {
-            StopWatcher();
-
-            // Request additional properties
-            string[] requestedProperties = new string[] { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected" };
-
-            //string asqFilter = $"(System.Devices.AepService.ProtocolId:=\"{BluetoothProtocolId}\" AND\r\nSystem.Devices.AepService.ServiceClassId:=\"{RfcommChatServiceUuid}\")";
-            string asqFilter = $"(System.Devices.AepService.ProtocolId:=\"{{{BluetoothProtocolId}}}\")";
-
-            if (ConnectStrategy == ConnectStrategy.ScanDevices)
-            {
-                Logger?.LogInformation("Scaning for devices (slow)");
-                deviceWatcher = DeviceInformation.CreateWatcher(asqFilter,
-                                                                requestedProperties,
-                                                                DeviceInformationKind.AssociationEndpoint);
-            }
-            else
-            if (ConnectStrategy == ConnectStrategy.ScanServices)
-            {
-                Logger?.LogInformation("Scaning for services (quick)");
-                deviceWatcher = DeviceInformation.CreateWatcher(asqFilter,
-                                                                requestedProperties,
-                                                                DeviceInformationKind.AssociationEndpointService);
-            }
-
-            // Hook up handlers for the watcher events before starting the watcher
-            deviceWatcher.Added += new TypedEventHandler<DeviceWatcher, DeviceInformation>((watcher, deviceInfo) =>
-            {
-                var serviceName = deviceInfo.Name;
-
-                if (ConnectStrategy == ConnectStrategy.ScanDevices)
-                {
-                    ResultCollection.TryAdd(deviceInfo.Id, deviceInfo);
-                    Logger?.LogInformation($"[Device added] {deviceInfo.Id}, {deviceInfo.Name}");
-                }
-                else
-                if (HasServiceName(serviceName) && deviceInfo.Id.Contains("RFCOMM"))
-                {
-                    ResultCollection.TryAdd(deviceInfo.Id, deviceInfo);
-                    Logger?.LogInformation($"[Service added] {deviceInfo.Id}, {deviceInfo.Name}");
-                }
-            });
-
-            deviceWatcher.Updated += new TypedEventHandler<DeviceWatcher, DeviceInformationUpdate>((watcher, deviceInfoUpdate) =>
-            {
-                if (ResultCollection.TryGetValue(deviceInfoUpdate.Id, out var rfcommInfoDisp))
-                {
-                    rfcommInfoDisp.Update(deviceInfoUpdate);
-
-                    Logger?.LogInformation($"[Device updated] {rfcommInfoDisp.Id}, {rfcommInfoDisp.Name}");
-                }
-            });
-
-            deviceWatcher.Removed += new TypedEventHandler<DeviceWatcher, DeviceInformationUpdate>((watcher, deviceInfoUpdate) =>
-            {
-                if (ResultCollection.TryRemove(deviceInfoUpdate.Id, out var rfcommInfoDisp))
-                {
-                    Logger?.LogInformation($"[Device removed] {rfcommInfoDisp.Id}, {rfcommInfoDisp.Name}");
-                }
-            });
-
-            deviceWatcher.EnumerationCompleted += new TypedEventHandler<DeviceWatcher, object>((watcher, obj) =>
-            {
-                if (ConnectStrategy == ConnectStrategy.ScanServices)
-                    Logger?.LogInformation($"[Enumeration completed] {ResultCollection.Count} services found");
-                else
-                    Logger?.LogInformation($"[Enumeration completed] {ResultCollection.Count} devices found");
-
-                _ = ProcessResults(ResultCollection.Values);
-                
-                StopWatcher();
-            });
-
-            deviceWatcher.Stopped += new TypedEventHandler<DeviceWatcher, object>((watcher, obj) =>
-            {
-               ResultCollection.Clear();
-            });
-            
-            deviceWatcher.Start();            
-        }
-
-        private async Task ProcessResults(IEnumerable<DeviceInformation> results)
-        {
-            foreach (var deviceInfo in results)
-            {
-                var channel = await Connect(deviceInfo);
-
-            }
-
-            if (ConnectStrategy == ConnectStrategy.ScanDevices)
-            {
-                if (ScanInterval.HasValue)
-                {
-                    Logger?.LogInformation($"Schedule rescan");
-                    _ = Rescan(ScanInterval.Value);
-                }
-                else
-                {
-                    Status = SyncDeviceStatus.Stopped;
-                    Disconnect($"Finished discovering devices");
-                }
-            }
-            else
-            if (ConnectStrategy == ConnectStrategy.ScanServices)
-            {
-                ConnectStrategy = ConnectStrategy.ScanDevices;
-                Status = SyncDeviceStatus.Created;
-                FindDevices();
-            }
-        }
-
-        CancellationTokenSource StartConnectToHostCancelationTokenSource;
-        private async Task Rescan(TimeSpan delay)
-        {
-            StartConnectToHostCancelationTokenSource?.Cancel();
-
-            if (delay > TimeSpan.Zero)
-            {
-                StartConnectToHostCancelationTokenSource = new CancellationTokenSource();
-                var token = StartConnectToHostCancelationTokenSource.Token;
-
-                await Task.Delay(delay, token);
-                if (!token.IsCancellationRequested)
-                {
-                    ConnectStrategy = ConnectStrategy.ScanServices;
-                    FindDevices();
-                }
-            }
-            else
-                FindDevices();
-        }
-
-        private bool AlreadyConnected(string deviceName)
-        {
-            foreach (var k in Channels.Keys)
-            {
-                if (deviceName.ToUpper().Contains(k)) return true;
-            }
-            return false;
-        }
+        } 
 
         private async Task<string> GetServiceNameAsync(RfcommDeviceService rfcommDeviceService)
         {
@@ -297,9 +171,9 @@ namespace SyncDevice.Windows.Bluetooth
 
         public async Task<BluetoothWindowsChannel> Connect(DeviceInformation deviceInfoDisp)
         {
-            if (AlreadyConnected(deviceInfoDisp?.Id))
+            if (ChannelCreated(deviceInfoDisp?.Id))
             {
-                Logger?.LogInformation($"Skipping remote device {deviceInfoDisp.Name}, already connected");
+                Logger?.LogInformation($"Skipping remote device {deviceInfoDisp.Name}, channel already created");
                 return null;
             }
 
@@ -338,25 +212,9 @@ namespace SyncDevice.Windows.Bluetooth
             return null;
         }
 
-        private void StopWatcher()
+        public async Task Disconnect(string disconnectReason)
         {
-            var w = deviceWatcher;
-
-            if (null != w)
-            {
-                if ((DeviceWatcherStatus.Started == w.Status ||
-                     DeviceWatcherStatus.EnumerationCompleted == w.Status))
-                {
-                    Logger?.LogTrace("Stopping DeviceWatcher");
-                    w.Stop();
-                }
-                deviceWatcher = null;
-            }
-        }
-
-        public void Disconnect(string disconnectReason)
-        {
-            StopWatcher();
+            await StopWatchers(disconnectReason);
 
             ClearChannels();
 
@@ -364,7 +222,7 @@ namespace SyncDevice.Windows.Bluetooth
             BluetoothDevice = null;
 
             Logger?.LogInformation(disconnectReason);
-
+            Status = SyncDeviceStatus.Stopped;
             RaiseOnDeviceDisconnected(this);
         }
     }

@@ -12,6 +12,16 @@ namespace SyncDevice
         public ISyncDevice SyncDevice { get; set; }
     }
 
+    public class DetectedEventArgs
+    {
+        public bool Cancel { get; set; }
+        public string Name { get; set; }
+
+        public string Id { get; set; }
+
+        public string HostName { get; set; }
+    }
+
     public class ConnectingEventArgs
     {
         public bool Cancel { get; set; }
@@ -33,6 +43,8 @@ namespace SyncDevice
     public delegate void OnStatusEventHandler(object sender, SyncDeviceStatus status);
 
     public delegate void OnDeviceConnected(object sender, ISyncDevice syncDevice);
+
+    public delegate void OnDeviceDetected(object sender, DetectedEventArgs e);
 
     public delegate void OnDeviceConnecting(object sender, ConnectingEventArgs e);
 
@@ -68,6 +80,7 @@ namespace SyncDevice
         event OnMessageSentEventHandler OnMessageSent;
         event OnStatusEventHandler OnStatus;
         event OnConnectionStarted OnConnectionStarted;
+        event OnDeviceDetected OnDeviceDetected;
         event OnDeviceConnecting OnDeviceConnecting;
         event OnDeviceConnected OnDeviceConnected;
         event OnDeviceDisconnected OnDeviceDisconnected;
