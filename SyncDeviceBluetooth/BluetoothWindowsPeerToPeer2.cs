@@ -15,7 +15,7 @@ namespace SyncDevice.Windows.Bluetooth
         /// If set to true, devices will always stay connected,
         /// If set to false, devices will try to connect before sending first message, then they will stay connected
         /// </summary>
-        public bool PassiveMode { get; private set; } = false;
+        public bool PassiveMode { get; private set; } = true;
 
         public override bool IsHost => bluetoothWindowsServer?.IsHost ?? bluetoothWindowsClient?.IsHost ?? false;
       

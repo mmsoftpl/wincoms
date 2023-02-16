@@ -1,6 +1,7 @@
 ﻿using SDKTemplate;
 using SyncDevice;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -84,7 +85,15 @@ namespace WindowsFormsApp1
         private string ConnectionId(ISyncDevice syncDevice)
         {
             if (syncDevice != null)
-                return syncDevice.SessionName + " - " + syncDevice.NetworkId;
+                return $"{syncDevice.SessionName} - {syncDevice.NetworkId} - [{syncDevice.Status}]";
+            return null;
+        }
+
+        private string SessionName(object connectionId)
+        {
+            string connectionIdText = connectionId?.ToString();
+            if (!string.IsNullOrEmpty(connectionIdText))
+                return connectionIdText.Split(new char[] { '-' }, StringSplitOptions.RemoveEmptyEntries)[0].Trim();
             return null;
         }
 
@@ -754,10 +763,21 @@ namespace WindowsFormsApp1
 
         public string LastReceivedMessage { get; private set; }
 
+        public string[] GetRecipients()
+        {
+            string sessionName = SessionName(connectionsListBox?.SelectedItem);
+            if (!string.IsNullOrEmpty(sessionName))
+            {
+                return new string[] { sessionName };
+            }
+
+            return Array.Empty<string>();
+        }
+
         protected virtual void OnPingBackButtonClick()
         {
             if (LastReceivedMessage != null)
-                _ = SyncDevice?.SendMessageAsync(LastReceivedMessage);
+                _ = SyncDevice?.SendMessageAsync(LastReceivedMessage, GetRecipients());
         }
         private void pingBackButton_Click(object sender, EventArgs e)
         {

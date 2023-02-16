@@ -55,6 +55,13 @@ namespace SyncDevice.Windows.Bluetooth
         SemaphoreSlim concurrencySemaphore = new SemaphoreSlim(1);
 
         CancellationTokenSource StartConnectToHostCancelationTokenSource;
+
+        private void TriggerResultCollectionHasChanged()
+        {
+            if (enumerationCompleted)
+                _ = ResultCollectionHasChanged();
+        }
+
         private async Task ResultCollectionHasChanged()
         {
             StartConnectToHostCancelationTokenSource?.Cancel();
@@ -174,20 +181,20 @@ namespace SyncDevice.Windows.Bluetooth
             // Hook up handlers for the watcher events before starting the watcher
             deviceWatcher.Added += new TypedEventHandler<DeviceWatcher, DeviceInformation>((watcher, deviceInfo) =>
             {
-                if (AddDeviceInformation(deviceInfo)) 
-                    _ = ResultCollectionHasChanged();
+                if (AddDeviceInformation(deviceInfo))
+                    TriggerResultCollectionHasChanged();
             });
 
             deviceWatcher.Updated += new TypedEventHandler<DeviceWatcher, DeviceInformationUpdate>((watcher, deviceInfoUpdate) =>
             {
                 if (UpdateDeviceInformation(deviceInfoUpdate))
-                    _ = ResultCollectionHasChanged();                
+                    TriggerResultCollectionHasChanged();
             });
 
             deviceWatcher.Removed += new TypedEventHandler<DeviceWatcher, DeviceInformationUpdate>((watcher, deviceInfoUpdate) =>
             {
                 if (RemoveDeviceInformation(deviceInfoUpdate))
-                    _ = ResultCollectionHasChanged();
+                    TriggerResultCollectionHasChanged();
             });
 
             deviceWatcher.EnumerationCompleted += new TypedEventHandler<DeviceWatcher, object>((watcher, obj) =>
@@ -196,9 +203,9 @@ namespace SyncDevice.Windows.Bluetooth
                     Logger?.LogInformation($"[Enumeration completed] {DevicesCollection.Count} services found");
                 else
                     Logger?.LogInformation($"[Enumeration completed] {DevicesCollection.Count} devices found");
-                
-                enumerationCompleted = true;
                 _ = ResultCollectionHasChanged();
+                enumerationCompleted = true;
+
             });
 
             deviceWatcher.Stopped += new TypedEventHandler<DeviceWatcher, object>((watcher, obj) =>

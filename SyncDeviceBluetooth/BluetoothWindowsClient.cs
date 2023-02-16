@@ -41,14 +41,21 @@ namespace SyncDevice.Windows.Bluetooth
             }
         }
 
+        private DateTime? LastCheck = null;
+
         private void BluetoothWatcherServices_OnChanged(object sender, System.Collections.Generic.IEnumerable<DeviceInformationDetails> e)
         {
             foreach (var deviceInfo in e)
             {
+                if (LastCheck.HasValue && deviceInfo.LastStamp < LastCheck)
+                    continue;
+
                 RaiseOnDeviceDetected(deviceInfo.DeviceInformation.Name, deviceInfo.DeviceInformation.Id, "?", out var detectedArgs);
                 if (!detectedArgs.Cancel)
                     Connect(deviceInfo.DeviceInformation).Wait();
+
             }
+            LastCheck = DateTime.UtcNow;
         }
 
         private async Task StopWatchers(string reason)
