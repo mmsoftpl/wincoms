@@ -160,7 +160,7 @@ namespace SyncDevice.Windows.Bluetooth
             var remoteDeviceId = FormatDeviceName(remoteDevice.HostName?.DisplayName);
 
             RaiseOnDeviceDetected(null, null, remoteDeviceId, out var detectedArgs);
-            if (!detectedArgs.Cancel) return;
+            if (detectedArgs.Cancel) return;
             
             StreamSocket socket;                 
             try
