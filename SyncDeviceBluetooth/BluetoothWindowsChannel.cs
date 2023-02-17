@@ -114,10 +114,17 @@ namespace SyncDevice.Windows.Bluetooth
                 {
                     await Socket.ConnectAsync(ChatService.ConnectionHostName, ChatService.ConnectionServiceName);
                 }
-                catch 
+                catch
                 {
+                    Socket = null;
+                }
+            }
 
-                }                
+            if (Socket==null)
+            {
+                RaiseOnDeviceDisconnected(this);
+               // await StopAsync("Unable to connect to socket, " + NetworkId);
+                return;
             }
 
             Writer = new DataWriter(Socket.OutputStream);
@@ -134,11 +141,11 @@ namespace SyncDevice.Windows.Bluetooth
                 return;
             }
 
-                // Infinite read buffer loop
+            // Infinite read buffer loop
             while (Status == SyncDeviceStatus.Started)
             {
                 try
-                {                    
+                {
                     string message = await WaitForMessageAsync(reader);
                     if (message != null)
                         RaiseOnMessageReceived(message, this);
@@ -158,6 +165,7 @@ namespace SyncDevice.Windows.Bluetooth
             }
 
             reader.DetachStream();
+
             RaiseOnDeviceDisconnected(this);
             Logger?.LogInformation($"Client {NetworkId} disconnected");
         }

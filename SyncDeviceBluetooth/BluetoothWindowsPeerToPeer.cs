@@ -115,27 +115,18 @@ namespace SyncDevice.Windows.Bluetooth
                 {
                     BluetoothWindowsChannel bluetoothWindowsChannel = syncDevice as BluetoothWindowsChannel;
 
-                    if (Channels.TryAdd(syncDevice.NetworkId, bluetoothWindowsChannel))
+                    var updatedChannel = Channels.AddOrUpdate(syncDevice.NetworkId, bluetoothWindowsChannel,
+                        (networkId, existingChannel) =>
                     {
-                        bluetoothWindowsChannel.Creator.UnRegisterChannel(bluetoothWindowsChannel);
-                        bluetoothWindowsChannel.Creator = this;
+                        //if new connection started, but current is only created
+                        if (syncDevice.Status == SyncDeviceStatus.Started && existingChannel.Status != SyncDeviceStatus.Started)
+                            return bluetoothWindowsChannel;
+                        else
+                            return existingChannel;
+                    });
 
-                        RaiseOnConnectionStarted(syncDevice);
-                    }
-                    else
-                    {
-                        bool alreadyAdded = false;
-                        foreach (var c in Channels)
-                        {
-                            if (ReferenceEquals(c.Value, syncDevice))
-                            {
-                                alreadyAdded = true;
-                                break;
-                            }
-                        }
-                        if (!alreadyAdded)
-                            syncDevice.StopAsync("Already connected (no need for 2nd connection to the same device)");
-                    }
+                    if (!ReferenceEquals(updatedChannel, bluetoothWindowsChannel))
+                        syncDevice.StopAsync("Already connected (no need for 2nd connection to the same device)");
                 }
 
                 if (OutgoingMessagesBox.TryRemove(syncDevice.NetworkId, out var message))

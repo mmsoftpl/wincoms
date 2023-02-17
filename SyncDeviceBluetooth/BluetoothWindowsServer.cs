@@ -181,9 +181,9 @@ namespace SyncDevice.Windows.Bluetooth
             };
 
 
-            RaiseOnDeviceConnecting(channel, out var e);
+          //  RaiseOnDeviceConnecting(channel, out var e);
 
-            if (!e.Cancel)
+//            if (!e.Cancel)
             {
                 RegisterChannel(channel, Pin);
             }
