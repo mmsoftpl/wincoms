@@ -107,54 +107,68 @@ namespace SyncDevice.Windows.Bluetooth
 
         readonly ConcurrentDictionary<string, string> OutgoingMessagesBox = new ConcurrentDictionary<string, string>();
 
+        internal override void RaiseOnConnectionStarted(ISyncDevice syncDevice)
+        {
+            base.RaiseOnConnectionStarted(syncDevice);
+
+            if (
+                syncDevice is BluetoothWindowsChannel bluetoothWindowsChannel &&
+                bluetoothWindowsChannel.Creator == this &&
+                syncDevice.Status == SyncDeviceStatus.Started && OutgoingMessagesBox.TryRemove(syncDevice.NetworkId, out var message))
+            {
+                syncDevice.SendMessageAsync(message).Wait();
+                SetBusy(syncDevice, false);
+
+            }
+        }
+
+        private void AddOrReplaceChannel(ISyncDevice syncDevice)
+        {
+            if (syncDevice != bluetoothWindowsClient && syncDevice != bluetoothWindowsServer)
+            {
+                BluetoothWindowsChannel bluetoothWindowsChannel = syncDevice as BluetoothWindowsChannel;
+
+                if (bluetoothWindowsChannel.Status == SyncDeviceStatus.Started)
+                {
+                    if (Channels.TryGetValue(syncDevice.NetworkId, out var existing))
+                        if (existing.Status != SyncDeviceStatus.Started)
+                        {
+                            if (Channels.TryRemove(syncDevice.NetworkId, out var removed))
+                            {
+                                removed.StopAsync("Removing, other channel already started");
+                            }
+                        }
+                }
+
+                if (Channels.TryAdd(syncDevice.NetworkId, bluetoothWindowsChannel))
+                {
+                    bluetoothWindowsChannel.Creator.UnRegisterChannel(bluetoothWindowsChannel);
+                    bluetoothWindowsChannel.Creator = this;
+
+                    RaiseOnConnectionStarted(syncDevice);
+                }
+                else
+                {
+                    bool alreadyAdded = false;
+                    foreach (var c in Channels)
+                    {
+                        if (ReferenceEquals(c.Value, syncDevice))
+                        {
+                            alreadyAdded = true;
+                            break;
+                        }
+                    }
+                    if (!alreadyAdded)
+                        syncDevice.StopAsync("Already connected (no need for 2nd connection to the same device)");
+                }
+            }
+        }
+
         private void BluetoothPeerToPeer_OnConnectionStarted(object sender, ISyncDevice syncDevice)
         {
             try
             {
-                if (syncDevice != bluetoothWindowsClient && syncDevice != bluetoothWindowsServer)
-                {
-                    BluetoothWindowsChannel bluetoothWindowsChannel = syncDevice as BluetoothWindowsChannel;
-
-                    if (bluetoothWindowsChannel.Status == SyncDeviceStatus.Started)
-                    {
-                        if (Channels.TryGetValue(syncDevice.NetworkId, out var existing))
-                            if (existing.Status != SyncDeviceStatus.Started)
-                            {
-                                if (Channels.TryRemove(syncDevice.NetworkId, out var removed))
-                                {
-                                    removed.StopAsync("Removing, other channel already started");
-                                }
-                            }
-                    }
-                    
-                    if (Channels.TryAdd(syncDevice.NetworkId, bluetoothWindowsChannel))
-                    {
-                        bluetoothWindowsChannel.Creator.UnRegisterChannel(bluetoothWindowsChannel);
-                        bluetoothWindowsChannel.Creator = this;
-
-                        RaiseOnConnectionStarted(syncDevice);
-                    }
-                    else
-                    {
-                        bool alreadyAdded = false;
-                        foreach (var c in Channels)
-                        {
-                            if (ReferenceEquals(c.Value, syncDevice))
-                            {
-                                alreadyAdded = true;
-                                break;
-                            }
-                        }
-                        if (!alreadyAdded)
-                            syncDevice.StopAsync("Already connected (no need for 2nd connection to the same device)");
-                    }
-                }
-
-                if (OutgoingMessagesBox.TryRemove(syncDevice.NetworkId, out var message))
-                {
-                    syncDevice.SendMessageAsync(message).Wait();
-                    SetBusy(syncDevice, false);
-                }
+                AddOrReplaceChannel(syncDevice);
             }
             finally
             {
