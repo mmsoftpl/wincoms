@@ -110,7 +110,14 @@ namespace SyncDevice.Windows.Bluetooth
             if (ChatService != null)
             {
                 Socket = new StreamSocket();
-                await Socket.ConnectAsync(ChatService.ConnectionHostName, ChatService.ConnectionServiceName);
+                try
+                {
+                    await Socket.ConnectAsync(ChatService.ConnectionHostName, ChatService.ConnectionServiceName);
+                }
+                catch 
+                {
+
+                }                
             }
 
             Writer = new DataWriter(Socket.OutputStream);

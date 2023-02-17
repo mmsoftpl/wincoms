@@ -32,13 +32,30 @@ namespace SyncDevice.Windows.Bluetooth
             {
                 bluetoothWindowsClient = new BluetoothWindowsClient() { Logger = Logger, GroupName = GroupName };
                 bluetoothWindowsClient.OnDeviceConnecting += BluetoothWindowsClient_OnDeviceConnecting;
+                bluetoothWindowsClient.OnDeviceConnected += BluetoothWindowsClient_OnDeviceConnected;
                 bluetoothWindowsClient.OnConnectionStarted += BluetoothPeerToPeer_OnConnectionStarted;
                 bluetoothWindowsClient.OnError += BluetoothWindowsClient_OnError;
                 bluetoothWindowsClient.OnDeviceDetected += BluetoothWindowsClient_OnDeviceDetected;
                 bluetoothWindowsClient.OnDeviceDisconnected += BluetoothWindowsClient_OnDeviceDisconnected;
-                return bluetoothWindowsClient.StartAsync(SessionName, Pin, $"Starting client");
+                if (PassiveMode)
+                    return bluetoothWindowsClient.StartAsync(SessionName, null, $"Starting client passive mode");
+                else
+                    return bluetoothWindowsClient.StartAsync(SessionName, Pin, $"Starting client in active mode");
             }
             return Task.CompletedTask;
+        }
+
+        private void BluetoothWindowsClient_OnDeviceConnected(object sender, ISyncDevice syncDevice)
+        {
+            BluetoothWindowsChannel bluetoothWindowsChannel = syncDevice as BluetoothWindowsChannel;
+
+            if (Channels.TryAdd(syncDevice.NetworkId, bluetoothWindowsChannel))
+            {
+                bluetoothWindowsChannel.Creator.UnRegisterChannel(bluetoothWindowsChannel);
+                bluetoothWindowsChannel.Creator = this;
+
+                RaiseOnConnectionStarted(syncDevice);
+            }
         }
 
         private void BluetoothWindowsClient_OnDeviceDetected(object sender, DetectedEventArgs e)
@@ -151,6 +168,7 @@ namespace SyncDevice.Windows.Bluetooth
             if (_bluetoothWindowsClient != null)
             {
                 _bluetoothWindowsClient.OnConnectionStarted -= BluetoothPeerToPeer_OnConnectionStarted;
+                _bluetoothWindowsClient.OnDeviceConnected -= BluetoothWindowsClient_OnDeviceConnected;
                 _bluetoothWindowsClient.OnDeviceConnecting -= BluetoothWindowsClient_OnDeviceConnecting; 
                 _bluetoothWindowsClient.OnDeviceDisconnected -= BluetoothWindowsClient_OnDeviceDisconnected;
                 _bluetoothWindowsClient.OnError -= BluetoothWindowsClient_OnError;

@@ -84,8 +84,10 @@ namespace WindowsFormsApp1
 
         private string ConnectionId(ISyncDevice syncDevice)
         {
+            string b = syncDevice?.Busy == true ? "Busy" : "";
+
             if (syncDevice != null)
-                return $"{syncDevice.SessionName} - {syncDevice.NetworkId} - [{syncDevice.Status}]";
+                return $"{syncDevice.SessionName} - {syncDevice.NetworkId} - [{syncDevice.Status}] - {b}";
             return null;
         }
 
@@ -778,6 +780,8 @@ namespace WindowsFormsApp1
         {
             if (LastReceivedMessage != null)
                 _ = SyncDevice?.SendMessageAsync(LastReceivedMessage, GetRecipients());
+            else
+                _ = SyncDevice?.SendMessageAsync("PING "+DateTime.UtcNow, GetRecipients());
         }
         private void pingBackButton_Click(object sender, EventArgs e)
         {
