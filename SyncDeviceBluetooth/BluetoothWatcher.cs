@@ -79,7 +79,7 @@ namespace SyncDevice.Windows.Bluetooth
 
                 if (!token.IsCancellationRequested)
                 {
-                    Logger?.LogInformation("RaiseOnConnectionStarted");
+                    Logger?.LogInformation("DevicesOnChanged");
                     OnChanged.Invoke(this, DevicesCollection.Values);
                 }
             }
