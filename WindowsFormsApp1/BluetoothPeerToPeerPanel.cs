@@ -11,15 +11,11 @@ namespace WindowsFormsApp1
 
         protected override string StopText => "Stop";
 
-        public BluetoothPeerToPeerPanel(bool alwaysConnected)
+        public BluetoothPeerToPeerPanel(bool passiveMode)
         {
             InitializeComponent();
 
-            ISyncDevice peerToPeer = null;
-            if (alwaysConnected)
-                peerToPeer = new BluetoothWindowsPeerToPeer() { Logger = SDKTemplate.MainPage.mainPage };
-            else
-                peerToPeer = new BluetoothWindowsPeerToPeer2() { Logger = SDKTemplate.MainPage.mainPage };
+            ISyncDevice peerToPeer = new BluetoothWindowsPeerToPeer(passiveMode) { Logger = SDKTemplate.MainPage.mainPage };
 
             peerToPeer.OnStatus += Server_OnStatus;
             peerToPeer.OnMessageReceived += Server_OnMessage;

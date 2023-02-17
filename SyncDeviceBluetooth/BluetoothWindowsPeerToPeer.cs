@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,8 +10,21 @@ namespace SyncDevice.Windows.Bluetooth
         private BluetoothWindowsClient bluetoothWindowsClient;
         private BluetoothWindowsServer bluetoothWindowsServer;
 
+        /// <summary>
+        /// If set to true, devices will always stay connected,
+        /// If set to false, devices will try to connect before sending first message, then they will stay connected
+        /// </summary>
+        public bool PassiveMode { get; private set; } = true;
+
         public override bool IsHost => bluetoothWindowsServer?.IsHost ?? bluetoothWindowsClient?.IsHost ?? false;
-      
+
+        public BluetoothWindowsPeerToPeer() { }
+
+        public BluetoothWindowsPeerToPeer(bool passiveMode) 
+        {
+            PassiveMode = passiveMode;
+        }
+
         #region Bluetooth Client
         private Task ConnectToHost()
         {
@@ -74,32 +88,59 @@ namespace SyncDevice.Windows.Bluetooth
             _ = StopAsync("Error while connecting");
         }
 
+        readonly ConcurrentDictionary<string, string> OutgoingMessagesBox = new ConcurrentDictionary<string, string>();
+
         private void BluetoothPeerToPeer_OnConnectionStarted(object sender, ISyncDevice syncDevice)
         {
-            if (syncDevice != bluetoothWindowsClient && syncDevice != bluetoothWindowsServer)
+            try
             {
-                BluetoothWindowsChannel bluetoothWindowsChannel = syncDevice as BluetoothWindowsChannel;
-                
-                if (Channels.TryAdd(ConnectionId.Create(SessionName, syncDevice.SessionName).SessionName, bluetoothWindowsChannel))
+                if (syncDevice != bluetoothWindowsClient && syncDevice != bluetoothWindowsServer)
                 {
-                    bluetoothWindowsChannel.Creator.UnRegisterChannel(bluetoothWindowsChannel);
-                    bluetoothWindowsChannel.Creator = this;
+                    BluetoothWindowsChannel bluetoothWindowsChannel = syncDevice as BluetoothWindowsChannel;
 
-                    RaiseOnConnectionStarted(syncDevice);
+                    if (Channels.TryAdd(syncDevice.NetworkId, bluetoothWindowsChannel))
+                    {
+                        bluetoothWindowsChannel.Creator.UnRegisterChannel(bluetoothWindowsChannel);
+                        bluetoothWindowsChannel.Creator = this;
+
+                        RaiseOnConnectionStarted(syncDevice);
+                    }
+                    else
+                    {
+                        bool alreadyAdded = false;
+                        foreach (var c in Channels)
+                        {
+                            if (ReferenceEquals(c.Value, syncDevice))
+                            {
+                                alreadyAdded = true;
+                                break;
+                            }
+                        }
+                        if (!alreadyAdded)
+                            syncDevice.StopAsync("Already connected (no need for 2nd connection to the same device)");
+                    }
                 }
-                else
-                    syncDevice.StopAsync("Already connected");
+
+                if (OutgoingMessagesBox.TryRemove(syncDevice.NetworkId, out var message))
+                {
+                    syncDevice.SendMessageAsync(message).Wait();
+                    SetBusy(syncDevice, false);
+                }
+            }
+            finally
+            {
+                base.RaiseOnConnectionStarted(syncDevice);
             }
         }
 
-        internal override void RaiseOnDeviceDisconnected(ISyncDevice device)
+        internal override void RaiseOnDeviceDisconnected(ISyncDevice syncDevice)
         {
-            if (Channels.TryRemove(ConnectionId.Create(SessionName, device.SessionName).SessionName, out var bluetoothWindowsChannel))
+            if (Channels.TryRemove(syncDevice.NetworkId, out _))
             {
                 RaiseOnStatus(Status);
             }
             else
-                Logger.LogWarning($"Unable to remove channel from list? {device.SessionName}");
+                Logger.LogWarning($"Unable to remove channel from list? {syncDevice.SessionName}");
         }
 
         private Task DisconnectFromHost(string reason)
@@ -210,10 +251,32 @@ namespace SyncDevice.Windows.Bluetooth
             await StartAsync(SessionName, Pin, reason);
         }
 
+        private void SetBusy(ISyncDevice device, bool busy)
+        {
+            if (device is BluetoothWindowsChannel windowsChannel)
+            {
+                windowsChannel.Busy = busy;
+                RaiseOnStatus(Status);
+            }
+        }
+
         public override async Task SendMessageAsync(string message, string[] recipients = null)
         {
-            foreach(var connection in Connections)
-                await connection.SendMessageAsync(message, recipients);
+            foreach (var connection in Connections)
+            {
+                if (connection.Status != SyncDeviceStatus.Started)
+                {
+                    SetBusy(connection, true);
+                    OutgoingMessagesBox.AddOrUpdate(connection.NetworkId, message, (a, b) => message);
+                    _ = connection.StartAsync(connection.SessionName, Pin, "Connecting before sending message");
+                }
+                else
+                {
+                    SetBusy(connection, true);
+                    await connection.SendMessageAsync(message, recipients);
+                    SetBusy(connection, false);
+                }
+            }
         }
 
     }

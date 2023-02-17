@@ -518,7 +518,7 @@ namespace SDKTemplate
 
         private void buttonBluettothPeerToPeer_Click(object sender, EventArgs e)
         {
-            ShowPanel(new BluetoothPeerToPeerPanel(true));
+            ShowPanel(new BluetoothPeerToPeerPanel(false));
         }
 
         private void buttonBluetoothWatcher_Click(object sender, EventArgs e)
@@ -528,7 +528,7 @@ namespace SDKTemplate
 
         private void buttonBluettothPeerToPeer2_Click(object sender, EventArgs e)
         {
-            ShowPanel(new BluetoothPeerToPeerPanel(false));
+            ShowPanel(new BluetoothPeerToPeerPanel(true));
         }
     }
 
