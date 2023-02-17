@@ -47,14 +47,13 @@ namespace SyncDevice.Windows.Bluetooth
 
         private void BluetoothWindowsClient_OnDeviceConnected(object sender, ISyncDevice syncDevice)
         {
-            BluetoothWindowsChannel bluetoothWindowsChannel = syncDevice as BluetoothWindowsChannel;
-
-            if (Channels.TryAdd(syncDevice.NetworkId, bluetoothWindowsChannel))
+            try
             {
-                bluetoothWindowsChannel.Creator.UnRegisterChannel(bluetoothWindowsChannel);
-                bluetoothWindowsChannel.Creator = this;
-
-                RaiseOnConnectionStarted(syncDevice);
+                AddOrReplaceChannel(syncDevice);
+            }
+            finally
+            {
+                base.RaiseOnDeviceConnected(syncDevice);
             }
         }
 
